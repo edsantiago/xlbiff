@@ -1,4 +1,4 @@
-static char rcsid[]= "$Id: xlbiff.c,v 1.32 1991/10/01 23:43:45 santiago Exp $";
+static char rcsid[]= "$Id: xlbiff.c,v 1.33 1991/10/02 17:41:26 santiago Exp $";
 /*\
 |* xlbiff  --  X Literate Biff
 |*
@@ -75,6 +75,7 @@ static char rcsid[]= "$Id: xlbiff.c,v 1.32 1991/10/01 23:43:45 santiago Exp $";
 char		*doScan();
 void		Usage();
 void		Exit();
+extern char	*getlogin();
 
 #ifdef	FUNCPROTO
 void	Shrink(Widget, caddr_t, XEvent*, Boolean*);
