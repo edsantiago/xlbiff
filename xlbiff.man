@@ -106,7 +106,7 @@ of \fBfile\fP and \fBcolumns\fP.  The default
 is
 .sp
 .nf
-		scan -file %s -width %d
+		scan \-file %s \-width %d
 .fi
 .sp
 .TP 8
@@ -193,9 +193,14 @@ Specify a command to be run in place of a bell when new mail arrives.
 For example, on a Sun Sparc you might use:
 .sp
 .nf
- *sound: /usr/demo/SOUND/play /usr/demo/SOUND/sounds/doorbell.au
+ *sound: /usr/demo/SOUND/play \-v %d /usr/demo/SOUND/sounds/doorbell.au
 .fi
 .sp
+The command is generated internally with
+.B sprintf,
+so the characters ``%d'' will be replaced with the numeric value of the
+.B volume
+resource.
 .TP 8
 .B volume (\fPclass\fB Volume)
 Same as the \fB\-volume\fP option.
