@@ -1,4 +1,4 @@
-static char rcsid[]= "$Id: xlbiff.c,v 1.49 1991/11/03 23:46:24 santiago Exp $";
+static char rcsid[]= "$Id: xlbiff.c,v 1.50 1991/11/04 00:24:11 santiago Exp $";
 /* with mods by gildea  Time-stamp: <91/10/28 08:48:53 gildea> */
 /*\
 |* xlbiff  --  X Literate Biff
@@ -179,6 +179,7 @@ static XrmOptionDescRec	optionDescList[] = {
     { "-led",         ".led",         XrmoptionSepArg,	(caddr_t) NULL},
     { "-ledPopdown",  ".ledPopdown",  XrmoptionNoArg,	(caddr_t) "true"},
     { "+ledPopdown",  ".ledPopdown",  XrmoptionNoArg,	(caddr_t) "false"},
+    { "-scanCommand", ".scanCommand", XrmoptionSepArg,	(caddr_t) NULL}
 };
 
 static char *fallback_resources[] = {
@@ -325,6 +326,7 @@ Usage()
 "    -refresh seconds                   seconds before re-posting window",
 "    -led ledNum                        keyboard LED to light up",
 "    -ledPopdown                        turn off LED when popped down",
+"    -scanCommand command               command to interpret and display",
 NULL};
     char **s;
 
