@@ -70,5 +70,6 @@ clean:
 
 
 shar:
-	shar -o 	$(EXE).shar README TODO Makefile $(APPRES).ad	\
-			$(HDRS) $(SRC) $(EXE).form  $(MAN) tcx
+	shar -o  $(EXE).shar 					\
+		README TODO Imakefile Makefile.std $(APPRES).ad	\
+		$(HDRS) $(SRC) $(EXE).form  $(MAN)
