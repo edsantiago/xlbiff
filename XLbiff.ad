@@ -10,7 +10,7 @@
 !
 ! command to use for reading new mail info
 !
-*scanCommand:		scan -file %s -width %d 2>&1
+*scanCommand:		/usr/bin/mh/scan -file %s -width %d 2>&1
 !*scanCommand:		scan -file %s -width %d -form xlbiff.form 2>&1
 !*scanCommand:		echo 'x' | mail | grep '^.[UN]'
 !*scanCommand:		frm
