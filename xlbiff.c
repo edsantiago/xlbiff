@@ -57,6 +57,7 @@ typedef struct {
     char	*file;			/* file to monitor size of 	*/
     char	*cmd;			/* command to execute		*/
     int		update;			/* update interval, in seconds	*/
+    int		maxLines;		/* max# of lines in display	*/
 } AppData, *AppDataPtr;
 AppData		lbiff_data;
 
@@ -71,7 +72,9 @@ static XtResource	xlbiff_resources[] = {
     { "command", "Command", XtRString, sizeof(String),
 	offset(cmd), XtRString, "scan -file %s" },
     { "update", "Interval", XtRInt, sizeof(int),
-	offset(update), XtRString, "10"}
+	offset(update), XtRString, "10"},
+    { "maxLines", "MaxLines", XtRInt, sizeof(int),
+	offset(maxLines), XtRString, "20"}
 };
 
 static XrmOptionDescRec	optionDescList[] = {
@@ -298,9 +301,12 @@ setXbuf(char *s)
 	      w = tmp_w;
 	}
     }
-    
+
+    if (h > lbiff_data.maxLines)
+      h = lbiff_data.maxLines;
+
     DEBUG(("geom= %dx%d (%dx%d pixels)\n",w,h,w*fontWidth,h*fontHeight));
-    XtResizeWidget(topLevel,w*fontWidth,h*fontHeight+4,borderWidth);
+    XtResizeWidget(topLevel,w*fontWidth+6,h*fontHeight+4,borderWidth);
 
     XtSetArg(args[0],XtNlabel,s);
     XtSetValues(textBox,args,1);
@@ -315,18 +321,24 @@ initStaticData(int *bw, int *fontH, int *fontW)
 {
     Arg		args[2];
     XFontStruct *fs;
+    int tmp;
+    XCharStruct	c;
 
     DEBUG(("++initStaticData..."));
     XtSetArg(args[0],XtNfont,&fs);
-    XtSetArg(args[1],XtNborderWidth,bw);
+    XtSetArg(args[1],XtNborderWidth,&tmp);
     XtGetValues(textBox, args, 2);
     if (fs == NULL) {
 	fprintf(stderr,"unknown font!\n");
 	exit(1);
     }
 
+    *bw	   = tmp;
     *fontW = fs->max_bounds.width;
     *fontH = fs->max_bounds.ascent + fs->max_bounds.descent;
+
+    XTextExtents(fs,"foo: bar\nfoof",13,&tmp,&tmp,&tmp,&c);
+    printf("got back: %dx%d\n",c.ascent+c.descent,c.width);
 
     DEBUG(("font= %dx%d,  borderWidth= %d\n",*fontH,*fontW,*bw));
 }
