@@ -1,4 +1,4 @@
-static char rcsid[]= "$Id: xlbiff.c,v 1.70 1993/06/08 22:58:22 esm Exp $";
+static char rcsid[]= "$Id: xlbiff.c,v 1.71 1993/08/03 23:54:45 esm Exp $";
 /*\
 |* xlbiff  --  X Literate Biff
 |*
@@ -270,7 +270,7 @@ main(argc, argv)
     ** Check command line arguments
     */
     if (argc > 1) {
-	if (!strncmp(argv[1],"-v",2)) {
+	if (!strncmp(argv[1],"-version",strlen(argv[1]))) {
 	    fprintf(stderr,
 #if	TESTLEVEL != 0
 		    "%s version %d.%d.%d\n",
@@ -369,6 +369,7 @@ Usage()
 {
     static char *help_message[] = {
 "where options include:",
+"    -version                           display xlbiff version number",
 "    -display host:dpy                  X server to contact",
 "    -geometry +x+y                     x,y coords of window",
 "    -rows height                       height of window, in lines",
