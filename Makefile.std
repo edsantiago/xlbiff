@@ -73,3 +73,14 @@ shar:
 	shar -l 25 -o  $(EXE).shar 				\
 		README TODO Imakefile Makefile.std $(APPRES).ad	\
 		$(MAN)  $(HDRS) $(SRC) $(EXE).form
+
+patch:
+	if [ -z "$(PREVIOUS)" ]; then\
+		echo "must define PREVIOUS when making patch";\
+		exit 1;\
+	fi
+	echo >patch-$(PREVIOUS)
+	-for i in patchlevel.h README TODO Imakefile Makefile.std	\
+		$(APPRES).ad $(MAN) $(SRC) $(EXE).form; do		\
+		   rcsdiff -c -r$(PREVIOUS) $$i >>patch-$(PREVIOUS);	\
+	done
