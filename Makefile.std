@@ -1,0 +1,62 @@
+#
+# Makefile for xlbiff
+#
+
+#
+# Where your mail file is
+#
+#MAILPATH=	/udir/%s/.maildrop
+MAILPATH=	/usr/spool/mail/%s
+
+#
+# pick one
+#
+CFLAGS=		-g -DDEBUG  -DMAILPATH="\"$(MAILPATH)\""
+#CFLAGS=		-O   -DMAILPATH="\"$(MAILPATH)\""
+
+
+#
+# Where to put the binary,		eg, /usr/local/bin
+#
+BINDIR=		/usr/local/bin
+
+#
+# Where to put the app-defaults file,	eg, /usr/lib/X11/app-defaults
+#
+LIBDIR=		/usr/local/lib/X11/app-defaults
+
+#
+# Where to put the man page,		eg, /usr/man/man1
+#
+MANDIR=		/usr/local/man/man1
+MANEXT=		1
+
+
+
+#
+# DO NOT MODIFY ANYTHING UNDER HERE
+#
+EXE=	xlbiff
+OBJ=	xlbiff.o
+SRC=	patchlevel.h  xlbiff.c
+MAN=	xlbiff.man
+
+
+
+$(EXE):	$(OBJ)
+	$(CC) $(CFLAGS) -o $@ $?  -lXaw -lXmu -lXt -lX11 -lXext
+
+
+install:
+	cp $(EXE)	$(BINDIR)/$(EXE)
+	cp $(APPDEF)	$(LIBDIR)/
+	cp $(MAN)	$(MANDIR)/$(EXE).$(MANEXT)
+
+
+
+clean:
+	$(RM) -f $(EXE) *~ *.o
+
+
+shar:
+	shar README TODO Makefile XLbiff $(SRC) xlbiff.form COPYING $(MAN) >shar
