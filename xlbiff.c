@@ -1,4 +1,4 @@
-static char rcsid[]= "$Id: xlbiff.c,v 1.31 1991/10/01 23:21:25 santiago Exp $";
+static char rcsid[]= "$Id: xlbiff.c,v 1.32 1991/10/01 23:43:45 santiago Exp $";
 /*\
 |* xlbiff  --  X Literate Biff
 |*
@@ -72,18 +72,19 @@ static char rcsid[]= "$Id: xlbiff.c,v 1.31 1991/10/01 23:21:25 santiago Exp $";
 /*****************************************************************************\
 **                                prototypes                                 **
 \*****************************************************************************/
-void	handler();
-char	*doScan();
-void	Usage();
-void	Exit();
+char		*doScan();
+void		Usage();
+void		Exit();
 
 #ifdef	FUNCPROTO
-void	Shrink(Widget, caddr_t, XEvent*);
+void	Shrink(Widget, caddr_t, XEvent*, Boolean*);
+void	handler(XtPointer,XtIntervalId*);
 void	initStaticData(int*,int*,int*);
 void	Popdown(), Popup(char*);
 void	getDimensions(char*,Dimension*,Dimension*);
 #else
 void	Shrink();
+void	handler();
 void	initStaticData();
 void	Popdown(), Popup();
 void	getDimensions();
@@ -252,7 +253,8 @@ main(argc, argv)
 
     XtAddCallback(textBox,XtNcallback, Popdown, textBox);
     XtAppAddActions(app_context,lbiff_actions,XtNumber(lbiff_actions));
-    XtAddEventHandler(topLevel,StructureNotifyMask,False,Shrink,(caddr_t)NULL);
+    XtAddEventHandler(topLevel,StructureNotifyMask,False,
+		      (XtEventHandler)Shrink,(caddr_t)NULL);
 
     /*
     ** Unless running with *bottom, realize the widget but don't map it.
@@ -273,7 +275,7 @@ main(argc, argv)
     ** check to see if there's something to do, pop up window if necessary,
     ** and set up alarm to wake us up again every so often.
     */
-    handler();
+    handler(NULL,NULL);
 
     /*
     ** main program loop  --  mostly just loops forever waiting for events
@@ -361,10 +363,17 @@ checksize()
 
 
 /*************\
-|*  handler  *|  handles SIGALRM, checks mail file, and resets alarm
+|*  handler  *|  Checks mail file and reschedules itself to do so again
 \*************/
 void
-handler()
+#ifdef	FUNCPROTO
+handler( XtPointer closure, XtIntervalId *id )
+#else
+/* ARGSUSED */
+handler( closure, id )
+     XtPointer 	   closure;
+     XtIntervalId  *id;
+#endif
 {
     checksize();
     XtAppAddTimeOut(app_context,lbiff_data.update * 1000, handler, NULL);
@@ -446,12 +455,13 @@ doScan()
 \************/
 void
 #ifdef	FUNCPROTO
-Shrink( Widget w, caddr_t data, XEvent *e )
+Shrink( Widget w, caddr_t data, XEvent *e, Boolean *b )
 #else
-Shrink(w, data, e)
+Shrink(w, data, e, b)
     Widget w;
     caddr_t data;
     XEvent *e;
+    Boolean *b;
 #endif
 {
     if (e->type == UnmapNotify && visible)
@@ -546,7 +556,7 @@ void
 #ifdef	FUNCPROTO
 getDimensions( char *s, Dimension *width, Dimension *height )
 #else
-getDimensions()
+getDimensions(s,width,height)
      char *s;
      Dimension *width, *height;
 #endif
