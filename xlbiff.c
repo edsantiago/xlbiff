@@ -1,4 +1,4 @@
-static char rcsid[]= "$Id: xlbiff.c,v 1.52 1991/11/04 04:29:18 santiago Exp $";
+static char rcsid[]= "$Id: xlbiff.c,v 1.53 1991/11/04 05:56:59 santiago Exp $";
 /* with mods by gildea  Time-stamp: <91/10/28 08:48:53 gildea> */
 /*\
 |* xlbiff  --  X Literate Biff
@@ -121,7 +121,7 @@ void	lbiffUnrealize(), lbiffRealize(char*);
 void	getDimensions(char*,Dimension*,Dimension*);
 void	toggle_key_led(int);
 void	ErrExit(Boolean,char*);
-Bool	CheckEvent(Display*,XEvent*,XPointer);
+Bool	CheckEvent(Display*,XEvent*,caddr_t);
 #else
 void	Shrink();
 void	handler();
@@ -607,12 +607,12 @@ doScan()
 \****************/
 Bool
 #ifdef	FUNCPROTO
-CheckEvent( Display *d, XEvent *e, XPointer arg )
+CheckEvent( Display *d, XEvent *e, caddr_t arg )
 #else	/* ~FUNCPROTO */
 CheckEvent( d, e, arg )
      Display *d;
      XEvent  *e;
-     XPointer arg;
+     caddr_t arg;
 #endif	/* FUNCPROTO */
 {
     if (e->type == MapNotify || e->type == UnmapNotify)
@@ -655,7 +655,7 @@ Shrink(w, data, e, b)
 
 	XSync(XtDisplay(w),False);
 
-	while(XCheckIfEvent(XtDisplay(w),&lastEvent,CheckEvent,(XPointer)win))
+	while(XCheckIfEvent(XtDisplay(w),&lastEvent,CheckEvent,(caddr_t)win))
 	  ;
 
 	if (lastEvent.type == UnmapNotify && visible)
