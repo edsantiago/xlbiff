@@ -49,10 +49,16 @@ MHLIBDIR=	/usr/new/lib/mh
 #EXTRALIBS=	-lnsl_s
 EXTRALIBS= 
 
+#
+# Systems that don't have strerror() (eg, SunOS) should uncomment this:
+#
+
+# NEED_STRERROR = -DNEED_STRERROR
+
 ###############################################################################
 # DO NOT MODIFY ANYTHING UNDER HERE
 ###############################################################################
-CFLAGS=		$(DEBUG)   -DMAILPATH="\"$(MAILPATH)\""
+CFLAGS=		$(DEBUG)   $(NEED_STRERROR)  -DMAILPATH="\"$(MAILPATH)\""
 
 EXE=	xlbiff
 OBJ=	xlbiff.o
