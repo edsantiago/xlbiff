@@ -58,7 +58,7 @@ typedef struct {
     char	*cmd;			/* command to execute		*/
     int		update;			/* update interval, in seconds	*/
     int		width;			/* number of columns across	*/
-    int		maxHeight;		/* max# of lines in display	*/
+    int		maxRows;		/* max# of lines in display	*/
     Boolean	fit;			/* fit display to widest line?	*/
 } AppData, *AppDataPtr;
 AppData		lbiff_data;
@@ -77,8 +77,8 @@ static XtResource	xlbiff_resources[] = {
 	offset(update), XtRString, "10"},
     { "width", "Width", XtRInt, sizeof(int),
 	offset(width), XtRString, "80"},
-    { "maxHeight", "Height", XtRInt, sizeof(int),
-	offset(maxHeight), XtRString, "20"},
+    { "maxRows", "maxRows", XtRInt, sizeof(int),
+	offset(maxRows), XtRString, "20"},
     { "fit", "Fit", XtRBoolean, sizeof(Boolean),
 	offset(fit), XtRString, "false"}
 };
@@ -260,14 +260,14 @@ doscan()
     DEBUG(("++doscan()\n"));
 
     if (buf == NULL) {
-	bufsize = lbiff_data.width * lbiff_data.maxHeight;
+	bufsize = lbiff_data.width * lbiff_data.maxRows;
 	if ((buf= (char*)malloc(bufsize)) == NULL) {
 	    fprintf(stderr,"error in malloc\n");
 	    exit(1);
 	}
 
 	sprintf(cmd_buf,lbiff_data.cmd,  lbiff_data.file,  lbiff_data.width);
-	DEBUG(("---size= %dx%d\n---cmd=%s\n",lbiff_data.maxHeight,
+	DEBUG(("---size= %dx%d\n---cmd=%s\n",lbiff_data.maxRows,
 	       lbiff_data.width,cmd_buf));
     }
 
@@ -321,8 +321,8 @@ setXbuf(char *s)
 	}
     }
 
-    if (h > lbiff_data.maxHeight)
-      h = lbiff_data.maxHeight;
+    if (h > lbiff_data.maxRows)
+      h = lbiff_data.maxRows;
     if (lbiff_data.fit == False)
       w = lbiff_data.width;
 
