@@ -121,17 +121,56 @@ is
 .B \-checkCommand \fIcommand\fP
 Specifies a shell command to be executed to check for new mail (or some
 other condition) rather than simply examining the size of the mail file.
-The specified string value is used as the argument to a \fIsystem\fP(3) 
-call and may therefore contain i/o redirection.  Like
+The specified string value is used as the argument to a \fIpopen\fP(3) 
+call, and the output generated is important.  Like
 .I xbiff,
 an exit status of 0 indicates that a change in condition demands a new
 evaluation of scanCommand and subsequent popup, 1 indicates no change 
-in status and 2 indicates that the condition has been cleared and the
+in status, and 2 indicates that the condition has been cleared and the
 .I xlbiff
 window should pop down.  By default, no shell command is provided.
 .sp
 This option may be useful to monitor logins (by checking update times
-of /etc/utmp), using POP, and so forth.  Let your imagination go wild!
+of /etc/utmp), when using POP or other custom maildrop mechanisms, and
+so forth.
+.sp
+Similarly to scanCommand, the checkCommand is generated internally as
+.sp
+.nf
+             sprintf(buf, checkCommand, file, previous)
+.fi
+.sp
+.B previous
+is the numeric value output by the last time checkCommand was run, or
+zero the first time.  This is useful for allowing the checkCommand to
+maintain state in a primitive fashion.  For instance, a checkCommand 
+such as
+.sp
+.nf
+           compare_size %s %d
+.fi
+.sp
+would "do the right thing" if 
+.B compare_size
+were a script such as:
+.sp
+.nf
+         #!/bin/sh
+         NEWSIZE=`wc -c <$1`
+         echo $NEWSIZE
+         if [ $NEWSIZE -ne $2 ]; then
+             if [ $NEWSIZE -eq 0 ]; then
+                 exit 2
+             else
+                 exit 0
+             fi
+         fi
+         exit 1
+.fi
+.sp
+The author of
+.I xlbiff
+uses this facility to keep track of several maildrops with one command.
 .TP 8
 .B \-volume \fIpercentage\fP
 This option specifies how loud the bell should be rung when new mail comes in.
