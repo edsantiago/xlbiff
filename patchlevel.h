@@ -1,6 +1,6 @@
 /*
 ** version identifiers
 */
-#define	VERSION	   2
-#define	PATCHLEVEL 9
-#define TESTLEVEL  992
+#define	VERSION	   3
+#define	PATCHLEVEL 0
+#define TESTLEVEL  0
