@@ -2,4 +2,4 @@
 ** version identifiers
 */
 #define	VERSION	   1
-#define	PATCHLEVEL 3
+#define	PATCHLEVEL 4
