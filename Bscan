@@ -4,21 +4,51 @@
 #
 # Normally invoked by xlbiff.  Not intended for general use.
 #
+# $Id: Bscan,v 1.2 2003/11/09 00:40:28 esm Exp $
+#
 
-MH=/tmp/mh_profile.tmp.$$
-MHC=/tmp/mh_context.tmp.$$
+# Width of the box
+WIDTH=15
 
-echo "Path: `mhpath +`" >  $MH
-echo "context: $MHC"	>> $MH
+# Don't clobber existing context... that makes it impossible for us to
+# read messages from the command line.
+MHCONTEXT=$HOME/Mail/context.tmp.$$; export MHCONTEXT
 
-export MH
+# Last top-level dir
+last_dir=''
 
-folders +in-bulk |\
-	perl -ne 'm#in-bulk/([a-z]\S+)\s+has\s+(\d+)\s+message# && do {
-		  ($folder,$num_msgs) = ($1,$2);
-		  $not_packed = "";
-		  $not_packed = "*" if (m#\(\s*(\d+)\s*-\s*(\d+)\)# &&
-				    ($1 != 1  ||  $2 != $num_msgs));
-		  printf "%12s:%3d%s\n",$folder,$num_msgs,$not_packed; }'
+# Find all folders with unseen messages
+for i in `flist -all -recurse -sequence unseen -noshowzero -fast`; do
+    # For a given folder, e.g. M/zaurus/oz...
+    dir=`expr $i : "\([^/]\+\)"`		# Parent directory (M)
+    folder=`expr $i : "[^/]\+/\(.*\)"`		# rest of it        (zaurus/oz)
 
-rm -f $MH $MHC
+    # Extract the number of unseen messages in this folder
+    count=`flist +$i | sed -e 's/^.* \([0-9]\+\) in seq.*$/\1/'`
+
+    # Same parent directory as last time?  Omit dir, but indent by same amount
+    #
+    # Otherwise, display the
+    if [ "$last_dir" = "$dir" ]; then
+	printf "%*s " ${#dir} " "
+    else if [ "$dir" = '.' ]; then
+	# (FIXME: I can't remember what triggers this???)
+	printf "%s" $folder
+	foo=`echo $folder | wc -c | tr -cd 0-9`
+	folder=
+	fmt=`expr 15 - $foo`
+    else
+	printf "%s/" $dir
+    fi
+    fi
+
+    # Show the rest of the folder name, right-padding for alignment.  Show
+    # the unseen message count.
+    fmt=$(expr $WIDTH - ${#dir})
+    printf "%-*s%3d\n" "$fmt" "$folder" "$count"
+
+    # Remember this dir for next time
+    last_dir=$dir
+done
+
+rm -f $MHCONTEXT
