@@ -40,18 +40,17 @@
 void	handler();
 void	Exit();
 void	Popdown(Widget,XtPointer,XtPointer);
-void	initStaticData();
-
+void	initStaticData(int*,int*,int*);
+void	setXbuf(char*);
 
 /*****************************************************************************\
 ** globals								     *|
 \*****************************************************************************/
-Widget	topLevel,textBox;
-jmp_buf	myjumpbuf;
-int	visible;
-char	default_file[80];
-int	borderWidth;
-int	fontHeight,fontWidth;
+Widget	topLevel,textBox;		/* my widgets			*/
+jmp_buf	myjumpbuf;			/* for longjmp()ing after timer	*/
+int	visible;			/* is window visible?		*/
+char	default_file[80];		/* default filename		*/
+
 
 typedef struct {
     Boolean	debug;			/* print out useful stuff 	*/
@@ -59,8 +58,8 @@ typedef struct {
     char	*cmd;			/* command to execute		*/
     int		update;			/* update interval, in seconds	*/
 } AppData, *AppDataPtr;
-
 AppData		lbiff_data;
+
 
 #define offset(field)	XtOffset(AppDataPtr,field)
 
@@ -92,22 +91,20 @@ static XtActionsRec lbiff_actions[] = {
 
 
 
-/*\
-|*  Popdown  --  callback for buttonpress anywhere in text window
-\*/
+/*************\
+|*  Popdown  *|  callback for buttonpress anywhere in text window
+\*************/
 void
 Popdown(Widget w, XtPointer client_data, XtPointer call_data)
 {
-    DEBUG(("++Quit()\n"));
-/*    popdown();*/
-    visible = 0;
-    longjmp(myjumpbuf,1);
+    DEBUG(("++Popdown()\n"));
+    popdown();
 }
 
 
-/*\
-|*  main
-\*/
+/**********\
+|*  main  *|
+\**********/
 main( int argc, char *argv[] )
 {
     char *username;
@@ -146,8 +143,8 @@ main( int argc, char *argv[] )
 			      (ArgList)NULL,0);
 
 
+    XtAddCallback(textBox,XtNcallback, Popdown, textBox);
     XtAppAddActions(app_context,lbiff_actions,XtNumber(lbiff_actions));
-    initStaticData();
 
     if (argc > 1) {
 	if (!strncmp(argv[1],"-v",2)) {
@@ -183,15 +180,14 @@ main( int argc, char *argv[] )
     if (visible) {
 	XtAppMainLoop(app_context);
     } else {
-	popdown();
 	while (1) sleep(1000);
     }
 }
 
 
-/*\
-|*  Exit  --  called via callback, exits the program
-\*/
+/**********\
+|*  Exit  *|  called via callback, exits the program
+\**********/
 void
 Exit()
 {
@@ -200,9 +196,9 @@ Exit()
 }
 
 
-/*\
-|*  checksize  --  checks mail file to see if size has changed
-\*/
+/***************\
+|*  checksize  *|  checks mail file to see if size has changed
+\***************/
 checksize()
 {
     static int mailsize = 0;
@@ -227,9 +223,9 @@ checksize()
 }
 
 
-/*\
-|*  handler  --  handles SIGALRM, checks mail file, and resets alarm
-\*/
+/*************\
+|*  handler  *|  handles SIGALRM, checks mail file, and resets alarm
+\*************/
 void
 handler()
 {
@@ -237,9 +233,9 @@ handler()
 }
 
 
-/*\
-|*  doscan  --  invoke MH ``scan'' command to examine mail messages
-|*
+/************\
+|*  doscan  *|  invoke MH ``scan'' command to examine mail messages
+|************
 |*	This routine looks at the mail file to see if it 
 \*/
 int
@@ -268,12 +264,15 @@ doscan()
 
     DEBUG(("scanned: %s\n",buf));
 
-    domagic(buf);
+    setXbuf(buf);
 }
 
 
-int
-domagic(char *s)
+/*************\
+|*  setXbuf  *|  reformats X window and tells X what the text will be
+\*************/
+void
+setXbuf(char *s)
 {
     Arg 	args[1];
     int 	i,
@@ -281,6 +280,12 @@ domagic(char *s)
     Dimension 	w= 0,
                 h= 1;
     int 	tmp_w = 0;
+    static int	fontWidth, fontHeight;
+    static int	borderWidth= -1;
+
+    DEBUG(("domagic\n"));
+    if (borderWidth == -1)
+      initStaticData(&borderWidth,&fontHeight,&fontWidth);
 
     for (i=0; i < len-1; i++) {
 
@@ -302,28 +307,33 @@ domagic(char *s)
 }
 
 
+/********************\
+|*  initStaticData  *|  initializes data we will need often
+\********************/
 void
-initStaticData()
+initStaticData(int *bw, int *fontH, int *fontW)
 {
     Arg		args[2];
     XFontStruct *fs;
 
+    DEBUG(("++initStaticData..."));
     XtSetArg(args[0],XtNfont,&fs);
-    XtSetArg(args[1],XtNborderWidth,&borderWidth);
+    XtSetArg(args[1],XtNborderWidth,bw);
     XtGetValues(textBox, args, 2);
     if (fs == NULL) {
 	fprintf(stderr,"unknown font!\n");
 	exit(1);
     }
 
-    fontWidth = fs->max_bounds.width;
-    fontHeight= fs->max_bounds.ascent + fs->max_bounds.descent;
-    XtFree(fs);
+    *fontW = fs->max_bounds.width;
+    *fontH = fs->max_bounds.ascent + fs->max_bounds.descent;
+
+    DEBUG(("font= %dx%d,  borderWidth= %d\n",*fontH,*fontW,*bw));
 }
 
-/*****************************\
-|*  popdown  --  kill window *|
-\*****************************/
+/*************\
+|*  popdown  *|  kill window
+\*************/
 popdown()
 {
     DEBUG(("++popdown()\n"));
@@ -334,9 +344,9 @@ popdown()
 }
 
 
-/*******************************\
-|*  popup  --  bring window up *|
-\*******************************/
+/***********\
+|*  popup  *|  bring window up
+\***********/
 popup()
 {
     DEBUG(("++popup()\n"));
