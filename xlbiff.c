@@ -1,8 +1,7 @@
-static char rcsid[]= "$Id: xlbiff.c,v 1.12 1991/08/20 22:05:16 santiago Exp $";
+static char rcsid[]= "$Id: xlbiff.c,v 1.13 1991/08/20 22:24:00 santiago Exp $";
 /*\
 |* xlbiff  --  X Literate Biff
 |*
-|* $Header: /home/esm/src/xlbiff-cvsroot/xlbiff/xlbiff.c,v 1.12 1991/08/20 22:05:16 santiago Exp $
 |*
 |*	Copyright (c) 1991 by Eduardo Santiago Munoz
 |*
@@ -62,6 +61,7 @@ char	*doScan();
 void	Usage();
 void	Exit();
 void	Popdown(), Popup();
+void	Shrink(Widget, caddr_t, XEvent*);
 void	initStaticData(int*,int*,int*);
 void	setXbuf(char*);
 
@@ -169,6 +169,7 @@ main( int argc, char *argv[] )
 
     XtAddCallback(textBox,XtNcallback, Popdown, textBox);
     XtAppAddActions(app_context,lbiff_actions,XtNumber(lbiff_actions));
+    XtAddEventHandler(topLevel,StructureNotifyMask,False,Shrink,(caddr_t)NULL);
 
     /*
     ** Check command line arguments
@@ -413,6 +414,17 @@ initStaticData(int *bw, int *fontH, int *fontW)
     *fontH = fs->max_bounds.ascent + fs->max_bounds.descent;
 
     DEBUG(("font= %dx%d,  borderWidth= %d\n",*fontH,*fontW,*bw));
+}
+
+
+/************\
+|*  Shrink  *|  get StructureNotify events, popdown if iconized
+\************/
+void
+Shrink(Widget w, caddr_t data, XEvent *e)
+{
+    if (e->type == UnmapNotify && visible)
+      Popdown();
 }
 
 
