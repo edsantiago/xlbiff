@@ -26,8 +26,10 @@ INSTALLING
   The usual:  edit the Makefile and type `make'.  If that works,  type 
   `make install' or install by hand -- you should be able to figure it out.
   You may want to tweak some values in the app-defaults file and/or add
-  some resources to your .Xdefaults.  Don't forget to add an `l' to 
-  that xbiff invocation in your .Xlogin!
+  some resources to your .Xdefaults.  You also probably want to tell your
+  window manager not to put borders or titlebars or whatever around the
+  xlbiff window.  Finally, don't forget to add an `l' to that xbiff
+  invocation in your .Xlogin!
 
   Note that an MH format file, xlbiff.form, is included.  This form:
 
