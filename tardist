@@ -1,0 +1,38 @@
+#!/bin/sh
+#
+# tardist - generate tarball
+#
+# $Id: tardist,v 1.1 2003/11/09 02:07:16 esm Exp $
+#
+
+die() {
+    echo "$@" >&2
+    exit 1
+}
+
+PROGRAM=xlbiff
+VERSION=$(perl -ne '
+/^\#define\s+(\S+)\s+(\d+)/ and $x{$1} = $2;
+
+END {
+    printf "%d.%d", $x{VERSION}, $x{PATCHLEVEL};
+    printf ".%d", $x{TESTLEVEL}				if $x{TESTLEVEL} != 0;
+    print  "\n";
+}' patchlevel.h)
+
+test -z "$VERSION" && die "No VERSION"
+
+# Clean up, then recreate the dist dir
+distdir=$PROGRAM-$VERSION
+tarball=$distdir.tar.gz
+
+rm -rf $distdir $tarball
+mkdir  $distdir
+
+cp -p $(<MANIFEST) $distdir/
+
+tar cvzf $tarball $distdir
+chmod 0444 $tarball
+
+
+rm -rf $distdir
