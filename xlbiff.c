@@ -1,4 +1,4 @@
-static char rcsid[]= "$Id: xlbiff.c,v 1.74 1994/06/02 16:59:58 esm Exp $";
+static char rcsid[]= "$Id: xlbiff.c,v 1.75 2003/11/08 23:40:18 esm Exp $";
 /*\
 |* xlbiff  --  X Literate Biff
 |*
@@ -10,9 +10,9 @@ static char rcsid[]= "$Id: xlbiff.c,v 1.74 1994/06/02 16:59:58 esm Exp $";
 |*	Xlbiff is modeled after xconsole; it remains invisible at non-
 |*	useful times, eg, when no mail is present.  See README for details.
 |*
-|*	Author:		Eduardo Santiago, santiago@vix.com
+|*	Author:		Eduardo Santiago, esm@pobox.com
 |* 	Created:	20 August 1991
-|*	Last Updated:	2 June 1994
+|*	Last Updated:	 8 November 2003
 |*
 |*    Copyright 1994 Eduardo Santiago
 |*

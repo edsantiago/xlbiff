@@ -299,7 +299,7 @@ specifying dimensions in \-geometry causes badness.
 .PP
 The \fBled\fP option does not work on Suns before SunOS 4.1/X11R5.
 .SH AUTHOR
-Ed Santiago, santiago@vix.com
+Ed Santiago, esm@pobox.com
 .SH ACKNOWLEDGEMENTS
 .I Xlbiff
 took shape around the \fBxgoodbye\fP sample program
