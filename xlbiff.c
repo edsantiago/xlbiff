@@ -1,5 +1,4 @@
-static char rcsid[]= "$Id: xlbiff.c,v 1.54 1991/11/04 23:15:20 santiago Exp $";
-/* with mods by gildea  Time-stamp: <91/10/28 08:48:53 gildea> */
+static char rcsid[]= "$Id: xlbiff.c,v 1.55 1991/11/06 23:31:45 santiago Exp $";
 /*\
 |* xlbiff  --  X Literate Biff
 |*
@@ -267,8 +266,8 @@ main(argc, argv)
     */
     if (argc > 1) {
 	if (!strncmp(argv[1],"-v",2)) {
-	    fprintf(stderr,"%s version %d, patchlevel %d\n",
-		            progname,  VERSION,       PATCHLEVEL);
+	    fprintf(stderr,"%s version %d, patchlevel %d %s\n",
+		            progname,  VERSION,       PATCHLEVEL, TESTLEVEL);
 	    exit(0);
 	} else if (!strncmp(argv[1],"-help",strlen(argv[1]))) {
 	    Usage();
@@ -541,6 +540,7 @@ doScan()
     static char	*cmd_buf;
     static char *buf = NULL;
     static int	bufsize;
+    static char scan_fail_msg[] = "\n---->>>>scanCommand failed<<<<<----\n";
     FILE 	*p;
     size_t	size;
     waitType	status;
@@ -552,9 +552,10 @@ doScan()
     ** Initialise command string
     */
     if (buf == NULL) {
-	bufsize = lbiff_data.columns * lbiff_data.rows;
+	/* +1 for the newline */
+	bufsize = (lbiff_data.columns + 1) * lbiff_data.rows;
 
-	buf = (char*)malloc(bufsize);
+	buf = (char*)malloc(bufsize + sizeof(scan_fail_msg) + 1);
 	if (buf == NULL)
 	  ErrExit(True,"text buffer malloc()");
 
@@ -590,7 +591,7 @@ doScan()
     status.w_status =	pclose(p);
 #endif
     if (waitCode(status) != 0) {
-	strcpy(buf+size,"\n---->>>>scanCommand failed<<<<<----\n");
+	strcpy(buf+size, scan_fail_msg);
 	size = strlen(buf);
     }
 
@@ -893,7 +894,6 @@ int	flag;
     keyboard.led = lbiff_data.led;
 
     XChangeKeyboardControl(XtDisplay(topLevel), KBLed | KBLedMode, &keyboard);
-    XSync(XtDisplay(topLevel),False);
 }
 
 
