@@ -1,4 +1,4 @@
-static char rcsid[]= "$Id: xlbiff.c,v 1.33 1991/10/02 17:41:26 santiago Exp $";
+static char rcsid[]= "$Id: xlbiff.c,v 1.34 1991/10/02 19:30:54 santiago Exp $";
 /*\
 |* xlbiff  --  X Literate Biff
 |*
@@ -49,6 +49,7 @@ static char rcsid[]= "$Id: xlbiff.c,v 1.33 1991/10/02 17:41:26 santiago Exp $";
 #include <stdio.h>
 #include <sys/stat.h>
 #include <pwd.h>
+#include <errno.h>
 
 
 /*
@@ -139,13 +140,15 @@ static XtResource	xlbiff_resources[] = {
 };
 
 static XrmOptionDescRec	optionDescList[] = {
-    { "-bottom","*bottom",	XrmoptionNoArg,		(caddr_t) "true"},
-    { "-debug", "*debug",	XrmoptionNoArg,		(caddr_t) "true"},
-    { "-file",	"*file",	XrmoptionSepArg,	(caddr_t) NULL},
-    { "-update","*update",	XrmoptionSepArg,	(caddr_t) NULL},
-    { "-volume","*volume",	XrmoptionSepArg,	(caddr_t) NULL},
-    { "-resetSaver","*resetSaver",XrmoptionNoArg,	(caddr_t) "true"},
-    { "-width", "*width",	XrmoptionSepArg,	(caddr_t) NULL}
+    { "-bottom",".bottom",	XrmoptionNoArg,		(caddr_t) "true"},
+    { "+bottom",".bottom",	XrmoptionNoArg,		(caddr_t) "false"},
+    { "-debug", ".debug",	XrmoptionNoArg,		(caddr_t) "true"},
+    { "-file",	".file",	XrmoptionSepArg,	(caddr_t) NULL},
+    { "-update",".update",	XrmoptionSepArg,	(caddr_t) NULL},
+    { "-volume",".volume",	XrmoptionSepArg,	(caddr_t) NULL},
+    { "-resetSaver",".resetSaver",XrmoptionNoArg,	(caddr_t) "true"},
+    { "+resetSaver",".resetSaver",XrmoptionNoArg,	(caddr_t) "false"},
+    { "-width", ".width",	XrmoptionSepArg,	(caddr_t) NULL}
 };
 
 static char *fallback_resources[] = {
@@ -341,7 +344,26 @@ checksize()
     struct stat mailstat;
 
     DP(("++checksize()..."));
-    stat(lbiff_data.file,&mailstat);
+
+    /*
+    ** Do the stat to get the mail file size.  If it fails because the
+    ** file doesn't exist, that's not an error because some Berkeley
+    ** mailers delete the spool file instead of truncating it.
+    */
+    if (stat(lbiff_data.file,&mailstat) == -1) {
+	if (errno == ENOENT) {
+	    mailstat.st_size = 0;
+	} else {
+	    fprintf(stderr,"%s: stat() failed on file %s", progname, 
+		                                           lbiff_data.file);
+	    perror("");
+	    exit(1);
+	}
+    }
+
+    /*
+    ** If it's changed size, take appropriate action.
+    */
     if (mailstat.st_size != mailsize) {
 	DP(("changed size: %d -> %d\n",mailsize,mailstat.st_size));
 	mailsize = mailstat.st_size;		/* remember the new size */
