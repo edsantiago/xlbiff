@@ -1,4 +1,4 @@
-static char rcsid[]= "$Id: xlbiff.c,v 1.45 1991/10/24 23:58:19 santiago Exp $";
+static char rcsid[]= "$Id: xlbiff.c,v 1.46 1991/11/02 20:24:41 santiago Exp $";
 /*\
 |* xlbiff  --  X Literate Biff
 |*
@@ -89,7 +89,7 @@ void	Exit(Widget, XEvent*, String*, Cardinal*);
 void	Popup(char*);
 void	getDimensions(char*,Dimension*,Dimension*);
 void	toggle_key_led(int);
-void	ErrExit(char*,Boolean);
+void	ErrExit(Boolean,char*,...);
 #else
 void	Shrink();
 void	handler();
@@ -256,7 +256,7 @@ main(argc, argv)
 
 	default_file = (char*)malloc(strlen(MAILPATH) + strlen(username));
 	if (default_file == NULL)
-	  ErrExit("default_file malloc()",True);
+	  ErrExit(True,"default_file malloc()");
 
 	sprintf(default_file,MAILPATH,username);
 	lbiff_data.file = default_file;
@@ -415,7 +415,7 @@ checksize()
 	** If window has been popped down, check if it's time to refresh
 	*/
 	if (gettimeofday(&tp,&tzp) != 0) {
-	    ErrExit("gettimeofday() in checksize()",True);
+	    ErrExit(True,"gettimeofday() in checksize()");
 	} else {
 	    if ((tp.tv_sec - acknowledge_time) > lbiff_data.refresh) {
 		DP(("reposting window, repost time reached\n"));
@@ -488,14 +488,14 @@ doScan()
 
 	buf = (char*)malloc(bufsize);
 	if (buf == NULL)
-	  ErrExit("text buffer malloc()",True);
+	  ErrExit(True,"text buffer malloc()");
 
 	DP(("---size= %dx%d\n", lbiff_data.rows, lbiff_data.columns));
 
 	cmd_buf = (char*)malloc(strlen(lbiff_data.cmd) +
 				strlen(lbiff_data.file) + 10);
 	if (cmd_buf == NULL)
-	  ErrExit("command buffer malloc()",True);
+	  ErrExit(True,"command buffer malloc()");
 
 	sprintf(cmd_buf,lbiff_data.cmd, lbiff_data.file, lbiff_data.columns);
 	DP(("---cmd= %s\n",cmd_buf));
@@ -505,9 +505,9 @@ doScan()
     ** execute the command, read the results, then set the contents of window
     */
     if ((p= popen(cmd_buf,"r")) == NULL)
-      ErrExit("popen",True);
+      ErrExit(True,"popen");
     if ((size= fread(buf,1,bufsize,p)) < 0)
-      ErrExit("fread",True);
+      ErrExit(True,"fread");
     if ((status= pclose(p)) != 0) {
 	strcpy(buf+size,"\n---->>>>scanCommand failed<<<<<----\n");
 	size = strlen(buf);
@@ -569,7 +569,7 @@ Popdown()
     ** Remember when we were popped down so we can refresh later
     */
     if (gettimeofday(&tp,&tzp) != 0)
-      ErrExit("gettimeofday() in Popdown()",True);
+      ErrExit(True,"gettimeofday() in Popdown()");
 
     acknowledge_time = tp.tv_sec;
 
@@ -708,7 +708,7 @@ initStaticData(bw, fontH, fontW)
     XtSetArg(args[1],XtNborderWidth,&tmp);
     XtGetValues(textBox, args, 2);
     if (fs == NULL)
-      ErrExit("unknown font",False);
+      ErrExit(False,"unknown font");
 
     *bw	   = tmp;
     *fontW = fs->max_bounds.width;
