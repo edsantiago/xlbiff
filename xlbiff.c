@@ -1,4 +1,4 @@
-static char rcsid[]= "$Id: xlbiff.c,v 1.53 1991/11/04 05:56:59 santiago Exp $";
+static char rcsid[]= "$Id: xlbiff.c,v 1.54 1991/11/04 23:15:20 santiago Exp $";
 /* with mods by gildea  Time-stamp: <91/10/28 08:48:53 gildea> */
 /*\
 |* xlbiff  --  X Literate Biff
@@ -494,8 +494,7 @@ checksize()
     if (pop_window) {
 	if (mailsize == 0) {
 	    hasdata = False;
-	    if (visible)
-	      lbiffUnrealize();
+	    lbiffUnrealize();
 	} else {				/* something was added? */
 	    char *s = doScan();
 
