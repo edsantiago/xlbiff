@@ -12,25 +12,33 @@ the xlbiff executable.  In my .Xdefaults file are the following resources:
 	xlbiff-bulk.scanCommand:     Bscan
 	xlbiff-bulk.mailerCommand:   /bin/true
 	xlbiff-bulk.bottom:          true
-	xlbiff-bulk.geometry:        -0+0
+	xlbiff-bulk.geometry:        -0+70
 	xlbiff-bulk.led:             0
 	xlbiff-bulk.refresh:         0
+	xlbiff-bulk.resetSaver:      False
 	xlbiff-bulk.sound:           play -v 20 /usr/demo/SOUND/sounds/clink.au
+	xlbiff-bulk.volume:          0
+	xlbiff-bulk.rows:            35
 
 
   Running "xlbiff-bulk" gets me a window on the top right of my screen
 with an output something like:
 
-	    bayprofs:  4
-	         cvs: 62
-	    libernet: 31*
-	      saturn:332
-	   ultralite:  1
+        A/lert         1
+          tools-group  1
+	C/release      2
+	  software     1
+	H/             3
+          comics      16
+	M/agenda       3
+	  debian      14
+	  debian/lap   8
+	  ssh          3
+          zaurus      10
+	  zaurus/oz   34
+	Z/spam        20
 
-  These are subfolders of my "in-bulk" folder.
-
-  As more mail comes into each bin, the count for each one gets updated.
-When I read and delete mail in a given bin, the count drops.  The "*"
-next to libernet indicates that there is a gap between messages, ie,
-there are 31 messages in the folder but not numbered 1 through 31.
-
+  These are various subfolders and sub-subfolders, e.g. ~/Mail/A/lert.  My
+folders are organized by priority, with A/* the highest and Z/* lowest.  As
+more mail comes into each bin, the count for each one gets updated.  When I
+read and delete mail in a given bin, the count drops.
