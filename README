@@ -115,11 +115,13 @@ BACKGROUND
 HISTORY
   The following changes are attributes
 
-  * Version 1.1 submitted to comp.sources.x  Sat xx Sep 1991
+  * Version 2.0 submitted to comp.sources.x  Tue 01 Oct 1991
       From Stephen Gildea <gildea@expo.lcs.mit.edu>
 	+ use allowShellResize and {,un}map instead of {,un}realize so
 	  it tracks position changes.
 	+ clean up .ad file
+	+ raise window to top of stack on new mail.
+	+ add 'resetSaver' option.
 
       From Mike Schroeder <mike@geronimo.pcs.com>
 	+ don't pop up if results of scanCommand are null.  This is
