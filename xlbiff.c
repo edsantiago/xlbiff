@@ -1,4 +1,4 @@
-static char rcsid[]= "$Id: xlbiff.c,v 1.57 1991/11/15 18:51:13 santiago Exp $";
+static char rcsid[]= "$Id: xlbiff.c,v 1.58 1991/11/15 18:57:19 santiago Exp $";
 /*\
 |* xlbiff  --  X Literate Biff
 |*
@@ -266,8 +266,13 @@ main(argc, argv)
     */
     if (argc > 1) {
 	if (!strncmp(argv[1],"-v",2)) {
-	    fprintf(stderr,"%s version %d.%d.%d\n",
-		            progname,  VERSION,PATCHLEVEL,TESTLEVEL);
+	    fprintf(stderr,
+#if	TESTLEVEL != 0
+		    "%s version %d.%d.%d\n",
+#else
+		    "%s version %d.%d\n",
+#endif
+		    progname,  VERSION,PATCHLEVEL,TESTLEVEL);
 	    exit(0);
 	} else if (!strncmp(argv[1],"-help",strlen(argv[1]))) {
 	    Usage();
