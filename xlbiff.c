@@ -1,7 +1,23 @@
+static char rcsid[]= "$Id: xlbiff.c,v 1.12 1991/08/20 22:05:16 santiago Exp $";
 /*\
 |* xlbiff  --  X Literate Biff
 |*
-|* This application does mumble
+|* $Header: /home/esm/src/xlbiff-cvsroot/xlbiff/xlbiff.c,v 1.12 1991/08/20 22:05:16 santiago Exp $
+|*
+|*	Copyright (c) 1991 by Eduardo Santiago Munoz
+|*
+|*	This software may be distributed under the terms of the GNU General
+|* 	Public License.  I wrote it, not DEC, so don't bother suing them.
+|*
+|* DESCRIPTION
+|*
+|* 	Now that that's out of the way -- xlbiff is yet another biff
+|*	utility.  It lurks around, polling a mail file until its size
+|*	changes.  When this happens, it pops up a window containing
+|*	a `scan' of the contents of the mailbox.  See README for details.
+|*
+|*	Author:		Eduardo Santiago Munoz,  santiago@pa.dec.com
+|* 	Created:	20 August 1991
 \*/
 
 #include "patchlevel.h"
@@ -19,6 +35,10 @@
 #include <X11/Xaw/Command.h>
 
 
+/*
+** if compiled with -DDEBUG *and* run with debugging on, this does lots
+** of useless/useful printfs.
+*/
 #ifdef	DEBUG
 #undef	DEBUG
 #define	DEBUG(x)	if (lbiff_data.debug) printf x
@@ -26,31 +46,33 @@
 #define DEBUG(x)
 #endif
 
-
-#if	1
+/*
+** This defines the file we need to monitor.  If not defined explicitly
+** on the command line, we pick this default.
+*/
+#ifndef	MAILPATH
 #define	MAILPATH	"/usr/spool/mail/%s"
-#else
-#define	MAILPATH	"/udir/%s/.mailbox"
 #endif
 
-
-/*
-** prototypes
-*/
+/*****************************************************************************\
+**                                prototypes                                 **
+\*****************************************************************************/
 void	handler();
+char	*doScan();
+void	Usage();
 void	Exit();
-void	Popdown(Widget,XtPointer,XtPointer);
+void	Popdown(), Popup();
 void	initStaticData(int*,int*,int*);
 void	setXbuf(char*);
 
 /*****************************************************************************\
-** globals								     *|
+**                                 globals				     **
 \*****************************************************************************/
 Widget	topLevel,textBox;		/* my widgets			*/
 jmp_buf	myjumpbuf;			/* for longjmp()ing after timer	*/
 int	visible;			/* is window visible?		*/
 char	default_file[80];		/* default filename		*/
-
+char	*progname;			/* my program name		*/
 
 typedef struct {
     Boolean	debug;			/* print out useful stuff 	*/
@@ -62,7 +84,6 @@ typedef struct {
     Boolean	fit;			/* fit display to widest line?	*/
 } AppData, *AppDataPtr;
 AppData		lbiff_data;
-
 
 #define offset(field)	XtOffset(AppDataPtr,field)
 
@@ -100,17 +121,9 @@ static XtActionsRec lbiff_actions[] = {
 };
 
 
-
-/*************\
-|*  Popdown  *|  callback for buttonpress anywhere in text window
-\*************/
-void
-Popdown(Widget w, XtPointer client_data, XtPointer call_data)
-{
-    DEBUG(("++Popdown()\n"));
-    popdown();
-}
-
+/*****************************************************************************\
+**                                  code                                     **
+\*****************************************************************************/
 
 /**********\
 |*  main  *|
@@ -120,6 +133,7 @@ main( int argc, char *argv[] )
     char *username;
     XtAppContext app_context;
 
+    progname = argv[0];
     /*
     ** Get user name, in case no explicit path is given
     */
@@ -156,13 +170,17 @@ main( int argc, char *argv[] )
     XtAddCallback(textBox,XtNcallback, Popdown, textBox);
     XtAppAddActions(app_context,lbiff_actions,XtNumber(lbiff_actions));
 
+    /*
+    ** Check command line arguments
+    */
     if (argc > 1) {
 	if (!strncmp(argv[1],"-v",2)) {
 	    printf("xlbiff version %s, patchlevel %d\n",VERSION,PATCHLEVEL);
 	    exit(0);
-	} else if (!strncmp(argv[1],"-h",2)) {
-	    printf("usage:\txlbiff\n");
-	}
+	} else if (argv[1][0] != '-') {
+	    strcpy(default_file,argv[1]);
+	} else 
+	  Usage();
     }
 
     /*
@@ -195,6 +213,33 @@ main( int argc, char *argv[] )
 }
 
 
+/***********\
+|*  Usage  *|  displays usage message
+\***********/
+void
+Usage()
+{
+    static char *help_message[] = {
+"where options include:",
+"    -display host:dpy                  X server to contact",
+"    -geometry =+x+y                    x,y coords of window",
+"    -file file                         file to watch",
+"    -update seconds                    how often to check for mail",
+"    -volume percentage                 how loud to ring the bell",
+"    -bg color                          background color",
+"    -fg color                          foreground color",
+"    -rv                                reverse video",
+NULL};
+    char **s;
+
+    fprintf(stderr,"usage:\t%s [-options ...]\n", progname);
+    for (s= help_message; *s; s++)
+      fprintf(stderr, "%s\n", *s);
+    fprintf(stderr,"\n");
+    exit(1);
+}
+
+
 /**********\
 |*  Exit  *|  called via callback, exits the program
 \**********/
@@ -220,12 +265,12 @@ checksize()
 	DEBUG(("changed size: %d -> %d\n",mailsize,mailstat.st_size));
 	mailsize = mailstat.st_size;
 	if (mailsize == 0) {
-	    popdown();
+	    Popdown();
 	} else {
 	    if (visible)
-	      popdown();
-	    doscan();
-	    popup();
+	      Popdown();
+	    setXbuf(doScan());
+	    Popup();
 	}
     } else {
 	DEBUG(("ok\n"));
@@ -244,12 +289,12 @@ handler()
 
 
 /************\
-|*  doscan  *|  invoke MH ``scan'' command to examine mail messages
+|*  doScan  *|  invoke MH ``scan'' command to examine mail messages
 |************
 |*	This routine looks at the mail file to see if it 
 \*/
-int
-doscan()
+char *
+doScan()
 {
     static char	cmd_buf[200];
     static char *buf = NULL;
@@ -257,36 +302,40 @@ doscan()
     FILE 	*p;
     size_t	size;
 
-    DEBUG(("++doscan()\n"));
+    DEBUG(("++doScan()\n"));
 
+    /*
+    ** Initialise display buffer to #rows * #cols
+    ** Initialise command string
+    */
     if (buf == NULL) {
 	bufsize = lbiff_data.width * lbiff_data.maxRows;
 	if ((buf= (char*)malloc(bufsize)) == NULL) {
 	    fprintf(stderr,"error in malloc\n");
 	    exit(1);
 	}
+	DEBUG(("---size= %dx%d\n", lbiff_data.maxRows, lbiff_data.width));
 
 	sprintf(cmd_buf,lbiff_data.cmd,  lbiff_data.file,  lbiff_data.width);
-	DEBUG(("---size= %dx%d\n---cmd=%s\n",lbiff_data.maxRows,
-	       lbiff_data.width,cmd_buf));
+	DEBUG(("---cmd= %s\n",cmd_buf));
     }
 
+    /*
+    ** execute the command, read the results, then set the contents of X window
+    */
     if ((p= popen(cmd_buf,"r")) == NULL) {
 	perror("popen");
 	exit(1);
     }
-
     if ((size= fread(buf,1,bufsize,p)) < 0) {
 	perror("fread");
 	exit(1);
     }
-
     pclose(p);
     buf[size] = '\0';
 
     DEBUG(("scanned: %s\n",buf));
-
-    setXbuf(buf);
+    return buf;
 }
 
 
@@ -305,12 +354,14 @@ setXbuf(char *s)
     static int	fontWidth, fontHeight;
     static int	borderWidth= -1;
 
-    DEBUG(("domagic\n"));
+    DEBUG(("setXbuf\n"));
     if (borderWidth == -1)
       initStaticData(&borderWidth,&fontHeight,&fontWidth);
 
+    /*
+    ** count rows and columns
+    */
     for (i=0; i < len-1; i++) {
-
 	if (s[i] == '\n') {
 	    ++h;
 	    tmp_w = 0;
@@ -321,21 +372,25 @@ setXbuf(char *s)
 	}
     }
 
-    if (h > lbiff_data.maxRows)
+    if (h > lbiff_data.maxRows)			/* cut to fit */
       h = lbiff_data.maxRows;
+    if (w > lbiff_data.width)
+      w = lbiff_data.width;
     if (lbiff_data.fit == False)
       w = lbiff_data.width;
-
     DEBUG(("geom= %dx%d (%dx%d pixels)\n",w,h,w*fontWidth,h*fontHeight));
-    XtResizeWidget(topLevel,w*fontWidth+6,h*fontHeight+4,borderWidth);
 
+    /*
+    ** Set widget to given size, plus some leeway.  Set label text.
+    */
+    XtResizeWidget(topLevel,w*fontWidth+6,h*fontHeight+4,borderWidth);
     XtSetArg(args[0],XtNlabel,s);
     XtSetValues(textBox,args,1);
 }
 
 
 /********************\
-|*  initStaticData  *|  initializes data we will need often
+|*  initStaticData  *|  initializes font size & borderWidth
 \********************/
 void
 initStaticData(int *bw, int *fontH, int *fontW)
@@ -343,7 +398,6 @@ initStaticData(int *bw, int *fontH, int *fontW)
     Arg		args[2];
     XFontStruct *fs;
     int tmp;
-    XCharStruct	c;
 
     DEBUG(("++initStaticData..."));
     XtSetArg(args[0],XtNfont,&fs);
@@ -358,18 +412,17 @@ initStaticData(int *bw, int *fontH, int *fontW)
     *fontW = fs->max_bounds.width;
     *fontH = fs->max_bounds.ascent + fs->max_bounds.descent;
 
-    XTextExtents(fs,"foo: bar\nfoof",13,&tmp,&tmp,&tmp,&c);
-    printf("got back: %dx%d\n",c.ascent+c.descent,c.width);
-
     DEBUG(("font= %dx%d,  borderWidth= %d\n",*fontH,*fontW,*bw));
 }
 
+
 /*************\
-|*  popdown  *|  kill window
+|*  Popdown  *|  kill window
 \*************/
-popdown()
+void
+Popdown()
 {
-    DEBUG(("++popdown()\n"));
+    DEBUG(("++Popdown()\n"));
     XtUnrealizeWidget(topLevel);
     XSync(XtDisplay(topLevel),0);
 
@@ -378,11 +431,12 @@ popdown()
 
 
 /***********\
-|*  popup  *|  bring window up
+|*  Popup  *|  bring window up
 \***********/
-popup()
+void
+Popup()
 {
-    DEBUG(("++popup()\n"));
+    DEBUG(("++Popup()\n"));
     XBell(XtDisplay(topLevel),0);
     XtRealizeWidget(topLevel);
     XSync(XtDisplay(topLevel),0);
