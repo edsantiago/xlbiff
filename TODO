@@ -1,3 +1,5 @@
+*   Fix popen() call so it recognizes errors.
+
 *   Get window x,y coords on Unrealize so if it's been moved, it pops up in
     the same place when we next Realize it.
 
