@@ -1,4 +1,4 @@
-static char rcsid[]= "$Id: xlbiff.c,v 1.67 1992/12/30 20:53:23 esm Exp $";
+static char rcsid[]= "$Id: xlbiff.c,v 1.68 1993/01/05 21:36:21 esm Exp $";
 /*\
 |* xlbiff  --  X Literate Biff
 |*
@@ -444,7 +444,7 @@ Cardinal *num_params;
 {
     DP(("++Mailer()\n"));
 
-    if (lbiff_data.mailerCmd != NULL) {
+    if (lbiff_data.mailerCmd != NULL && lbiff_data.mailerCmd[0] != '\0') {
 	Popdown();
 	system(lbiff_data.mailerCmd);
 	Popup();
@@ -482,7 +482,7 @@ checksize()
     ** spool file size is nonzero, whether it has grown since the last
     ** time we called it.
     */
-    if (lbiff_data.checkCmd != NULL) {
+    if (lbiff_data.checkCmd != NULL && lbiff_data.checkCmd[0] != '\0') {
 	FILE        *p;
 	waitType     status;
 	char	     outbuf[80];
