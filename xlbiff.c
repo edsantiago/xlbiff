@@ -1,19 +1,38 @@
-static char rcsid[]= "$Id: xlbiff.c,v 1.16 1991/08/21 16:33:09 santiago Exp $";
+static char rcsid[]= "$Id: xlbiff.c,v 1.17 1991/08/21 21:09:40 santiago Exp $";
 /*\
 |* xlbiff  --  X Literate Biff
 |*
+|* LEGALESE GARBAGE:
 |*
 |*	Copyright (c) 1991 by Eduardo Santiago Munoz
 |*
-|*	This software may be distributed under the terms of the GNU General
-|* 	Public License.  I wrote it, not DEC, so don't bother suing them.
+|* Permission to use, copy, modify, distribute, and sell this software and its
+|* documentation for any purpose is hereby granted without fee, provided that
+|* the above copyright notice appear in all copies and that both that
+|* copyright notice and this permission notice appear in supporting
+|* documentation, and that the name of Digital Equipment Corporation not be 
+|* used in advertising or publicity pertaining to distribution of the 
+|* software without specific, written prior permission.  Digital Equipment
+|* Corporation makes no representations about the suitability of this software 
+|* for any purpose.  It is provided "as is" without express or implied 
+|* warranty.
 |*
-|* DESCRIPTION
+|* DIGITAL EQUIPMENT CORPORATION  DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS 
+|* SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS,
+|* IN NO EVENT SHALL DIGITAL EQUIPMENT CORPORATION BE LIABLE FOR ANY SPECIAL,
+|* INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM 
+|* LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE 
+|* OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE 
+|* OR PERFORMANCE OF THIS SOFTWARE.
+|*
+|* DESCRIPTION:
 |*
 |* 	Now that that's out of the way -- xlbiff is yet another biff
 |*	utility.  It lurks around, polling a mail file until its size
 |*	changes.  When this happens, it pops up a window containing
-|*	a `scan' of the contents of the mailbox.  See README for details.
+|*	a `scan' of the contents of the mailbox.  Xlbiff is modeled
+|*	after xconsole; it remains invisible at non-useful times,
+|*	eg, when no mail is present.  See README for details.
 |*
 |*	Author:		Eduardo Santiago Munoz,  santiago@pa.dec.com
 |* 	Created:	20 August 1991
@@ -39,10 +58,9 @@ static char rcsid[]= "$Id: xlbiff.c,v 1.16 1991/08/21 16:33:09 santiago Exp $";
 ** of useless/useful printfs.
 */
 #ifdef	DEBUG
-#undef	DEBUG
-#define	DEBUG(x)	if (lbiff_data.debug) printf x
+#define	DP(x)	if (lbiff_data.debug) printf x
 #else
-#define DEBUG(x)
+#define DP(x)
 #endif
 
 /*
@@ -68,6 +86,8 @@ void	setXbuf(char*);
 /*****************************************************************************\
 **                                 globals				     **
 \*****************************************************************************/
+extern int errno;
+
 Widget	topLevel,textBox;		/* my widgets			*/
 jmp_buf	myjumpbuf;			/* for longjmp()ing after timer	*/
 int	visible;			/* is window visible?		*/
@@ -117,6 +137,7 @@ static XrmOptionDescRec	optionDescList[] = {
 
 static char *fallback_resources[] = {
     "XLbiff*font:	-*-clean-bold-r-normal--13-130-75-75-c-80-iso8859-1",
+    "XLbiff*geometry:	=+0-0",
     NULL
 };
 
@@ -146,7 +167,7 @@ main( int argc, char *argv[] )
 	struct passwd *pwd= getpwuid(getuid());
 
 	if (pwd == NULL) {
-	    fprintf(stderr,"%s: cannot get username\n",argv[0]);
+	    fprintf(stderr,"%s: cannot get username\n",progname);
 	    exit(1);
 	}
 	username = pwd->pw_name;
@@ -176,12 +197,18 @@ main( int argc, char *argv[] )
     XtAppAddActions(app_context,lbiff_actions,XtNumber(lbiff_actions));
     XtAddEventHandler(topLevel,StructureNotifyMask,False,Shrink,(caddr_t)NULL);
 
+#ifndef	DEBUG
+    if (lbiff_data.debug)
+      fprintf(stderr,"%s: DEBUG support not compiled in, sorry\n",progname);
+#endif
+
     /*
     ** Check command line arguments
     */
     if (argc > 1) {
 	if (!strncmp(argv[1],"-v",2)) {
-	    printf("xlbiff version %s, patchlevel %d\n",VERSION,PATCHLEVEL);
+	    fprintf(stderr,"%s version %d, patchlevel %d\n",
+		            progname,  VERSION,       PATCHLEVEL);
 	    exit(0);
 	} else if (argv[1][0] != '-') {
 	    lbiff_data.file = argv[1];
@@ -252,7 +279,7 @@ NULL};
 void
 Exit()
 {
-    DEBUG(("++exit()\n"));
+    DP(("++exit()\n"));
     exit(0);
 }
 
@@ -265,10 +292,10 @@ checksize()
     static int mailsize = 0;
     struct stat mailstat;
 
-    DEBUG(("++checksize()..."));
+    DP(("++checksize()..."));
     stat(lbiff_data.file,&mailstat);
     if (mailstat.st_size != mailsize) {
-	DEBUG(("changed size: %d -> %d\n",mailsize,mailstat.st_size));
+	DP(("changed size: %d -> %d\n",mailsize,mailstat.st_size));
 	mailsize = mailstat.st_size;
 	if (mailsize == 0) {
 	    Popdown();
@@ -279,7 +306,7 @@ checksize()
 	    Popup();
 	}
     } else {
-	DEBUG(("ok\n"));
+	DP(("ok\n"));
     }
 }
 
@@ -308,7 +335,7 @@ doScan()
     FILE 	*p;
     size_t	size;
 
-    DEBUG(("++doScan()\n"));
+    DP(("++doScan()\n"));
 
     /*
     ** Initialise display buffer to #rows * #cols
@@ -317,13 +344,13 @@ doScan()
     if (buf == NULL) {
 	bufsize = lbiff_data.width * lbiff_data.maxRows;
 	if ((buf= (char*)malloc(bufsize)) == NULL) {
-	    fprintf(stderr,"error in malloc\n");
+	    fprintf(stderr,"%s: malloc() failed: error %d\n",progname,errno);
 	    exit(1);
 	}
-	DEBUG(("---size= %dx%d\n", lbiff_data.maxRows, lbiff_data.width));
+	DP(("---size= %dx%d\n", lbiff_data.maxRows, lbiff_data.width));
 
 	sprintf(cmd_buf,lbiff_data.cmd,  lbiff_data.file,  lbiff_data.width);
-	DEBUG(("---cmd= %s\n",cmd_buf));
+	DP(("---cmd= %s\n",cmd_buf));
     }
 
     /*
@@ -340,7 +367,7 @@ doScan()
     pclose(p);
     buf[size] = '\0';
 
-    DEBUG(("scanned: %s\n",buf));
+    DP(("scanned: %s\n",buf));
     return buf;
 }
 
@@ -360,7 +387,7 @@ setXbuf(char *s)
     static int	fontWidth, fontHeight;
     static int	borderWidth= -1;
 
-    DEBUG(("setXbuf\n"));
+    DP(("setXbuf\n"));
     if (borderWidth == -1)
       initStaticData(&borderWidth,&fontHeight,&fontWidth);
 
@@ -384,7 +411,7 @@ setXbuf(char *s)
       w = lbiff_data.width;
     if (lbiff_data.fit == False)
       w = lbiff_data.width;
-    DEBUG(("geom= %dx%d (%dx%d pixels)\n",w,h,w*fontWidth,h*fontHeight));
+    DP(("geom= %dx%d (%dx%d pixels)\n",w,h,w*fontWidth,h*fontHeight));
 
     /*
     ** Set widget to given size, plus some leeway.  Set label text.
@@ -405,12 +432,12 @@ initStaticData(int *bw, int *fontH, int *fontW)
     XFontStruct *fs;
     int tmp;
 
-    DEBUG(("++initStaticData..."));
+    DP(("++initStaticData..."));
     XtSetArg(args[0],XtNfont,&fs);
     XtSetArg(args[1],XtNborderWidth,&tmp);
     XtGetValues(textBox, args, 2);
     if (fs == NULL) {
-	fprintf(stderr,"unknown font!\n");
+	fprintf(stderr,"%s: unknown font!\n",progname);
 	exit(1);
     }
 
@@ -418,7 +445,7 @@ initStaticData(int *bw, int *fontH, int *fontW)
     *fontW = fs->max_bounds.width;
     *fontH = fs->max_bounds.ascent + fs->max_bounds.descent;
 
-    DEBUG(("font= %dx%d,  borderWidth= %d\n",*fontH,*fontW,*bw));
+    DP(("font= %dx%d,  borderWidth= %d\n",*fontH,*fontW,*bw));
 }
 
 
@@ -439,7 +466,7 @@ Shrink(Widget w, caddr_t data, XEvent *e)
 void
 Popdown()
 {
-    DEBUG(("++Popdown()\n"));
+    DP(("++Popdown()\n"));
     XtUnrealizeWidget(topLevel);
     XSync(XtDisplay(topLevel),0);
 
@@ -453,7 +480,7 @@ Popdown()
 void
 Popup()
 {
-    DEBUG(("++Popup()\n"));
+    DP(("++Popup()\n"));
     XBell(XtDisplay(topLevel),lbiff_data.volume - 100);
     XtRealizeWidget(topLevel);
     XSync(XtDisplay(topLevel),0);
