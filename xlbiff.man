@@ -1,4 +1,4 @@
-.TH XLBIFF 1 "14 October 1991"
+.TH XLBIFF 1 "2 June 1994"
 .SH NAME
 xlbiff \- mailbox message previewer for X
 .SH SYNOPSIS
@@ -91,7 +91,8 @@ The default is 0 (no refresh).  A useful value for this is 1800 (30 minutes).
 .TP 8
 .B \-mailerCommand \fIcommand\fP
 Specifies the command to invoke when the the mailer() action is activated,
-eg, "xterm -e elm".  By default this is bound to the second mouse button.
+eg, "xterm -e elm" or "inc".  By default this is bound to the second
+mouse button.
 Invoking this action will pop down the main window.  When the command exits,
 it will pop up again.  Due to mailbox consistency considerations, the
 mailerCommand should not exit before it is finished with the mailbox, i.e.
@@ -171,6 +172,11 @@ were a script such as:
 The author of
 .I xlbiff
 uses this facility to keep track of several maildrops with one command.
+See the 
+.I Bcheck
+and 
+.I Bscan
+scripts, included.
 .TP 8
 .B \-volume \fIpercentage\fP
 This option specifies how loud the bell should be rung when new mail comes in.
