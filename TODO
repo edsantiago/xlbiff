@@ -6,3 +6,5 @@
 *   <from gildea@expo.lcs.mit.edu> pop up alert window on error
 
 *   Handle width resizes
+
+*   Handle signals gracefully (ie, turn off LED if killed by ^C)
