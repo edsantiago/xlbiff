@@ -22,7 +22,6 @@
 ! miscellaneous
 !
 *bottom:		False
-*fit:			False
 *update:		15
 *volume:		100
 !
