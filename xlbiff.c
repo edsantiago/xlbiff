@@ -1,4 +1,4 @@
-static char rcsid[]= "$Id: xlbiff.c,v 1.65 1992/10/27 22:04:29 esm Exp $";
+static char rcsid[]= "$Id: xlbiff.c,v 1.66 1992/10/28 21:23:03 esm Exp $";
 /*\
 |* xlbiff  --  X Literate Biff
 |*
@@ -56,7 +56,7 @@ static char rcsid[]= "$Id: xlbiff.c,v 1.65 1992/10/27 22:04:29 esm Exp $";
 typedef int             waitType;
 # define INTWAITTYPE
 #else /* ! X_NOT_POSIX */
-#ifdef SYSV
+#if	defined(SYSV) || defined(SVR4)
 # define waitCode(w)    (((w) >> 8) & 0x7f)
 # define waitSig(w)     ((w) & 0xff)
 typedef int             waitType;

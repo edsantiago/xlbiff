@@ -6,7 +6,7 @@ MAILPATH = XlbiffMailPath
 #else
 /* MAILPATH = /udir/%s/.maildrop	*/
 /* MAILPATH = /usr/mail/%s 		*/
-#ifdef SYSV
+#if	defined(SYSV) || defined(SVR4)
 MAILPATH = /usr/mail/%s
 #else
 MAILPATH = /usr/spool/mail/%s
