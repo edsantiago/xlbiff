@@ -1,4 +1,4 @@
-static char rcsid[]= "$Id: xlbiff.c,v 1.48 1991/11/03 23:23:31 santiago Exp $";
+static char rcsid[]= "$Id: xlbiff.c,v 1.49 1991/11/03 23:46:24 santiago Exp $";
 /* with mods by gildea  Time-stamp: <91/10/28 08:48:53 gildea> */
 /*\
 |* xlbiff  --  X Literate Biff
@@ -131,6 +131,7 @@ typedef struct {
     Boolean	resetSaver;		/* reset screensaver on popup   */
     long	refresh;		/* seconds before reposting msg	*/
     int		led;			/* led number to light up	*/
+    Boolean	ledPopdown;		/* turn off LED on popdown?     */
 } AppData, *AppDataPtr;
 AppData		lbiff_data;
 
@@ -158,7 +159,9 @@ static XtResource	xlbiff_resources[] = {
     { "refresh", "Refresh", XtRInt, sizeof(int),
 	offset(refresh), XtRImmediate, (XtPointer)1800},
     { "led", "Led", XtRInt, sizeof(int),
-	offset(led), XtRImmediate, (XtPointer)0}
+	offset(led), XtRImmediate, (XtPointer)0},
+    { "ledPopdown", "LedPopdown", XtRBoolean, sizeof(Boolean),
+	offset(ledPopdown), XtRImmediate, False}
 };
 
 static XrmOptionDescRec	optionDescList[] = {
@@ -173,7 +176,9 @@ static XrmOptionDescRec	optionDescList[] = {
     { "-resetSaver",  ".resetSaver",  XrmoptionNoArg,	(caddr_t) "true"},
     { "+resetSaver",  ".resetSaver",  XrmoptionNoArg,	(caddr_t) "false"},
     { "-refresh",     ".refresh",     XrmoptionSepArg,	(caddr_t) NULL},
-    { "-led",         ".led",         XrmoptionSepArg,	(caddr_t) NULL}
+    { "-led",         ".led",         XrmoptionSepArg,	(caddr_t) NULL},
+    { "-ledPopdown",  ".ledPopdown",  XrmoptionNoArg,	(caddr_t) "true"},
+    { "+ledPopdown",  ".ledPopdown",  XrmoptionNoArg,	(caddr_t) "false"},
 };
 
 static char *fallback_resources[] = {
@@ -319,6 +324,7 @@ Usage()
 "    -fg color                          foreground color",
 "    -refresh seconds                   seconds before re-posting window",
 "    -led ledNum                        keyboard LED to light up",
+"    -ledPopdown                        turn off LED when popped down",
 NULL};
     char **s;
 
@@ -617,6 +623,9 @@ Popdown()
     if (visible)
       XtPopdown(topLevel);
     visible = False;
+
+    if (lbiff_data.ledPopdown)		/* Turn off LED if so requested */
+      toggle_key_led(False);
 }
 
 void
@@ -648,7 +657,7 @@ lbiffUnrealize()
     ** Remember when we were popped down so we can refresh later
     */
     if (gettimeofday(&tp,&tzp) != 0)
-      ErrExit(True,"gettimeofday() in Popdown()");
+      ErrExit(True,"gettimeofday() in lbiffUnrealize()");
 
     acknowledge_time = tp.tv_sec;
 
