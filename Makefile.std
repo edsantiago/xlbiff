@@ -9,10 +9,11 @@
 MAILPATH=	/usr/spool/mail/%s
 
 #
-# pick one
+# Build with debugging enabled or disabled.  Note that you can build
+# with -O and -DDEBUG together if you like.
 #
-#CFLAGS=		-g -DDEBUG  -DMAILPATH="\"$(MAILPATH)\""
-CFLAGS=		-O   -DMAILPATH="\"$(MAILPATH)\""
+DEBUG=		-O
+#DEBUG=		-g -DDEBUG
 
 
 #
@@ -41,6 +42,8 @@ MHLIBDIR=	/usr/new/lib/mh
 ###############################################################################
 # DO NOT MODIFY ANYTHING UNDER HERE
 ###############################################################################
+CFLAGS=		$(DEBUG)   -DMAILPATH="\"$(MAILPATH)\""
+
 EXE=	xlbiff
 OBJ=	xlbiff.o
 SRC=	xlbiff.c
