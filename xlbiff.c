@@ -1,4 +1,4 @@
-static char rcsid[]= "$Id: xlbiff.c,v 1.39 1991/10/04 04:58:15 santiago Exp $";
+static char rcsid[]= "$Id: xlbiff.c,v 1.40 1991/10/08 01:51:56 santiago Exp $";
 /*\
 |* xlbiff  --  X Literate Biff
 |*
@@ -246,7 +246,7 @@ main(argc, argv)
 	sprintf(default_file,MAILPATH,username);
 	lbiff_data.file = default_file;
     }
-    DP(("username= %s\tfile= %s\n",username,lbiff_data.file));
+    DP(("file= %s\n",lbiff_data.file));
 
     textBox = XtVaCreateManagedWidget("text",
 				      commandWidgetClass,
