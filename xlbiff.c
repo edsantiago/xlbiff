@@ -1,4 +1,4 @@
-static char rcsid[]= "$Id: xlbiff.c,v 1.13 1991/08/20 22:24:00 santiago Exp $";
+static char rcsid[]= "$Id: xlbiff.c,v 1.14 1991/08/21 00:14:11 santiago Exp $";
 /*\
 |* xlbiff  --  X Literate Biff
 |*
@@ -82,6 +82,7 @@ typedef struct {
     int		width;			/* number of columns across	*/
     int		maxRows;		/* max# of lines in display	*/
     Boolean	fit;			/* fit display to widest line?	*/
+    int		volume;			/* bell volume, 0-100 percent	*/
 } AppData, *AppDataPtr;
 AppData		lbiff_data;
 
@@ -92,22 +93,26 @@ static XtResource	xlbiff_resources[] = {
 	offset(debug), XtRString, "false"},
     { "file", "File", XtRString, sizeof(String),
 	offset(file), XtRString, NULL},
-    { "command", "Command", XtRString, sizeof(String),
-	offset(cmd), XtRString, "scan -file %s" },
+    { "scanCommand", "ScanCommand", XtRString, sizeof(String),
+	offset(cmd), XtRString, "scan -file %s -width %d" },
     { "update", "Interval", XtRInt, sizeof(int),
-	offset(update), XtRString, "10"},
+	offset(update), XtRString, "15"},
     { "width", "Width", XtRInt, sizeof(int),
 	offset(width), XtRString, "80"},
     { "maxRows", "maxRows", XtRInt, sizeof(int),
 	offset(maxRows), XtRString, "20"},
     { "fit", "Fit", XtRBoolean, sizeof(Boolean),
-	offset(fit), XtRString, "false"}
+	offset(fit), XtRString, "false"},
+    { "volume", "Volume", XtRInt, sizeof(int),
+	offset(volume), XtRString, "100"}
 };
 
 static XrmOptionDescRec	optionDescList[] = {
     { "-debug", "*debug",	XrmoptionNoArg,		(caddr_t) "true"},
     { "-file",	"*file",	XrmoptionSepArg,	(caddr_t) NULL},
-    { "-update","*update",	XrmoptionSepArg,	(caddr_t) NULL}
+    { "-update","*update",	XrmoptionSepArg,	(caddr_t) NULL},
+    { "-volume","*volume",	XrmoptionSepArg,	(caddr_t) NULL},
+    { "-width", "*width",	XrmoptionSepArg,	(caddr_t) NULL}
 };
 
 static char *fallback_resources[] = {
@@ -224,12 +229,12 @@ Usage()
 "where options include:",
 "    -display host:dpy                  X server to contact",
 "    -geometry =+x+y                    x,y coords of window",
+"    -width width                       width of window, in characters",
 "    -file file                         file to watch",
 "    -update seconds                    how often to check for mail",
 "    -volume percentage                 how loud to ring the bell",
 "    -bg color                          background color",
 "    -fg color                          foreground color",
-"    -rv                                reverse video",
 NULL};
     char **s;
 
@@ -449,7 +454,7 @@ void
 Popup()
 {
     DEBUG(("++Popup()\n"));
-    XBell(XtDisplay(topLevel),0);
+    XBell(XtDisplay(topLevel),lbiff_data.volume - 100);
     XtRealizeWidget(topLevel);
     XSync(XtDisplay(topLevel),0);
 
