@@ -36,7 +36,7 @@ INSTALLING -- WITHOUT IMAKE
   If you don't have imake, copy the file Makefile.std to 'Makefile'
   and edit it to make sure everything looks good.
 
-  Type 'make' and cross your fingers.  If that all works, su and type 
+  Type 'make' and cross your fingers.  If that all works, su and type
   `make install' or install by hand -- you should be able to figure
   it out.  And _please_ don't just su because I say so.  Take a look
   at the sources and Makefile before you compromise your system.
@@ -71,7 +71,7 @@ CUSTOMIZING
 
 *THINGS TO BE AWARE OF*
 
-  Xlbiff invokes `scan -file xxx' by default, and thus requires MH 6.7 
+  Xlbiff invokes `scan -file xxx' by default, and thus requires MH 6.7
   or above.  If your MH isn't at this level, you can find the latest
   version on ftp.ics.uci.edu:/pub/mh.  If you don't feel like upgrading,
   there's a really, really ugly kludge you can do with inc:
@@ -118,8 +118,8 @@ PORTING (or, if INSTALLING didn't work)
   USE_BCOPY line in Imakefile or Makefile.std.
 
   I *think* most portability bugs have been ironed out, but of course
-  there are always a few left.  If fixes are required, or if you add 
-  any whizzy features (see TODO for a partial list), please mail them 
+  there are always a few left.  If fixes are required, or if you add
+  any whizzy features (see TODO for a partial list), please mail them
   to me, esm@pobox.com, and I will wrap them up for future releases.
 
 
@@ -140,6 +140,10 @@ HISTORY
   The following describes changes made to xlbiff throughout its history.
   Where applicable, changes are attributed to the people who submitted
   the ideas and, in many cases, patches and source code.
+
+  * Version 4.1  (8 Nov 2003)
+	+ improved Bcheck and Bscan
+	+ Packaged for Debian release
 
   * Version 4.0  (2 June 1994 for X11R6 contrib tape)
 	+ expand functionality of "checkCommand"
@@ -216,7 +220,7 @@ HISTORY
       From Mike Schroeder <mike@geronimo.pcs.com>
 	+ don't pop up if results of scanCommand are null.  This is
 	  useful for mail(1)-based users since the mailbox size will
-	  normally be >0 but that may not indicate new mail.  
+	  normally be >0 but that may not indicate new mail.
 
       From several
 	+ remove ANSI C dependencies.
