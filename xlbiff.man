@@ -206,6 +206,8 @@ default mail file to check.
 .IR scan (1)
 .SH BUGS
 specifying dimensions in \-geometry causes badness.
+.PP
+The \fBled\fP option does not work on Suns before SunOS 4.1/X11R5.
 .SH COPYRIGHT
 Copyright 1991, Digital Equipment Corporation.
 See the source code for a full statement of rights and permissions.
