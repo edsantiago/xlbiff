@@ -23,6 +23,7 @@
 !
 *bottom:		False
 *led:			0
+*ledPopdown:		False
 *refresh:		0
 *resetSaver:		False
 *update:		15
