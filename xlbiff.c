@@ -1,4 +1,4 @@
-static char rcsid[]= "$Id: xlbiff.c,v 1.47 1991/11/02 20:48:09 santiago Exp $";
+static char rcsid[]= "$Id: xlbiff.c,v 1.48 1991/11/03 23:23:31 santiago Exp $";
 /* with mods by gildea  Time-stamp: <91/10/28 08:48:53 gildea> */
 /*\
 |* xlbiff  --  X Literate Biff
@@ -78,7 +78,7 @@ char	*strerror();
 **                                prototypes                                 **
 \*****************************************************************************/
 char		*doScan();
-void		Popdown();
+void		Popdown(),Popup();
 void		Usage();
 extern char	*getlogin();
 
@@ -87,19 +87,21 @@ void	Shrink(Widget, caddr_t, XEvent*, Boolean*);
 void	handler(XtPointer,XtIntervalId*);
 void	initStaticData(int*,int*,int*);
 void	Exit(Widget, XEvent*, String*, Cardinal*);
-void	Popup(char*);
+void	lbiffUnrealize(), lbiffRealize(char*);
 void	getDimensions(char*,Dimension*,Dimension*);
 void	toggle_key_led(int);
 void	ErrExit(Boolean,char*);
+Bool	CheckEvent(Display*,XEvent*,XPointer);
 #else
 void	Shrink();
 void	handler();
 void	initStaticData();
 void	Exit();
-void	Popup();
+void	lbiffUnrealize(), lbiffRealize();
 void	getDimensions();
 void	toggle_key_led();
 void	ErrExit();
+Bool	CheckEvent();
 #endif
 
 /*****************************************************************************\
@@ -110,6 +112,7 @@ extern int errno;
 Widget	topLevel,textBox;		/* my widgets			*/
 XtAppContext app_context;		/* application context		*/
 Boolean	visible;			/* is window visible?		*/
+Boolean hasdata;			/* Something is to be displayed */
 char	*default_file;			/* default filename		*/
 char	*progname;			/* my program name		*/
 long	acknowledge_time = 0;		/* time window was acknowledged	*/
@@ -427,15 +430,17 @@ checksize()
 
     if (pop_window) {
 	if (mailsize == 0) {
+	    hasdata = False;
 	    if (visible)
-		Popdown();
+	      lbiffUnrealize();
 	} else {				/* something was added? */
 	    char *s = doScan();
 
 	    if (strlen(s) != 0)	{		/* is there anything new? */
-		if (visible && lbiff_data.bottom)  /* popdown if at bottom */
-		  Popdown();
-		Popup(s);			/* pop back up */
+		if (hasdata) /* ESM && isvisible? ESM */
+		  lbiffUnrealize();		/* pop down if it's up    */
+		hasdata = True;
+		lbiffRealize(s);		/* pop back up */
 	    }
 	}
     } else {
@@ -528,6 +533,34 @@ doScan()
 }
 
 
+/****************\
+|*  CheckEvent  *|  
+\****************/
+Bool
+#ifdef	FUNCPROTO
+CheckEvent( Display *d, XEvent *e, XPointer arg )
+#else	/* ~FUNCPROTO */
+CheckEvent( d, e, arg )
+     Display *d;
+     XEvent  *e;
+     XPointer arg;
+#endif	/* FUNCPROTO */
+{
+    if (e->type == MapNotify || e->type == UnmapNotify)
+      if (e->xmap.window == (Window)arg)
+	return True;
+
+    return False;
+}
+
+static XEvent lastEvent;
+
+/* ARGSUSED */
+/*
+** Handler for map/unmap events.  Copied from xconsole.
+** When unmap and map events occur consecutively, eg when resetting a
+** window manager, this makes sure that only the last such event takes place.
+*/
 /************\
 |*  Shrink  *|  get StructureNotify events, popdown if iconified
 \************/
@@ -542,8 +575,25 @@ Shrink(w, data, e, b)
     Boolean *b;
 #endif
 {
-    if (e->type == UnmapNotify && visible)
-      Popdown();
+    if (e->type == MapNotify || e->type == UnmapNotify) {
+	Window win = e->xmap.window;
+
+#ifdef	DO_BCOPY
+	bcopy((char*)e,(char*)&lastEvent,sizeof(XEvent));
+#else
+	memcpy((char*)&lastEvent,(char*)e,sizeof(XEvent));
+#endif
+
+	XSync(XtDisplay(w),False);
+
+	while(XCheckIfEvent(XtDisplay(w),&lastEvent,CheckEvent,(XPointer)win))
+	  ;
+
+	if (lastEvent.type == UnmapNotify && visible)
+	  Popdown();
+	else if (lastEvent.type == MapNotify && hasdata)
+	  Popup();
+    }
 }
 
 
@@ -563,15 +613,36 @@ Shrink(w, data, e, b)
 void
 Popdown()
 {
+    DP(("++Popdown()\n"));
+    if (visible)
+      XtPopdown(topLevel);
+    visible = False;
+}
+
+void
+Popup()
+{
+    DP(("++Popup()\n"));
+    if (hasdata && !visible)
+      XtPopup(topLevel, XtGrabNone);
+    visible = True;
+}
+
+
+/********************\
+|*  lbiffUnrealize  *|  kill window
+\********************/
+void
+lbiffUnrealize()
+{
     struct timeval tp;
     struct timezone tzp;
 
-    DP(("++Popdown()\n"));
-    if (lbiff_data.bottom) {
-	XtUnrealizeWidget(topLevel);
-    } else {
-	XtPopdown(topLevel);
-    }
+    DP(("++lbiffUnrealize()\n"));
+    if (lbiff_data.bottom)
+      XtUnrealizeWidget(topLevel);
+    else
+      Popdown();
 
     /*
     ** Remember when we were popped down so we can refresh later
@@ -590,9 +661,9 @@ Popdown()
 \***********/
 void
 #ifdef	FUNCPROTO
-Popup( char *s )
+lbiffRealize( char *s )
 #else
-Popup( s )
+lbiffRealize( s )
      char *s;
 #endif
 {
@@ -625,9 +696,8 @@ Popup( s )
 
 	XtSetValues(topLevel, args, n);
 	XtRealizeWidget(topLevel);
-    } else {
-	XtPopup(topLevel, XtGrabNone);
     }
+    Popup();
 
     if (acknowledge_time == 0) {
 	/* first time through this code */
