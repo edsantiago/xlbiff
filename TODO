@@ -1,3 +1,5 @@
+*   BUG: Xlbiff window grabs keyboard focus when it pops up.
+
 *   put binary count of messages in LEDs?  Or is that too geeky?
 
 *   BUG: *bottom doesn't interoperate with tvtwm's 'Sticky' feature.
