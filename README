@@ -64,8 +64,9 @@ CUSTOMIZING
 *THINGS TO BE AWARE OF*
 
   Xlbiff invokes `scan -file xxx' by default, and thus requires MH 6.7 
-  or above.  If your MH isn't at this level, and you don't feel like
-  upgrading, there's a really, really ugly kludge you can do with inc:
+  or above.  If your MH isn't at this level, you can find the latest
+  version on ftp.ics.uci.edu:/pub/mh.  If you don't feel like upgrading,
+  there's a really, really ugly kludge you can do with inc:
 
 	inc -notruncate -silent -file %s -form xlbiff.form          	\
                 -width %d -audit /tmp/xlbiff.$$ +.null >/dev/null 2>&1; \
