@@ -112,7 +112,7 @@ PORTING (or, if INSTALLING didn't work)
   I *think* most portability bugs have been ironed out, but of course
   there are always a few left.  If fixes are required, or if you add 
   any whizzy features (see TODO for a partial list), please mail them 
-  to me, esm@auspex.com, and I will wrap them up for future releases.
+  to me, santiago@vix.com, and I will wrap them up for future releases.
 
 
 BACKGROUND
@@ -215,6 +215,4 @@ HISTORY
 
 AUTHOR
 
-  Ed Santiago
-  Auspex Systems, Inc.  Santa Clara, California, USA
-  esm@auspex.com
+  Ed Santiago <santiago@vix.com>
