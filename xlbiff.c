@@ -1,41 +1,21 @@
-static char rcsid[]= "$Id: xlbiff.c,v 1.62 1992/07/28 20:23:02 esm Exp $";
+static char rcsid[]= "$Id: xlbiff.c,v 1.63 1992/09/14 20:02:39 esm Exp $";
 /*\
 |* xlbiff  --  X Literate Biff
 |*
-|* by Eduardo Santiago Munoz
-|*
-|*	Copyright (c) 1991 Digital Equipment Corporation
-|*
-|* Permission to use, copy, modify, distribute, and sell this software and its
-|* documentation for any purpose is hereby granted without fee, provided that
-|* the above copyright notice appear in all copies and that both that
-|* copyright notice and this permission notice appear in supporting
-|* documentation, and that the name of Digital Equipment Corporation not be 
-|* used in advertising or publicity pertaining to distribution of the 
-|* software without specific, written prior permission.  Digital Equipment
-|* Corporation makes no representations about the suitability of this software 
-|* for any purpose.  It is provided "as is" without express or implied 
-|* warranty.
-|*
-|* DIGITAL EQUIPMENT CORPORATION  DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS 
-|* SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS,
-|* IN NO EVENT SHALL DIGITAL EQUIPMENT CORPORATION BE LIABLE FOR ANY SPECIAL,
-|* INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM 
-|* LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE 
-|* OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE 
-|* OR PERFORMANCE OF THIS SOFTWARE.
-|*
 |* DESCRIPTION:
 |*
-|* 	Now that that's out of the way -- xlbiff is yet another biff
-|*	utility.  It lurks around, polling a mail file until its size
-|*	changes.  When this happens, it pops up a window containing
-|*	a `scan' of the contents of the mailbox.  Xlbiff is modeled
-|*	after xconsole; it remains invisible at non-useful times,
-|*	eg, when no mail is present.  See README for details.
+|* 	xlbiff is yet another biff utility.  It lurks around, polling
+|*	a mail file until its size changes.  When this happens, it pops
+|*	up a window containing a `scan' of the contents of the mailbox.
+|*	Xlbiff is modeled after xconsole; it remains invisible at non-
+|*	useful times, eg, when no mail is present.  See README for details.
 |*
-|*	Author:		Eduardo Santiago Munoz,  santiago@pa.dec.com
+|*	Author:		Eduardo Santiago Munoz,  esm@auspex.com
 |* 	Created:	20 August 1991
+|*	Last Updated:	14 September 1992
+|*
+|*	Copyright 1991, 1992 Eduardo Santiago Munoz
+|*
 \*/
 
 #include "patchlevel.h"
@@ -145,6 +125,7 @@ Boolean hasdata;			/* Something is to be displayed */
 char	*default_file;			/* default filename		*/
 char	*progname;			/* my program name		*/
 long	acknowledge_time = 0;		/* time window was acknowledged	*/
+long	popup_time = 0;			/* time window was popped up	*/
 
 static Atom wm_delete_window;		/* for handling WM_DELETE	*/
 
@@ -154,6 +135,7 @@ typedef struct {
     char	*checkCmd;		/* command to run for check     */
     char	*cmd;			/* command to run for output	*/
     int		update;			/* update interval, in seconds	*/
+    int		fade;			/* popdown interval, in seconds */
     int		columns;		/* number of columns across	*/
     int		rows;			/* max# of lines in display	*/
     int		volume;			/* bell volume, 0-100 percent	*/
@@ -179,6 +161,8 @@ static XtResource	xlbiff_resources[] = {
 	offset(cmd), XtRString, "scan -file %s -width %d" },
     { "update", "Interval", XtRInt, sizeof(int),
 	offset(update), XtRImmediate, (XtPointer)15},
+    { "fade", "Fade", XtRInt, sizeof(int),
+	offset(fade), XtRImmediate, (XtPointer)0},
     { "columns", "Columns", XtRInt, sizeof(int),
 	offset(columns), XtRImmediate, (XtPointer)80},
     { "rows", "Rows", XtRInt, sizeof(int),
@@ -207,6 +191,7 @@ static XrmOptionDescRec	optionDescList[] = {
     { "-rows",        ".rows",	      XrmoptionSepArg,	(caddr_t) NULL},
     { "-columns",     ".columns",     XrmoptionSepArg,	(caddr_t) NULL},
     { "-update",      ".update",      XrmoptionSepArg,	(caddr_t) NULL},
+    { "-fade",	      ".fade",        XrmoptionSepArg,	(caddr_t) NULL},
     { "-volume",      ".volume",      XrmoptionSepArg,	(caddr_t) NULL},
     { "-resetSaver",  ".resetSaver",  XrmoptionNoArg,	(caddr_t) "true"},
     { "+resetSaver",  ".resetSaver",  XrmoptionNoArg,	(caddr_t) "false"},
@@ -361,6 +346,7 @@ Usage()
 "    -columns width                     width of window, in characters",
 "    -file file                         file to watch",
 "    -update seconds                    how often to check for mail",
+"    -fade seconds			lifetime of unmodified window",
 "    -volume percentage                 how loud to ring the bell",
 "    -bg color                          background color",
 "    -fg color                          foreground color",
@@ -492,7 +478,19 @@ checksize()
 		pop_window = True;
 	    }
 	}
+    } else if (visible && (mailstat.st_size = mailsize)) {
+	/*
+	** window is visible--see if fade time has been reached, and
+	** if so, popdown window
+	** if fade is zero, do not pop down
+	*/
+	if (gettimeofday(&tp,&tzp) != 0) {
+	    ErrExit(True,"gettimeofday() in checksize()");
+	} else if (lbiff_data.fade > 0) {
+	    if ((tp.tv_sec - popup_time) > lbiff_data.fade) lbiffUnrealize();
+	}
     }
+
 
     if (pop_window) {
 	if (mailsize == 0) {
@@ -716,7 +714,18 @@ Popdown()
 void
 Popup()
 {
+    struct timeval tp;
+    struct timezone tzp;
+
     DP(("++Popup()\n"));
+
+    /*
+    ** Remember when we were popped up so we can fade later
+    */
+    if (gettimeofday(&tp,&tzp) != 0)
+      ErrExit(True,"gettimeofday() in Popup()");
+    popup_time = tp.tv_sec;
+
     if (hasdata && !visible)
       XtPopup(topLevel, XtGrabNone);
     visible = True;
@@ -739,9 +748,9 @@ lbiffUnrealize()
 }
 
 
-/***********\
-|*  Popup  *|  reformat window, set the text and bring window up
-\***********/
+/******************\
+|*  lbiffRealize  *|  reformat window, set the text and bring window up
+\******************/
 void
 #ifdef	FUNCPROTO
 lbiffRealize( char *s )
@@ -754,7 +763,7 @@ lbiffRealize( s )
     int		n;
     static int	first_time = 1;
 
-    DP(("++Popup()\n"));
+    DP(("++lbiffRealize()\n"));
 
     /*
     ** Set the contents of the window
@@ -791,7 +800,7 @@ lbiffRealize( s )
     }
 
 
-    if (lbiff_data.sound[0] == "\0") {
+    if (lbiff_data.sound[0] == '\0') {
 	XBell(XtDisplay(topLevel),lbiff_data.volume - 100);
 	DP(("---sound= %s\n","XBell default"));
     }
