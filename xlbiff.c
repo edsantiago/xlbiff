@@ -1,4 +1,4 @@
-static char rcsid[]= "$Id: xlbiff.c,v 1.66 1992/10/28 21:23:03 esm Exp $";
+static char rcsid[]= "$Id: xlbiff.c,v 1.67 1992/12/30 20:53:23 esm Exp $";
 /*\
 |* xlbiff  --  X Literate Biff
 |*
@@ -474,27 +474,41 @@ checksize()
     DP(("++checksize()..."));
 
     /*
-    ** Do the stat to get the mail file size.  If it fails for any reason,
-    ** ignore the failure and assume the file is size 0.  Failures I can
-    ** think of are that should be ignored are:
-    **
-    **		+ nonexistent file.  Some Berkeley-style mailers delete
-    **		  the spool file when they're done with it.
-    **		+ NFS stale filehandle.  Yuk.  This one happens if
-    ** 		  your mail spool file is on an NFS-mounted directory
-    **		  _and_ your update interval is too low _and_ you use
-    **		  a Berkeleyish mailer.  Yuk.
-    **
-    ** Doubtless there are errors we should complain about, but this 
-    ** would get too ugly.
+    ** If user has specified a command to use to check the file, invoke
+    ** it with lbiff_data.file and "previous" as arguments, where "previous"
+    ** is the output of the script the last time it was run (or zero,
+    ** the first time we call it).  This is useful as a way of keeping
+    ** state for the checkCommand; in this manner it knows, if the
+    ** spool file size is nonzero, whether it has grown since the last
+    ** time we called it.
     */
     if (lbiff_data.checkCmd != NULL) {
-	waitType status;
+	FILE        *p;
+	waitType     status;
+	char	     outbuf[80];
+	static char *cmd_buf;
+	static int   previous;
+
+	if (cmd_buf == NULL) {
+	    cmd_buf = (char*)malloc(strlen(lbiff_data.checkCmd) +
+				    strlen(lbiff_data.file) + 10);
+	    if (cmd_buf == NULL)
+	      ErrExit(True,"scan command buffer malloc()");
+	}
+
+	sprintf(cmd_buf, lbiff_data.checkCmd, lbiff_data.file, previous);
+	DP(("++checkCommand= %s\n",cmd_buf));
+
+	if ((p= popen(cmd_buf,"r")) == NULL)
+	  ErrExit(True,"popen(checkCommand)");
+	if (fread(outbuf,1,sizeof outbuf,p) < 0)
+	  ErrExit(True,"fread(checkCommand)");
+	previous = atol(outbuf);
 
 #ifdef	INTWAITTYPE
-	status = 	  system(lbiff_data.checkCmd);
+	status = 	  pclose(p);
 #else
-	status.w_status = system(lbiff_data.checkCmd);
+	status.w_status = pclose(p);
 #endif
 	switch (waitCode(status)) {
 	case 0:					/* 0: new data */
@@ -507,6 +521,21 @@ checksize()
 	    mailstat.st_size = mailsize;
 	}
     } else {	/* no checkCmd, just stat the mailfile and check size */
+	/*
+	 ** Do the stat to get the mail file size.  If it fails for any reason,
+	 ** ignore the failure and assume the file is size 0.  Failures I can
+	 ** think of are that should be ignored are:
+	 **
+	 **		+ nonexistent file.  Some Berkeley-style mailers delete
+	 **		  the spool file when they're done with it.
+	 **		+ NFS stale filehandle.  Yuk.  This one happens if
+	 ** 		  your mail spool file is on an NFS-mounted directory
+	 **		  _and_ your update interval is too low _and_ you use
+	 **		  a Berkeleyish mailer.  Yuk.
+	 **
+	 ** Doubtless there are errors we should complain about, but this 
+	 ** would get too ugly.
+	 */
 	if (stat(lbiff_data.file,&mailstat) != 0) {
 	    DP(("stat() failed, errno=%d.  Assuming filesize=0!\n",errno));
 	    mailstat.st_size = 0;
