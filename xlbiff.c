@@ -1,4 +1,4 @@
-static char rcsid[]= "$Id: xlbiff.c,v 1.59 1991/11/26 19:10:32 santiago Exp $";
+static char rcsid[]= "$Id: xlbiff.c,v 1.60 1991/11/26 19:26:53 santiago Exp $";
 /*\
 |* xlbiff  --  X Literate Biff
 |*
@@ -477,10 +477,6 @@ checksize()
 	DP(("changed size: %d -> %d\n",mailsize,mailstat.st_size));
 	mailsize = mailstat.st_size;
 	pop_window = True;
-	if (mailsize == 0)
-	  toggle_key_led(False);
-	else
-	  toggle_key_led(True);
     } else if (!visible && lbiff_data.refresh && mailsize != 0) {
 	/*
 	** If window has been popped down, check if it's time to refresh
@@ -498,6 +494,7 @@ checksize()
     if (pop_window) {
 	if (mailsize == 0) {
 	    hasdata = False;
+	    toggle_key_led(False);
 	    lbiffUnrealize();
 	} else {				/* something was added? */
 	    char *s = doScan();
@@ -506,6 +503,7 @@ checksize()
 		if (hasdata) /* ESM && isvisible? ESM */
 		  lbiffUnrealize();		/* pop down if it's up    */
 		hasdata = True;
+		toggle_key_led(True);
 		lbiffRealize(s);		/* pop back up */
 	    }
 	}
