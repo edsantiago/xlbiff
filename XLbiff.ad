@@ -10,8 +10,8 @@
 !
 ! command to use
 !
-*scanCommand:		scan -file %s -width %d
-!*scanCommand:		scan -file %s -width %d -form xlbiff.form
+*scanCommand:		scan -file %s -width %d 2>&1
+!*scanCommand:		scan -file %s -width %d -form xlbiff.form 2>&1
 !*scanCommand:		echo 'x' | mail | grep '^.[UN]'
 !
 ! Dimensions of the display window
