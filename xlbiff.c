@@ -1,4 +1,4 @@
-static char rcsid[]= "$Id: xlbiff.c,v 1.25 1991/09/23 20:13:20 santiago Exp $";
+static char rcsid[]= "$Id: xlbiff.c,v 1.26 1991/09/27 23:36:16 santiago Exp $";
 /*\
 |* xlbiff  --  X Literate Biff
 |*
@@ -106,7 +106,6 @@ typedef struct {
     int		update;			/* update interval, in seconds	*/
     int		width;			/* number of columns across	*/
     int		maxRows;		/* max# of lines in display	*/
-    Boolean	fit;			/* fit display to widest line?	*/
     int		volume;			/* bell volume, 0-100 percent	*/
     Boolean	bottom;			/* Put window at window bottom  */
 } AppData, *AppDataPtr;
@@ -125,17 +124,16 @@ static XtResource	xlbiff_resources[] = {
 	offset(update), XtRString, "15"},
     { "width", "Width", XtRInt, sizeof(int),
 	offset(width), XtRString, "80"},
-    { "maxRows", "maxRows", XtRInt, sizeof(int),
+    { "maxRows", "Height", XtRInt, sizeof(int),
 	offset(maxRows), XtRString, "20"},
-    { "fit", "Fit", XtRBoolean, sizeof(Boolean),
-	offset(fit), XtRString, "false"},
     { "volume", "Volume", XtRInt, sizeof(int),
 	offset(volume), XtRString, "100"},
-    { "bottom", "Bottom", XtRBoolean, sizeof(Boolean),
+    { "bottom", "Boolean", XtRBoolean, sizeof(Boolean),
 	offset(bottom), XtRString, "false"}
 };
 
 static XrmOptionDescRec	optionDescList[] = {
+    { "-bottom","*bottom",	XrmoptionNoArg,		(caddr_t) "true"},
     { "-debug", "*debug",	XrmoptionNoArg,		(caddr_t) "true"},
     { "-file",	"*file",	XrmoptionSepArg,	(caddr_t) NULL},
     { "-update","*update",	XrmoptionSepArg,	(caddr_t) NULL},
@@ -144,8 +142,8 @@ static XrmOptionDescRec	optionDescList[] = {
 };
 
 static char *fallback_resources[] = {
-    "XLbiff*font:	-*-clean-bold-r-normal--13-130-75-75-c-80-iso8859-1",
-    "XLbiff*geometry:	+0-0",
+    "*Font:		-*-clean-bold-r-normal--13-130-75-75-c-80-iso8859-1",
+    "*Geometry:		+0-0",
     NULL
 };
 
@@ -214,10 +212,16 @@ main(argc, argv)
 	    fprintf(stderr,"%s version %d, patchlevel %d\n",
 		            progname,  VERSION,       PATCHLEVEL);
 	    exit(0);
+	} else if (!strncmp(argv[1],"-help",strlen(argv[1]))) {
+	    Usage();
 	} else if (argv[1][0] != '-') {
 	    lbiff_data.file = argv[1];
-	} else 
-	  Usage();
+	} else {
+	    fprintf(stderr,
+		    "%s: no such option \"%s\", type '%s -help' for help\n",
+		    progname,argv[1],progname);
+	    exit(1);
+	}
     }
 
     /*
@@ -254,8 +258,7 @@ main(argc, argv)
     ** check to see if there's something to do, pop up window if necessary,
     ** and set up alarm to wake us up again every so often.
     */
-    checksize();
-    XtAppAddTimeOut(app_context,lbiff_data.update * 1000, handler, NULL);
+    handler();
 
     /*
     ** main program loop  --  mostly just loops forever waiting for events
@@ -285,10 +288,10 @@ Usage()
 NULL};
     char **s;
 
-    fprintf(stderr,"usage:\t%s [-options ...]\n", progname);
+    printf("usage:\t%s  [-options ...]  [file to watch]\n", progname);
     for (s= help_message; *s; s++)
-      fprintf(stderr, "%s\n", *s);
-    fprintf(stderr,"\n");
+      printf("%s\n", *s);
+    printf("\n");
     exit(1);
 }
 
@@ -305,8 +308,15 @@ Exit()
 
 
 /***************\
-|*  checksize  *|  checks mail file to see if size has changed
-\***************/
+|*  checksize  *|  checks mail file to see if new mail is present
+|***************
+|*	This routine stat's the mail spool file and compares its size
+|*	with the previously obtained result.  If the size has become 
+|*	zero, it pops down the window.  If nonzero, it calls a routine
+|*	to execute the scanCommand.  If the result of this is non-null,
+|*	it pops up a window showing it (note that users of Berkeley
+|*	mail may have non-empty mail files with all old mail).
+\*/
 checksize()
 {
     static int mailsize = 0;
@@ -316,14 +326,19 @@ checksize()
     stat(lbiff_data.file,&mailstat);
     if (mailstat.st_size != mailsize) {
 	DP(("changed size: %d -> %d\n",mailsize,mailstat.st_size));
-	mailsize = mailstat.st_size;
-	if (mailsize == 0) {
-	    Popdown();
-	} else {
-	    if (visible && lbiff_data.bottom)
+	mailsize = mailstat.st_size;		/* remember the new size */
+	if (mailsize == 0) {			/* mail file got inc'ed  */
+	    if (visible)
 	      Popdown();
-	    setXbuf(doScan());
-	    Popup();
+	} else {				/* something was added? */
+	    char *s = doScan();
+
+	    if (strlen(s) != 0)	{		/* is there anything new? */
+		setXbuf(s);
+		if (visible && lbiff_data.bottom)  /* popdown if at bottom */
+		  Popdown();
+		Popup();			/* pop back up */
+	    }
 	}
     } else {
 	DP(("ok\n"));
@@ -376,7 +391,7 @@ doScan()
 	DP(("---size= %dx%d\n", lbiff_data.maxRows, lbiff_data.width));
 
 	cmd_buf = (char*)malloc(strlen(lbiff_data.cmd) +
-				strlen(lbiff_data.file) + 4);
+				strlen(lbiff_data.file) + 10);
 	if (cmd_buf == NULL) {
 	    fprintf(stderr,"%s: ",progname);
 	    perror("cmd_buf malloc()");
@@ -407,7 +422,7 @@ doScan()
 
     buf[size] = '\0';				/* null-terminate it! */
 
-    DP(("scanned: %s\n",buf));
+    DP(("scanned:\n%s\n",buf));
     return buf;
 }
 
@@ -437,33 +452,48 @@ setXbuf(s)
       initStaticData(&borderWidth,&fontHeight,&fontWidth);
 
     /*
+    ** Set label text to the message scan list
+    */
+    XtSetArg(args[0],XtNlabel,s);
+    XtSetValues(textBox,args,1);
+
+    /*
+    ** If we're NOT running with -bottom, we're all done since the widget
+    ** resizes automatically.
+    */
+    if (!lbiff_data.bottom)
+      return;
+
+    /*
+    ** Unfortunately, when running with -bottom, we need to explicitly
+    ** resize the widget.  To do this, we get its width & height and 
+    ** multiply by the font size.
+    */
+
+    /*
     ** count rows and columns
     */
     for (i=0; i < len-1; i++) {
-	if (s[i] == '\n') {
+	if (s[i] == '\n') {			/* new line: clear width */
 	    ++h;
 	    tmp_w = 0;
 	} else {
 	    ++tmp_w;
-	    if (tmp_w > w)
+	    if (tmp_w > w)			/* monitor highest width */
 	      w = tmp_w;
 	}
     }
 
-    if (h > lbiff_data.maxRows)			/* cut to fit */
+    if (h > lbiff_data.maxRows)			/* cut to fit max wid/hgt */
       h = lbiff_data.maxRows;
     if (w > lbiff_data.width)
-      w = lbiff_data.width;
-    if (lbiff_data.fit == False)
       w = lbiff_data.width;
     DP(("geom= %dx%d (%dx%d pixels)\n",w,h,w*fontWidth,h*fontHeight));
 
     /*
-    ** Set widget to given size, plus some leeway.  Set label text.
+    ** Set widget to given size, plus some leeway.
     */
     XtResizeWidget(topLevel,w*fontWidth+6,h*fontHeight+4,borderWidth);
-    XtSetArg(args[0],XtNlabel,s);
-    XtSetValues(textBox,args,1);
 }
 
 
@@ -500,7 +530,7 @@ initStaticData(bw, fontH, fontW)
 
 
 /************\
-|*  Shrink  *|  get StructureNotify events, popdown if iconized
+|*  Shrink  *|  get StructureNotify events, popdown if iconified
 \************/
 void
 #ifdef	FUNCPROTO
