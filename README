@@ -1,0 +1,32 @@
+This is xlbiff, the X Literate Biff.
+
+Xlbiff lurks in the background, monitoring your mailbox file (normally
+/usr/spool/mail/<yourusername>).  When something shows up there, it
+invokes the MH scan(1) command and displays the output in a window.
+Clicking the left mouse button anywhere in the window causes it to
+vanish.  It will also vanish if you inc(1) and the mailbox becomes 
+empty.  Xlbiff is a lot like xconsole -- its job is to sit invisibly
+and pop up only when something demands your attention.
+
+
+PORTING
+
+Xlbiff has been tested only on one DECstation 5000 running Ultrix 4.2 
+and X11R5.  It compiles under cc and gcc, but not under DEC ANSI C for
+reasons I haven't bothered to investigate.  The only things I can imagine
+causing trouble are the use of alarm(3) and getlogin/getpwuid(3).  If
+fixes are required, or if you add any whizzy features, please mail them
+to santiago@lerad.pa.dec.com and I will take care of the normal release
+nonsense.
+
+
+BACKGROUND
+
+I wrote xlbiff because I don't always want to read my mail.  Xbiff, from
+the X distribution, lets me know when I have mail but not what it is -- this
+makes me have to inc(1) just so I can decide if I want to bother reading 
+it.  Xlbiff gives me a much better indication of whether or not I want to
+take time to read a new message.
+
+Before xlbiff, I wrote a crude hack using perl and xmessage.  It worked,
+but I had always wanted to do it right.  This is it, I hope.
