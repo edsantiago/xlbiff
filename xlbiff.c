@@ -1,4 +1,4 @@
-static char rcsid[]= "$Id: xlbiff.c,v 1.18 1991/08/26 20:32:21 santiago Exp $";
+static char rcsid[]= "$Id: xlbiff.c,v 1.19 1991/08/27 21:56:16 santiago Exp $";
 /*\
 |* xlbiff  --  X Literate Biff
 |*
@@ -335,6 +335,7 @@ doScan()
     static int	bufsize;
     FILE 	*p;
     size_t	size;
+    int		status;
 
     DP(("++doScan()\n"));
 
@@ -358,14 +359,20 @@ doScan()
     ** execute the command, read the results, then set the contents of X window
     */
     if ((p= popen(cmd_buf,"r")) == NULL) {
+	fprintf(stderr,"%s: ",progname);
 	perror("popen");
 	exit(1);
     }
     if ((size= fread(buf,1,bufsize,p)) < 0) {
+	fprintf(stderr,"%s: ",progname);
 	perror("fread");
 	exit(1);
     }
-    pclose(p);
+    if ((status= pclose(p)) != 0) {
+	fprintf(stderr,"%s: scanCommand failed\n",progname);
+	exit(status);
+    }
+
     buf[size] = '\0';
 
     DP(("scanned: %s\n",buf));
