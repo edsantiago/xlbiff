@@ -1,4 +1,4 @@
-static char rcsid[]= "$Id: xlbiff.c,v 1.30 1991/10/01 22:18:06 santiago Exp $";
+static char rcsid[]= "$Id: xlbiff.c,v 1.31 1991/10/01 23:21:25 santiago Exp $";
 /*\
 |* xlbiff  --  X Literate Biff
 |*
@@ -109,6 +109,7 @@ typedef struct {
     int		maxHeight;		/* max# of lines in display	*/
     int		volume;			/* bell volume, 0-100 percent	*/
     Boolean	bottom;			/* Put window at window bottom  */
+    Boolean	resetSaver;		/* reset screensaver on popup   */
 } AppData, *AppDataPtr;
 AppData		lbiff_data;
 
@@ -130,7 +131,9 @@ static XtResource	xlbiff_resources[] = {
     { "volume", "Volume", XtRInt, sizeof(int),
 	offset(volume), XtRString, "100"},
     { "bottom", "Bottom", XtRBoolean, sizeof(Boolean),
-	offset(bottom), XtRString, "false"}
+	offset(bottom), XtRString, "false"},
+    { "resetSaver", "ResetSaver", XtRBoolean, sizeof(Boolean),
+	offset(resetSaver), XtRString, "false"}
 };
 
 static XrmOptionDescRec	optionDescList[] = {
@@ -139,6 +142,7 @@ static XrmOptionDescRec	optionDescList[] = {
     { "-file",	"*file",	XrmoptionSepArg,	(caddr_t) NULL},
     { "-update","*update",	XrmoptionSepArg,	(caddr_t) NULL},
     { "-volume","*volume",	XrmoptionSepArg,	(caddr_t) NULL},
+    { "-resetSaver","*resetSaver",XrmoptionNoArg,	(caddr_t) "true"},
     { "-width", "*width",	XrmoptionSepArg,	(caddr_t) NULL}
 };
 
@@ -521,7 +525,15 @@ Popup( s )
 	XtMapWidget(topLevel);
     }
 
+    /*
+    ** Pop window up to top of stack, also beep to attract attention.
+    ** If resetSaver is set, reset the screensaver.
+    */
+    XRaiseWindow(XtDisplay(topLevel),XtWindow(topLevel));
     XBell(XtDisplay(topLevel),lbiff_data.volume - 100);
+
+    if (lbiff_data.resetSaver)
+      XResetScreenSaver(XtDisplay(topLevel));
 
     visible = True;
 }
