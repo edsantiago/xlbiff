@@ -57,7 +57,9 @@ typedef struct {
     char	*file;			/* file to monitor size of 	*/
     char	*cmd;			/* command to execute		*/
     int		update;			/* update interval, in seconds	*/
-    int		maxLines;		/* max# of lines in display	*/
+    int		width;			/* number of columns across	*/
+    int		maxHeight;		/* max# of lines in display	*/
+    Boolean	fit;			/* fit display to widest line?	*/
 } AppData, *AppDataPtr;
 AppData		lbiff_data;
 
@@ -73,11 +75,16 @@ static XtResource	xlbiff_resources[] = {
 	offset(cmd), XtRString, "scan -file %s" },
     { "update", "Interval", XtRInt, sizeof(int),
 	offset(update), XtRString, "10"},
-    { "maxLines", "MaxLines", XtRInt, sizeof(int),
-	offset(maxLines), XtRString, "20"}
+    { "width", "Width", XtRInt, sizeof(int),
+	offset(width), XtRString, "80"},
+    { "maxHeight", "Height", XtRInt, sizeof(int),
+	offset(maxHeight), XtRString, "20"},
+    { "fit", "Fit", XtRBoolean, sizeof(Boolean),
+	offset(fit), XtRString, "false"}
 };
 
 static XrmOptionDescRec	optionDescList[] = {
+    { "-debug", "*debug",	XrmoptionNoArg,		(caddr_t) "true"},
     { "-file",	"*file",	XrmoptionSepArg,	(caddr_t) NULL},
     { "-update","*update",	XrmoptionSepArg,	(caddr_t) NULL}
 };
@@ -244,20 +251,32 @@ handler()
 int
 doscan()
 {
-    char	cmd_buf[200];
-    char 	buf[1024];
+    static char	cmd_buf[200];
+    static char *buf = NULL;
+    static int	bufsize;
     FILE 	*p;
     size_t	size;
 
     DEBUG(("++doscan()\n"));
 
-    sprintf(cmd_buf,lbiff_data.cmd,lbiff_data.file);
+    if (buf == NULL) {
+	bufsize = lbiff_data.width * lbiff_data.maxHeight;
+	if ((buf= (char*)malloc(bufsize)) == NULL) {
+	    fprintf(stderr,"error in malloc\n");
+	    exit(1);
+	}
+
+	sprintf(cmd_buf,lbiff_data.cmd,  lbiff_data.file,  lbiff_data.width);
+	DEBUG(("---size= %dx%d\n---cmd=%s\n",lbiff_data.maxHeight,
+	       lbiff_data.width,cmd_buf));
+    }
+
     if ((p= popen(cmd_buf,"r")) == NULL) {
 	perror("popen");
 	exit(1);
     }
 
-    if ((size= fread(buf,1,sizeof buf,p)) < 0) {
+    if ((size= fread(buf,1,bufsize,p)) < 0) {
 	perror("fread");
 	exit(1);
     }
@@ -302,8 +321,10 @@ setXbuf(char *s)
 	}
     }
 
-    if (h > lbiff_data.maxLines)
-      h = lbiff_data.maxLines;
+    if (h > lbiff_data.maxHeight)
+      h = lbiff_data.maxHeight;
+    if (lbiff_data.fit == False)
+      w = lbiff_data.width;
 
     DEBUG(("geom= %dx%d (%dx%d pixels)\n",w,h,w*fontWidth,h*fontHeight));
     XtResizeWidget(topLevel,w*fontWidth+6,h*fontHeight+4,borderWidth);
