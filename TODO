@@ -3,7 +3,8 @@
 
 *   Do like xbiffR5, popdown window if mailbox file is read?
 
-*   Think of something to do if there are more than maxRows lines.
+*   Think of something to do if there are more than maxRows lines.  My
+    guess would be to add scroll bars.
 
 *   -refresh <time> flag, for when you pop it down and forget you have mail,
     perhaps it could re-pop-up every 30 minutes or so?
