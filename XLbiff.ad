@@ -8,11 +8,18 @@
 !*foreground:		purple
 !*background:		green
 !
-! command to use
+! command to use for reading new mail info
 !
 *scanCommand:		scan -file %s -width %d 2>&1
 !*scanCommand:		scan -file %s -width %d -form xlbiff.form 2>&1
 !*scanCommand:		echo 'x' | mail | grep '^.[UN]'
+!*scanCommand:		frm
+!
+! Command to use for invoking mailreader (default is none)
+!
+!*mailerCommand:	xterm -e elm
+!*mailerCommand:	xterm -e plum
+!*mailerCommand:	xmh
 !
 ! Dimensions of the display window
 !
@@ -33,5 +40,7 @@
 !
 *translations:		#override\n\
 			:<Key>space:		popdown()\n\
-			:<Key>q:		exit()\n\
-			:<Btn3Down>,<Btn3Up>:	exit()\n
+			:<Btn1Down>,<Btn1Up>:	popdown()\n\
+			:<Btn2Down>,<Btn2Up>:	mailer()\n\
+			:<Btn3Down>,<Btn3Up>:	exit()\n\
+			:<Key>q:		exit()\n

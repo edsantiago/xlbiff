@@ -89,6 +89,14 @@ This option specifies the number of seconds to wait before re-posting the
 mail window after you acknowledge it, and it still contains the same mail.
 The default is 0 (no refresh).  A useful value for this is 1800 (30 minutes).
 .TP 8
+.B \-mailerCommand \fIcommand\fP
+Specifies the command to invoke when the the mailer() action is activated,
+eg, "xterm -e elm".  By default this is bound to the second mouse button.
+Invoking this action will pop down the main window.  When the command exits,
+it will pop up again.  Due to mailbox consistency considerations, the
+mailerCommand should not exit before it is finished with the mailbox, i.e.
+it should not be run in the background.
+.TP 8
 .B \-scanCommand \fIcommand\fP
 Specifies a shell command to be executed to list the contents of mailbox
 \fBfile\fP.  The specified string value is used as the
@@ -155,6 +163,9 @@ Same as the \fB\-bottom\fP option.
 .TP 8
 .B file (\fPclass\fB File)
 Same as the \fB\-file\fP option.
+.TP 8
+.B mailerCommand (\fPclass\fB MailerCommand)
+Same as the \fB\-mailerCommand\fP option.
 .TP 8
 .B scanCommand (\fPclass\fB ScanCommand)
 Same as the \fB\-scanCommand\fP option.
