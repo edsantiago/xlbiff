@@ -133,7 +133,11 @@ HISTORY
   Where applicable, changes are attributed to the people who submitted
   the ideas and, in many cases, patches and source code.
 
-  * Version 3.0
+  * Version 3.1 (unreleased)
+      From Bjoern Stabell <bjoerns@stud.cs.uit.no>
+	+ add *mailerCommand resource and functionality!
+
+  * Version 3.0 (released 26 Oct 92)
 	+ miscellaneous bug fixes
 
       From Gary Weimer <weimer@ssd.kodak.com>
