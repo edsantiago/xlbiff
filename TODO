@@ -1,3 +1,5 @@
+*   BUG: *bottom doesn't interoperate with tvtwm's 'Sticky' feature.
+
 *   Do like xbiffR5, popdown window if mailbox file is read?  nah.
 
 *   Think of something to do if there are more than maxRows lines.  My
