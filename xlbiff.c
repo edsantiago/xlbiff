@@ -1,4 +1,4 @@
-static char rcsid[]= "$Id: xlbiff.c,v 1.40 1991/10/08 01:51:56 santiago Exp $";
+static char rcsid[]= "$Id: xlbiff.c,v 1.41 1991/10/15 02:43:45 santiago Exp $";
 /*\
 |* xlbiff  --  X Literate Biff
 |*
@@ -74,22 +74,26 @@ static char rcsid[]= "$Id: xlbiff.c,v 1.40 1991/10/08 01:51:56 santiago Exp $";
 **                                prototypes                                 **
 \*****************************************************************************/
 char		*doScan();
+void		Popdown();
 void		Usage();
-void		Exit();
 extern char	*getlogin();
 
 #ifdef	FUNCPROTO
 void	Shrink(Widget, caddr_t, XEvent*, Boolean*);
 void	handler(XtPointer,XtIntervalId*);
 void	initStaticData(int*,int*,int*);
-void	Popdown(), Popup(char*);
+void	Exit(Widget, XEvent*, String*, Cardinal*);
+void	Popup(char*);
 void	getDimensions(char*,Dimension*,Dimension*);
+void	toggle_key_led(int);
 #else
 void	Shrink();
 void	handler();
 void	initStaticData();
-void	Popdown(), Popup();
+void	Exit();
+void	Popup();
 void	getDimensions();
+void	toggle_key_led();
 #endif
 
 /*****************************************************************************\
@@ -102,6 +106,9 @@ XtAppContext app_context;		/* application context		*/
 Boolean	visible;			/* is window visible?		*/
 char	*default_file;			/* default filename		*/
 char	*progname;			/* my program name		*/
+long	acknowledge_time = 0;		/* time window was acknowledged	*/
+
+static Atom wm_delete_window;		/* for handling WM_DELETE	*/
 
 typedef struct {
     Boolean	debug;			/* print out useful stuff 	*/
@@ -113,6 +120,8 @@ typedef struct {
     int		volume;			/* bell volume, 0-100 percent	*/
     Boolean	bottom;			/* Put window at window bottom  */
     Boolean	resetSaver;		/* reset screensaver on popup   */
+    long	refresh;		/* seconds before reposting msg	*/
+    int		led;			/* led number to light up	*/
 } AppData, *AppDataPtr;
 AppData		lbiff_data;
 
@@ -136,7 +145,11 @@ static XtResource	xlbiff_resources[] = {
     { "bottom", "Bottom", XtRBoolean, sizeof(Boolean),
 	offset(bottom), XtRString, "false"},
     { "resetSaver", "ResetSaver", XtRBoolean, sizeof(Boolean),
-	offset(resetSaver), XtRString, "false"}
+	offset(resetSaver), XtRString, "false"},
+    { "refresh", "Refresh", XtRInt, sizeof(int),
+	offset(refresh), XtRString, "1800"},
+    { "led", "Led", XtRInt, sizeof(int),
+	offset(led), XtRString, "0"}
 };
 
 static XrmOptionDescRec	optionDescList[] = {
@@ -149,7 +162,9 @@ static XrmOptionDescRec	optionDescList[] = {
     { "-update",      ".update",      XrmoptionSepArg,	(caddr_t) NULL},
     { "-volume",      ".volume",      XrmoptionSepArg,	(caddr_t) NULL},
     { "-resetSaver",  ".resetSaver",  XrmoptionNoArg,	(caddr_t) "true"},
-    { "+resetSaver",  ".resetSaver",  XrmoptionNoArg,	(caddr_t) "false"}
+    { "+resetSaver",  ".resetSaver",  XrmoptionNoArg,	(caddr_t) "false"},
+    { "-refresh",     ".refresh",     XrmoptionSepArg,	(caddr_t) NULL},
+    { "-led",         ".led",         XrmoptionSepArg,	(caddr_t) NULL}
 };
 
 static char *fallback_resources[] = {
@@ -179,7 +194,6 @@ main(argc, argv)
     char *argv[];
 #endif
 {
-
     progname = argv[0];
 
     topLevel = XtVaAppInitialize(&app_context,
@@ -187,13 +201,12 @@ main(argc, argv)
 				 optionDescList, XtNumber(optionDescList),
 				 &argc, argv,
 				 fallback_resources,
-				 XtNallowShellResize, TRUE,
+				 XtNallowShellResize, True,
 				 NULL);
 
     XtGetApplicationResources(topLevel, &lbiff_data,
 			      xlbiff_resources, XtNumber(xlbiff_resources),
 			      (ArgList)NULL,0);
-
 
 #ifndef	DEBUG
     if (lbiff_data.debug)
@@ -258,6 +271,14 @@ main(argc, argv)
     XtAddEventHandler(topLevel,StructureNotifyMask,False,
 		      (XtEventHandler)Shrink,(caddr_t)NULL);
 
+    XtOverrideTranslations(topLevel,
+	XtParseTranslationTable ("<Message>WM_PROTOCOLS: exit()"));
+
+    wm_delete_window = XInternAtom (XtDisplay(topLevel), "WM_DELETE_WINDOW",
+	    			    False);
+
+    toggle_key_led(False);
+
     /*
     ** check to see if there's something to do, pop up window if necessary,
     ** and set up alarm to wake us up again every so often.
@@ -290,6 +311,8 @@ Usage()
 "    -volume percentage                 how loud to ring the bell",
 "    -bg color                          background color",
 "    -fg color                          foreground color",
+"    -refresh seconds                   seconds before re-posting window",
+"    -led ledNum                        keyboard LED to light up",
 NULL};
     char **s;
 
@@ -305,9 +328,31 @@ NULL};
 |*  Exit  *|  called via callback, exits the program
 \**********/
 void
-Exit()
+#ifdef	FUNCPROTO
+Exit(Widget w, XEvent *event, String *params, Cardinal *num_params)
+#else
+Exit(w, event, params, num_params)
+Widget w;
+XEvent *event;
+String *params;
+Cardinal *num_params;
+#endif
 {
     DP(("++exit()\n"));
+
+    if (event->type == ClientMessage) {
+	if (event->xclient.data.l[0] != wm_delete_window) {
+	    DP(("received client message that was not delete_window\n"));
+	    XBell (XtDisplay(w), 0);
+	    return;
+	} else
+	    DP(("exiting after receiving a wm_delete_window message\n"));
+    }
+
+    toggle_key_led(False);
+
+    XCloseDisplay(XtDisplay(w));
+
     exit(0);
 }
 
@@ -326,6 +371,9 @@ checksize()
 {
     static int mailsize = 0;
     struct stat mailstat;
+    int pop_window = False;
+    struct timeval tp;
+    struct timezone tzp;
 
     DP(("++checksize()..."));
 
@@ -345,6 +393,7 @@ checksize()
     ** would get too ugly.
     */
     if (stat(lbiff_data.file,&mailstat) != 0) {
+	DP(("stat() failed, errno=%d.  Assuming filesize=0!\n",errno));
 	mailstat.st_size = 0;
     }
 
@@ -353,10 +402,33 @@ checksize()
     */
     if (mailstat.st_size != mailsize) {
 	DP(("changed size: %d -> %d\n",mailsize,mailstat.st_size));
-	mailsize = mailstat.st_size;		/* remember the new size */
-	if (mailsize == 0) {			/* mail file got inc'ed  */
+	mailsize = mailstat.st_size;
+	pop_window = True;
+	if (mailsize == 0)
+	  toggle_key_led(False);
+	else
+	  toggle_key_led(True);
+    } else if (!visible && lbiff_data.refresh && mailsize != 0) {
+	/*
+	** If window has been popped down, check if it's time to refresh
+	*/
+	if (gettimeofday(&tp,&tzp) != 0) {
+	    fprintf(stderr,"%s: ",progname);
+	    perror("gettimeofday() in checksize()");
+	    toggle_key_led(False);
+	    exit(1);
+	} else {
+	    if ((tp.tv_sec - acknowledge_time) > lbiff_data.refresh) {
+		DP(("reposting window, repost time reached\n"));
+		pop_window = True;
+	    }
+	}
+    }
+
+    if (pop_window) {
+	if (mailsize == 0) {
 	    if (visible)
-	      Popdown();
+		Popdown();
 	} else {				/* something was added? */
 	    char *s = doScan();
 
@@ -367,7 +439,7 @@ checksize()
 	    }
 	}
     } else {
-	DP(("ok\n"));
+	DP(("no change\n"));
     }
 }
 
@@ -419,6 +491,7 @@ doScan()
 	if (buf == NULL) {
 	    fprintf(stderr,"%s: ",progname);
 	    perror("buf malloc()");
+	    toggle_key_led(False);
 	    exit(1);
 	}
 	DP(("---size= %dx%d\n", lbiff_data.rows, lbiff_data.columns));
@@ -428,6 +501,7 @@ doScan()
 	if (cmd_buf == NULL) {
 	    fprintf(stderr,"%s: ",progname);
 	    perror("cmd_buf malloc()");
+	    toggle_key_led(False);
 	    exit(1);
 	}
 
@@ -436,20 +510,23 @@ doScan()
     }
 
     /*
-    ** execute the command, read the results, then set the contents of X window
+    ** execute the command, read the results, then set the contents of window
     */
     if ((p= popen(cmd_buf,"r")) == NULL) {
 	fprintf(stderr,"%s: ",progname);
 	perror("popen");
+	toggle_key_led(False);
 	exit(1);
     }
     if ((size= fread(buf,1,bufsize,p)) < 0) {
 	fprintf(stderr,"%s: ",progname);
 	perror("fread");
+	toggle_key_led(False);
 	exit(1);
     }
     if ((status= pclose(p)) != 0) {
 	fprintf(stderr,"%s: scanCommand failed\n",progname);
+	toggle_key_led(False);
 	exit(status);
     }
 
@@ -495,11 +572,26 @@ Shrink(w, data, e, b)
 void
 Popdown()
 {
+    struct timeval tp;
+    struct timezone tzp;
+
     DP(("++Popdown()\n"));
     if (lbiff_data.bottom) {
 	XtUnrealizeWidget(topLevel);
     } else {
 	XtPopdown(topLevel);
+    }
+
+    /*
+    ** Remember when we were popped down so we can refresh later
+    */
+    if (gettimeofday(&tp,&tzp) != 0) {
+	fprintf(stderr,"%s: ",progname);
+	perror("gettimeofday() in Popdown()");
+	toggle_key_led(False);
+	exit(1);
+    } else {
+	acknowledge_time = tp.tv_sec;
     }
 
     visible = False;
@@ -549,6 +641,13 @@ Popup( s )
     } else {
 	XtPopup(topLevel, XtGrabNone);
     }
+
+    if (acknowledge_time == 0) {
+	/* first time through this code */
+	(void) XSetWMProtocols (XtDisplay(topLevel), XtWindow(topLevel),
+				&wm_delete_window, 1);
+    }
+
 
     XBell(XtDisplay(topLevel),lbiff_data.volume - 100);
 
@@ -631,6 +730,7 @@ initStaticData(bw, fontH, fontW)
     XtGetValues(textBox, args, 2);
     if (fs == NULL) {
 	fprintf(stderr,"%s: unknown font!\n",progname);
+	toggle_key_led(False);
 	exit(1);
     }
 
@@ -639,4 +739,36 @@ initStaticData(bw, fontH, fontW)
     *fontH = fs->max_bounds.ascent + fs->max_bounds.descent;
 
     DP(("font= %dx%d,  borderWidth= %d\n",*fontH,*fontW,*bw));
+}
+
+
+/********************\
+|*  toggle_key_led  *|  toggle a keyboard LED on and off
+\********************/
+void
+#ifdef	FUNCPROTO
+toggle_key_led(int flag)
+#else
+toggle_key_led(flag)
+int	flag;
+#endif
+{
+    XKeyboardControl	keyboard;
+
+    if (lbiff_data.led == 0)		/* return if no led action desired */
+      return;
+
+    DP(("++toggle_key_led(%d,%s)\n",flag ? "True" : "False", lbiff_data.led));
+
+    if (flag)
+	keyboard.led_mode = LedModeOn;
+    else
+	keyboard.led_mode = LedModeOff;
+
+    keyboard.led = lbiff_data.led;
+
+    DP(("will toggle key led = %d\n",lbiff_data.led));
+
+    XChangeKeyboardControl(XtDisplay(topLevel), KBLed | KBLedMode, &keyboard);
+    XSync(XtDisplay(topLevel),False);
 }
