@@ -69,10 +69,32 @@ should update its display.  The default is 15 seconds.
 This option specifies a keyboard LED to light up when there is mail waiting
 in the \fIfile.\fP  The default is zero (do not light a LED).
 .TP 8
+.B \-ledPopdown
+This option indicates that the LED should be turned off when xlbiff is
+popped down.  Ordinarily the LED stays lit to remind one of awaiting mail.
+This option has no effect if the \-led option is disabled.
+.TP 8
+.B \+ledPopdown
+Opposite of \-ledPopdown.
+.TP 8
 .B \-refresh \fIseconds\fP
 This option specifies the number of seconds to wait before re-posting the
 mail window after you acknowledge it, and it still contains the same mail.
 The default is 0 (no refresh).  A useful value for this is 1800 (30 minutes).
+.TP 8
+.B \-scanCommand \fIcommand\fP
+Specifies a shell command to be executed to list the contents of mailbox
+\fBfile\fP.  The specified string value is used as the
+argument to a \fIsystem\fP(3) call and may therefore contain i/o redirection.
+The command's stdout is used to generate the window.  
+Internally, the command is generated as
+.sp
+.nf
+              sprintf(buf, scanCommand, file, columns)
+.fi
+.sp
+so a %s and %d respectively in \fBscanCommand\fP will generate the values
+of \fBfile\fP and \fBcolumns\fP.
 .TP 8
 .B \-volume \fIpercentage\fP
 This option specifies how loud the bell should be rung when new mail comes in.
@@ -106,18 +128,7 @@ Same as the \fB\-bottom\fP option.
 Same as the \fB\-file\fP option.
 .TP 8
 .B scanCommand (\fPclass\fB ScanCommand)
-Specifies a shell command to be executed to list the contents of mailbox
-\fBfile\fP.  The specified string value is used as the
-argument to a \fIsystem\fP(3) call and may therefore contain i/o redirection.
-The command's stdout is used to generate the window.  
-Internally, the command is generated as
-.sp
-.nf
-              sprintf(buf, scanCommand, file, columns)
-.fi
-.sp
-so a %s and %d respectively in \fBscanCommand\fP will generate the values
-of \fBfile\fP and \fBcolumns\fP.
+Same as the \fB\-scanCommand option.
 .TP 8
 .B resetSaver (\fPclass\fB ResetSaver)
 Same as the \fB\-resetSaver\fP option.
@@ -135,6 +146,9 @@ window.  The default is 20.
 .TP 8
 .B led (\fPclass\fB Led)
 Same as the \fB\-led\fP option.
+.TP 8
+.B ledPopdown (\fPclass\fB LedPopdown)
+Same as the \fB\-ledPopdown\fP option.
 .TP 8
 .B refresh (\fPclass\fB Refresh)
 Same as the \fB\-refresh\fP option.
