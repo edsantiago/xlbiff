@@ -1,10 +1,10 @@
-static char rcsid[]= "$Id: xlbiff.c,v 1.38 1991/10/03 17:13:01 santiago Exp $";
+static char rcsid[]= "$Id: xlbiff.c,v 1.39 1991/10/04 04:58:15 santiago Exp $";
 /*\
 |* xlbiff  --  X Literate Biff
 |*
 |* by Eduardo Santiago Munoz
 |*
-|*	Copyright (c) 1991 Digital Equipment Corporation, All Rights Reserved
+|*	Copyright (c) 1991 Digital Equipment Corporation
 |*
 |* Permission to use, copy, modify, distribute, and sell this software and its
 |* documentation for any purpose is hereby granted without fee, provided that
@@ -108,8 +108,8 @@ typedef struct {
     char	*file;			/* file to monitor size of 	*/
     char	*cmd;			/* command to execute		*/
     int		update;			/* update interval, in seconds	*/
-    int		maxWidth;		/* number of columns across	*/
-    int		maxHeight;		/* max# of lines in display	*/
+    int		columns;		/* number of columns across	*/
+    int		rows;			/* max# of lines in display	*/
     int		volume;			/* bell volume, 0-100 percent	*/
     Boolean	bottom;			/* Put window at window bottom  */
     Boolean	resetSaver;		/* reset screensaver on popup   */
@@ -124,13 +124,13 @@ static XtResource	xlbiff_resources[] = {
     { "file", "File", XtRString, sizeof(String),
 	offset(file), XtRString, NULL},
     { "scanCommand", "ScanCommand", XtRString, sizeof(String),
-	offset(cmd), XtRString, "scan -file %s -maxWidth %d" },
+	offset(cmd), XtRString, "scan -file %s -width %d" },
     { "update", "Interval", XtRInt, sizeof(int),
 	offset(update), XtRString, "15"},
-    { "maxWidth", "MaxWidth", XtRInt, sizeof(int),
-	offset(maxWidth), XtRString, "80"},
-    { "maxHeight", "MaxHeight", XtRInt, sizeof(int),
-	offset(maxHeight), XtRString, "20"},
+    { "columns", "Columns", XtRInt, sizeof(int),
+	offset(columns), XtRString, "80"},
+    { "rows", "Rows", XtRInt, sizeof(int),
+	offset(rows), XtRString, "20"},
     { "volume", "Volume", XtRInt, sizeof(int),
 	offset(volume), XtRString, "100"},
     { "bottom", "Bottom", XtRBoolean, sizeof(Boolean),
@@ -144,8 +144,8 @@ static XrmOptionDescRec	optionDescList[] = {
     { "+bottom",      ".bottom",      XrmoptionNoArg,	(caddr_t) "false"},
     { "-debug",       ".debug",	      XrmoptionNoArg,	(caddr_t) "true"},
     { "-file",	      ".file",        XrmoptionSepArg,	(caddr_t) NULL},
-    { "-maxHeight",   ".maxHeight",   XrmoptionSepArg,	(caddr_t) NULL},
-    { "-maxWidth",    ".maxWidth",    XrmoptionSepArg,	(caddr_t) NULL},
+    { "-rows",        ".rows",	      XrmoptionSepArg,	(caddr_t) NULL},
+    { "-columns",     ".columns",     XrmoptionSepArg,	(caddr_t) NULL},
     { "-update",      ".update",      XrmoptionSepArg,	(caddr_t) NULL},
     { "-volume",      ".volume",      XrmoptionSepArg,	(caddr_t) NULL},
     { "-resetSaver",  ".resetSaver",  XrmoptionNoArg,	(caddr_t) "true"},
@@ -179,22 +179,8 @@ main(argc, argv)
     char *argv[];
 #endif
 {
-    char *username;
 
     progname = argv[0];
-    /*
-    ** Get user name, in case no explicit path is given
-    */
-    username = getlogin();
-    if (username == NULL || username[0] == '\0') {
-	struct passwd  *pwd = getpwuid(getuid());
-
-	if (pwd == NULL) {
-	    fprintf(stderr,"%s: cannot get username\n",progname);
-	    exit(1);
-	}
-	username = pwd->pw_name;
-    }
 
     topLevel = XtVaAppInitialize(&app_context,
 				 "XLbiff",
@@ -238,6 +224,18 @@ main(argc, argv)
     ** If no data file was explicitly given, make our best guess
     */
     if (lbiff_data.file == NULL) {
+	char *username = getlogin();
+
+	if (username == NULL || username[0] == '\0') {
+	    struct passwd  *pwd = getpwuid(getuid());
+	    
+	    if (pwd == NULL) {
+		fprintf(stderr, "%s: cannot get username\n", progname);
+		exit(1);
+	    }
+	    username = pwd->pw_name;
+	}
+
 	default_file = (char*)malloc(strlen(MAILPATH) + strlen(username));
 	if (default_file == NULL) {
 	    fprintf(stderr,"%s: ", progname);
@@ -285,8 +283,8 @@ Usage()
 "where options include:",
 "    -display host:dpy                  X server to contact",
 "    -geometry +x+y                     x,y coords of window",
-"    -maxHeight height                  height of window, in lines",
-"    -maxWidth width                    width of window, in characters",
+"    -rows height                       height of window, in lines",
+"    -columns width                     width of window, in characters",
 "    -file file                         file to watch",
 "    -update seconds                    how often to check for mail",
 "    -volume percentage                 how loud to ring the bell",
@@ -415,7 +413,7 @@ doScan()
     ** Initialise command string
     */
     if (buf == NULL) {
-	bufsize = lbiff_data.maxWidth * lbiff_data.maxHeight;
+	bufsize = lbiff_data.columns * lbiff_data.rows;
 
 	buf = (char*)malloc(bufsize);
 	if (buf == NULL) {
@@ -423,7 +421,7 @@ doScan()
 	    perror("buf malloc()");
 	    exit(1);
 	}
-	DP(("---size= %dx%d\n", lbiff_data.maxHeight, lbiff_data.maxWidth));
+	DP(("---size= %dx%d\n", lbiff_data.rows, lbiff_data.columns));
 
 	cmd_buf = (char*)malloc(strlen(lbiff_data.cmd) +
 				strlen(lbiff_data.file) + 10);
@@ -433,7 +431,7 @@ doScan()
 	    exit(1);
 	}
 
-	sprintf(cmd_buf,lbiff_data.cmd, lbiff_data.file, lbiff_data.maxWidth);
+	sprintf(cmd_buf,lbiff_data.cmd, lbiff_data.file, lbiff_data.columns);
 	DP(("---cmd= %s\n",cmd_buf));
     }
 
@@ -598,10 +596,10 @@ getDimensions(s,width,height)
 	}
     }
 
-    if (*height > lbiff_data.maxHeight)		/* cut to fit max wid/hgt */
-      *height = lbiff_data.maxHeight;
-    if (*width > lbiff_data.maxWidth)
-      *width = lbiff_data.maxWidth;
+    if (*height > lbiff_data.rows)		/* cut to fit max wid/hgt */
+      *height = lbiff_data.rows;
+    if (*width > lbiff_data.columns)
+      *width = lbiff_data.columns;
 
     DP(("geom= %dx%d chars (%dx%d pixels)\n",*width,*height,
 	                                     *width*fontWidth,
