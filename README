@@ -7,7 +7,7 @@ WHAT IS IT?
   This is xlbiff, the X Literate Biff.
 
   Xlbiff lurks in the background, monitoring your mailbox file (normally
-  /usr/spool/mail/<yourusername>).  When something shows up there, it
+  /var/spool/mail/<yourusername>).  When something shows up there, it
   invokes the MH scan(1) command and displays the output in a window.
   If more mail comes in, it scans again and resizes accordingly.
 
@@ -31,13 +31,14 @@ ADVANTAGES (or, Why Yet Another Biff?)
 INSTALLING
 ==========
 
-  Xlbiff is old... it uses the archaic X11 "imake" mechanism:
+  Xlbiff is old... it uses the X11 "imake" mechanism:
 
       % xmkmf
       % make
 
   You may want to look at the Imakefile to make sure you agree with
   the default values in it, first.
+
 
 ===========================
 INSTALLING -- WITHOUT IMAKE
@@ -82,7 +83,7 @@ CUSTOMIZING
 
 
 =======================
-*THINGS TO BE AWARE OF*
+|THINGS TO BE AWARE OF|
 =======================
 
   Xlbiff invokes `scan -file xxx' by default, and thus requires MH 6.7
@@ -165,6 +166,7 @@ HISTORY
 
   * Version 4.1  (8 Nov 2003)
 	+ improved Bcheck and Bscan
+	+ updated email addresses, URLs
 	+ Packaged for Debian release
 
   * Version 4.0  (2 June 1994 for X11R6 contrib tape)
