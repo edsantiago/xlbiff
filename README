@@ -146,7 +146,8 @@ HISTORY
       From me:
 	+ add ErrExit routine, do some more cleanup.
 	+ output error message if scan fails, but don't die.
-	+ add ledPopdown resource.
+	+ add ledPopdown option.
+	+ add checkCommand option (after lots of pestering by Mark!)
 
   * Version 2.0 submitted for X11R5 contrib tape  Fri  4 Oct 1991
 	+ no change, just up rev level
