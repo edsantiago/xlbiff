@@ -71,4 +71,4 @@ clean:
 
 shar:
 	shar -o 	$(EXE).shar README TODO Makefile $(APPRES).ad	\
-			$(HDRS) $(SRC) $(EXE).form  $(MAN) >shar
+			$(HDRS) $(SRC) $(EXE).form  $(MAN) tcx
