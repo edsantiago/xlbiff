@@ -19,6 +19,7 @@
 !
 !*mailerCommand:	xterm -e elm
 !*mailerCommand:	xterm -e plum
+!*mailerCommand:	xterm -e mailx
 !*mailerCommand:	xmh
 !
 ! Dimensions of the display window
