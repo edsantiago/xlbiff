@@ -33,9 +33,8 @@ INSTALLING
 
   Type 'make' and cross your fingers.  If that all works, su and type 
   `make install' or install by hand -- you should be able to figure
-  it out.  Be aware that I could be an evil master criminal person
-  and could have inserted all sorts of {trojan horses,virii,worms}
-  so don't just su because I say so.
+  it out.  And _please_ don't just su because I say so.  Take a look
+  at the sources and Makefile before you compromise your system.
 
   If the make didn't work out that well, see PORTING below.
 
@@ -59,6 +58,10 @@ CUSTOMIZING
 
   Xlbiff.form was stolen & hacked from Jerry Peek's excellent Nutshell
   book on MH & xmh.
+
+  There are also two sample scripts, Bcheck and Bscan, intended to be
+  used in conjunction.  These are for checking mail in "bulk" maildrops.
+  See README.bulk for more info.
 
 
 *THINGS TO BE AWARE OF*
@@ -98,10 +101,10 @@ CUSTOMIZING
 PORTING (or, if INSTALLING didn't work)
 
   Xlbiff has been tested (to my knowledge) on a DECstation 5000/200
-  running Ultrix 4.2 using cc and gcc (DEC ANSI C barfs on it); Suns 
-  running SunOS 4.1.1 with cc and gcc; and even an SVR3 system.
+  running Ultrix 4.2 using cc and gcc; Suns running SunOS 4.1.x with
+  cc and gcc; and even an SVR3 system.
 
-  Xlbiff requires X11R4 or beyond and works best with MH 6.7 and up.
+  Xlbiff requires X11R5 or beyond and works best with MH 6.7 and up.
 
   On systems that don't have strerror(), eg, SunOS, you will need to
   uncomment the NEED_STRERROR line in Imakefile or Makefile.std.
@@ -133,9 +136,18 @@ HISTORY
   Where applicable, changes are attributed to the people who submitted
   the ideas and, in many cases, patches and source code.
 
-  * Version 3.1 (unreleased)
+  * Version 4.0  (2 June 1994 for X11R6 contrib tape)
+	+ expand functionality of "checkCommand"
+	+ include "bulk" scripts, taking advantage of checkCommand
+	+ general cleanup
+
+      From Stephen Gildea <gildea@x.org>
+	+ don't call XBell() if volume is zero (workaround for bug
+	  in certain X terminals).
+
+  * Version 3.1  (unreleased)
       From Bjoern Stabell <bjoerns@stud.cs.uit.no>
-	+ add *mailerCommand resource and functionality!
+	+ add *mailerCommand resource and functionality
 
   * Version 3.0 (released 26 Oct 92)
 	+ miscellaneous bug fixes
