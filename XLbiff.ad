@@ -11,19 +11,19 @@
 !
 ! command to use
 !
-.scanCommand:		scan -file %s -width %d -form xlbiff.form
-!.scanCommand:		mail </dev/null | grep -v '^.[UN]'
+*scanCommand:		scan -file %s -width %d -form xlbiff.form
+!*scanCommand:		mail </dev/null | grep -v '^.[UN]'
 !
 ! Dimensions of the display window
 !
-.width:			80
-.maxRows:		20
+*width:			80
+*maxRows:		20
 !
 ! miscellaneous
 !
-.volume:		100
-.update:		15
-.fit:			False
+*volume:		100
+*update:		15
+*fit:			False
 !
 ! actions
 !
