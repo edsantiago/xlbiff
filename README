@@ -121,6 +121,9 @@ HISTORY
   Where applicable, changes are attributed to the people who submitted
   the ideas and, in many cases, patches and source code.
 
+  * Version 2.0 submitted for X11R5 contrib tape  Fri  4 Oct 1991
+	+ no change, just up rev level
+
   * Version 1.5 submitted for testing  Thu  3 Oct 1991
       From  Jhon Honce <honce@spso.gsfc.nasa.gov>
 	+ change 'maxWidth/maxHeight' to 'columns/rows'.  Bottom option
