@@ -1,4 +1,4 @@
-static char rcsid[]= "$Id: xlbiff.c,v 1.20 1991/08/30 20:53:41 santiago Exp $";
+static char rcsid[]= "$Id: xlbiff.c,v 1.21 1991/09/20 00:23:40 santiago Exp $";
 /*\
 |* xlbiff  --  X Literate Biff
 |*
@@ -53,6 +53,13 @@ static char rcsid[]= "$Id: xlbiff.c,v 1.20 1991/08/30 20:53:41 santiago Exp $";
 #include <X11/StringDefs.h>
 #include <X11/Xaw/Command.h>
 
+
+/*
+** This is an ANSIism, so some compiler libraries don't have it/
+*/
+#ifndef	PATH_MAX
+#define PATH_MAX	256
+#endif
 
 /*
 ** if compiled with -DDEBUG *and* run with debugging on, this does lots
