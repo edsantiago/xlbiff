@@ -1,4 +1,4 @@
-static char rcsid[]= "$Id: xlbiff.c,v 1.34 1991/10/02 19:30:54 santiago Exp $";
+static char rcsid[]= "$Id: xlbiff.c,v 1.35 1991/10/02 19:51:00 santiago Exp $";
 /*\
 |* xlbiff  --  X Literate Biff
 |*
@@ -179,21 +179,20 @@ main(argc, argv)
 #endif
 {
     char *username;
-    struct passwd  *pwd;
 
     progname = argv[0];
     /*
     ** Get user name, in case no explicit path is given
     */
-    pwd = getpwuid(getuid());
-    if (pwd != NULL) {
-	username = pwd->pw_name;
-    } else {
-	username = getlogin();
-	if (username == NULL) {
+    username = getlogin();
+    if (username == NULL || username[0] == '\0') {
+	struct passwd  *pwd = getpwuid(getuid());
+
+	if (pwd == NULL) {
 	    fprintf(stderr,"%s: cannot get username\n",progname);
 	    exit(1);
 	}
+	username = pwd->pw_name;
     }
 
     topLevel = XtVaAppInitialize(&app_context,
