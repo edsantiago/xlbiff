@@ -1,4 +1,4 @@
-static char rcsid[]= "$Id: xlbiff.c,v 1.22 1991/09/20 01:58:11 santiago Exp $";
+static char rcsid[]= "$Id: xlbiff.c,v 1.23 1991/09/23 18:07:28 santiago Exp $";
 /*\
 |* xlbiff  --  X Literate Biff
 |*
@@ -40,29 +40,18 @@ static char rcsid[]= "$Id: xlbiff.c,v 1.22 1991/09/20 01:58:11 santiago Exp $";
 
 #include "patchlevel.h"
 
+#include <X11/Intrinsic.h>
+#include <X11/StringDefs.h>
+#include <X11/Shell.h>
+#include <X11/Xaw/Command.h>
+#include <X11/Xos.h>
+
 #include <stdio.h>
-#include <sys/types.h>
 #include <sys/stat.h>
 #include <signal.h>
 #include <setjmp.h>
 #include <pwd.h>
-#include <unistd.h>
-#include <limits.h>
 
-#include <X11/Intrinsic.h>
-#include <X11/StringDefs.h>
-#include <X11/Xaw/Command.h>
-
-
-/*
-** These are an ANSIisms, so some compiler libraries don't have them
-*/
-#ifndef	PATH_MAX
-#define PATH_MAX	256
-#endif
-#ifndef	ARG_MAX
-#define ARG_MAX		1024
-#endif
 
 /*
 ** if compiled with -DDEBUG *and* run with debugging on, this does lots
@@ -90,9 +79,16 @@ char	*doScan();
 void	Usage();
 void	Exit();
 void	Popdown(), Popup();
+
+#ifdef	FUNCPROTO
 void	Shrink(Widget, caddr_t, XEvent*);
 void	initStaticData(int*,int*,int*);
 void	setXbuf(char*);
+#else
+void	Shrink();
+void	initStaticData();
+void	setXbuf();
+#endif
 
 /*****************************************************************************\
 **                                 globals				     **
@@ -102,7 +98,7 @@ extern int errno;
 Widget	topLevel,textBox;		/* my widgets			*/
 jmp_buf	myjumpbuf;			/* for longjmp()ing after timer	*/
 int	visible;			/* is window visible?		*/
-char	default_file[PATH_MAX];		/* default filename		*/
+char	*default_file;			/* default filename		*/
 char	*progname;			/* my program name		*/
 
 typedef struct {
@@ -148,7 +144,7 @@ static XrmOptionDescRec	optionDescList[] = {
 
 static char *fallback_resources[] = {
     "XLbiff*font:	-*-clean-bold-r-normal--13-130-75-75-c-80-iso8859-1",
-    "XLbiff*geometry:	=+0-0",
+    "XLbiff*geometry:	+0-0",
     NULL
 };
 
@@ -165,7 +161,13 @@ static XtActionsRec lbiff_actions[] = {
 /**********\
 |*  main  *|
 \**********/
+#ifdef	FUNCPROTO
 main( int argc, char *argv[] )
+#else
+main(argc, argv)
+    int argc;
+    char *argv[];
+#endif
 {
     char *username;
     struct passwd  *pwd;
@@ -175,10 +177,12 @@ main( int argc, char *argv[] )
     /*
     ** Get user name, in case no explicit path is given
     */
-    if ((pwd= getpwuid(getuid())) != NULL) {
+    pwd = getpwuid(getuid());
+    if (pwd != NULL) {
 	username = pwd->pw_name;
     } else {
-	if ((username= getlogin()) == NULL) {
+	username = getlogin();
+	if (username == NULL) {
 	    fprintf(stderr,"%s: cannot get username\n",progname);
 	    exit(1);
 	}
@@ -231,6 +235,13 @@ main( int argc, char *argv[] )
     ** If no data file was explicitly given, make our best guess
     */
     if (lbiff_data.file == NULL) {
+	default_file = (char*)malloc(strlen(MAILPATH) + strlen(username));
+	if (default_file == NULL) {
+	    fprintf(stderr,"%s: ", progname);
+	    perror("default_file malloc()");
+	    exit(1);
+	}
+
 	sprintf(default_file,MAILPATH,username);
 	lbiff_data.file = default_file;
     }
@@ -253,7 +264,7 @@ main( int argc, char *argv[] )
     if (visible) {
 	XtAppMainLoop(app_context);
     } else {
-	while (1) sleep(1000);
+	pause();
     }
 }
 
@@ -267,7 +278,7 @@ Usage()
     static char *help_message[] = {
 "where options include:",
 "    -display host:dpy                  X server to contact",
-"    -geometry =+x+y                    x,y coords of window",
+"    -geometry +x+y                     x,y coords of window",
 "    -width width                       width of window, in characters",
 "    -file file                         file to watch",
 "    -update seconds                    how often to check for mail",
@@ -336,12 +347,13 @@ handler()
 /************\
 |*  doScan  *|  invoke MH ``scan'' command to examine mail messages
 |************
-|*	This routine looks at the mail file to see if it 
+|*	This routine looks at the mail file and parses the contents. It
+|*	does this by invoking scan(1) or some other user-defined function.
 \*/
 char *
 doScan()
 {
-    static char	cmd_buf[ARG_MAX];
+    static char	*cmd_buf;
     static char *buf = NULL;
     static int	bufsize;
     FILE 	*p;
@@ -356,11 +368,22 @@ doScan()
     */
     if (buf == NULL) {
 	bufsize = lbiff_data.width * lbiff_data.maxRows;
-	if ((buf= (char*)malloc(bufsize)) == NULL) {
-	    fprintf(stderr,"%s: malloc() failed: error %d\n",progname,errno);
+
+	buf = (char*)malloc(bufsize);
+	if (buf == NULL) {
+	    fprintf(stderr,"%s: ",progname);
+	    perror("buf malloc()");
 	    exit(1);
 	}
 	DP(("---size= %dx%d\n", lbiff_data.maxRows, lbiff_data.width));
+
+	cmd_buf = (char*)malloc(strlen(lbiff_data.cmd) +
+				strlen(lbiff_data.file) + 4);
+	if (cmd_buf == NULL) {
+	    fprintf(stderr,"%s: ",progname);
+	    perror("cmd_buf malloc()");
+	    exit(1);
+	}
 
 	sprintf(cmd_buf,lbiff_data.cmd,  lbiff_data.file,  lbiff_data.width);
 	DP(("---cmd= %s\n",cmd_buf));
@@ -384,7 +407,7 @@ doScan()
 	exit(status);
     }
 
-    buf[size] = '\0';
+    buf[size] = '\0';				/* null-terminate it! */
 
     DP(("scanned: %s\n",buf));
     return buf;
@@ -392,17 +415,22 @@ doScan()
 
 
 /*************\
-|*  setXbuf  *|  reformats X window and tells X what the text will be
+|*  setXbuf  *|  reformats X window and tells Xt what the text will be
 \*************/
 void
-setXbuf(char *s)
+#ifdef	FUNCPROTO
+setXbuf( char *s )
+#else
+setXbuf(s)
+    char *s;
+#endif
 {
     Arg 	args[1];
     int 	i,
                 len = strlen(s);
     Dimension 	w= 0,
                 h= 1;
-    int 	tmp_w = 0;
+    Dimension	tmp_w = 0;
     static int	fontWidth, fontHeight;
     static int	borderWidth= -1;
 
@@ -445,7 +473,12 @@ setXbuf(char *s)
 |*  initStaticData  *|  initializes font size & borderWidth
 \********************/
 void
-initStaticData(int *bw, int *fontH, int *fontW)
+#ifdef	FUNCPROTO
+initStaticData( int *bw, int *fontH, int *fontW )
+#else
+initStaticData(bw, fontH, fontW)
+    int *bw, *fontH, *fontW;
+#endif
 {
     Arg		args[2];
     XFontStruct *fs;
@@ -472,7 +505,14 @@ initStaticData(int *bw, int *fontH, int *fontW)
 |*  Shrink  *|  get StructureNotify events, popdown if iconized
 \************/
 void
-Shrink(Widget w, caddr_t data, XEvent *e)
+#ifdef	FUNCPROTO
+Shrink( Widget w, caddr_t data, XEvent *e )
+#else
+Shrink(w, data, e)
+    Widget w;
+    caddr_t data;
+    XEvent *e;
+#endif
 {
     if (e->type == UnmapNotify && visible)
       Popdown();
@@ -487,7 +527,7 @@ Popdown()
 {
     DP(("++Popdown()\n"));
     XtUnrealizeWidget(topLevel);
-    XSync(XtDisplay(topLevel),0);
+    XSync(XtDisplay(topLevel), False);
 
     visible = 0;
 }
@@ -502,7 +542,7 @@ Popup()
     DP(("++Popup()\n"));
     XBell(XtDisplay(topLevel),lbiff_data.volume - 100);
     XtRealizeWidget(topLevel);
-    XSync(XtDisplay(topLevel),0);
+    XSync(XtDisplay(topLevel), False);
 
     visible = 1;
 }
