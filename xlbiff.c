@@ -1,4 +1,4 @@
-static char rcsid[]= "$Id: xlbiff.c,v 1.44 1991/10/15 20:44:29 santiago Exp $";
+static char rcsid[]= "$Id: xlbiff.c,v 1.45 1991/10/24 23:58:19 santiago Exp $";
 /*\
 |* xlbiff  --  X Literate Biff
 |*
@@ -52,7 +52,7 @@ static char rcsid[]= "$Id: xlbiff.c,v 1.44 1991/10/15 20:44:29 santiago Exp $";
 #include <errno.h>
 
 #ifdef	NEED_STRERROR
-extern char	*strerror();
+char	*strerror();
 #endif
 
 /*
@@ -134,27 +134,27 @@ AppData		lbiff_data;
 
 static XtResource	xlbiff_resources[] = {
     { "debug", "Debug", XtRBoolean, sizeof(Boolean),
-	offset(debug), XtRString, "false"},
+	offset(debug), XtRImmediate, False},
     { "file", "File", XtRString, sizeof(String),
 	offset(file), XtRString, NULL},
     { "scanCommand", "ScanCommand", XtRString, sizeof(String),
 	offset(cmd), XtRString, "scan -file %s -width %d" },
     { "update", "Interval", XtRInt, sizeof(int),
-	offset(update), XtRString, "15"},
+	offset(update), XtRImmediate, (XtPointer)15},
     { "columns", "Columns", XtRInt, sizeof(int),
-	offset(columns), XtRString, "80"},
+	offset(columns), XtRImmediate, (XtPointer)80},
     { "rows", "Rows", XtRInt, sizeof(int),
-	offset(rows), XtRString, "20"},
+	offset(rows), XtRImmediate, (XtPointer)20},
     { "volume", "Volume", XtRInt, sizeof(int),
-	offset(volume), XtRString, "100"},
+	offset(volume), XtRImmediate, (XtPointer)100},
     { "bottom", "Bottom", XtRBoolean, sizeof(Boolean),
-	offset(bottom), XtRString, "false"},
+	offset(bottom), XtRImmediate, False},
     { "resetSaver", "ResetSaver", XtRBoolean, sizeof(Boolean),
-	offset(resetSaver), XtRString, "false"},
+	offset(resetSaver), XtRImmediate, False},
     { "refresh", "Refresh", XtRInt, sizeof(int),
-	offset(refresh), XtRString, "1800"},
+	offset(refresh), XtRImmediate, (XtPointer)1800},
     { "led", "Led", XtRInt, sizeof(int),
-	offset(led), XtRString, "0"}
+	offset(led), XtRImmediate, (XtPointer)0}
 };
 
 static XrmOptionDescRec	optionDescList[] = {
@@ -415,7 +415,7 @@ checksize()
 	** If window has been popped down, check if it's time to refresh
 	*/
 	if (gettimeofday(&tp,&tzp) != 0) {
-	    ErrExit("gettimeofday(), in checksize()",True);
+	    ErrExit("gettimeofday() in checksize()",True);
 	} else {
 	    if ((tp.tv_sec - acknowledge_time) > lbiff_data.refresh) {
 		DP(("reposting window, repost time reached\n"));
@@ -508,8 +508,10 @@ doScan()
       ErrExit("popen",True);
     if ((size= fread(buf,1,bufsize,p)) < 0)
       ErrExit("fread",True);
-    if ((status= pclose(p)) != 0)
-      ErrExit("scanCommand failed",False);
+    if ((status= pclose(p)) != 0) {
+	strcpy(buf+size,"\n---->>>>scanCommand failed<<<<<----\n");
+	size = strlen(buf);
+    }
 
     buf[size] = '\0';				/* null-terminate it! */
 
@@ -786,7 +788,7 @@ strerror(err)
      int err;
 #endif	/* FUNCPROTO */
 {
-    static char unknown[20];
+    static char unknown[30];
     extern int	sys_nerr;
     extern char *sys_errlist[];
 
