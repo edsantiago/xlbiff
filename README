@@ -1,3 +1,7 @@
+===========
+WHAT IS IT?
+===========
+
   Is xbiff just not quite enough for you?
 
   This is xlbiff, the X Literate Biff.
@@ -13,7 +17,9 @@
   and pop up only when something demands your attention.
 
 
+==========
 ADVANTAGES (or, Why Yet Another Biff?)
+==========
 
   Xlbiff:
     + occupies no screen real estate until mail comes in
@@ -21,7 +27,9 @@ ADVANTAGES (or, Why Yet Another Biff?)
     + is easy to make go away
 
 
+==========
 INSTALLING
+==========
 
   Xlbiff is old... it uses the archaic X11 "imake" mechanism:
 
@@ -31,7 +39,9 @@ INSTALLING
   You may want to look at the Imakefile to make sure you agree with
   the default values in it, first.
 
+===========================
 INSTALLING -- WITHOUT IMAKE
+===========================
 
   If you don't have imake, copy the file Makefile.std to 'Makefile'
   and edit it to make sure everything looks good.
@@ -44,7 +54,9 @@ INSTALLING -- WITHOUT IMAKE
   If the make didn't work out that well, see PORTING below.
 
 
+===========
 CUSTOMIZING
+===========
 
   You may want to tweak some values in the app-defaults file and/or add
   some resources to your .Xdefaults.  You also probably want to tell your
@@ -69,7 +81,9 @@ CUSTOMIZING
   See README.bulk for more info.
 
 
+=======================
 *THINGS TO BE AWARE OF*
+=======================
 
   Xlbiff invokes `scan -file xxx' by default, and thus requires MH 6.7
   or above.  If your MH isn't at this level, you can find the latest
@@ -103,13 +117,16 @@ CUSTOMIZING
   work under these conditions.
 
 
+=======================================
 PORTING (or, if INSTALLING didn't work)
+=======================================
 
-  Xlbiff has been tested (to my knowledge) on a DECstation 5000/200
-  running Ultrix 4.2 using cc and gcc; Suns running SunOS 4.1.x with
-  cc and gcc; and even an SVR3 system.
+  Xlbiff should be pretty portable.  It was developed in 1991 on a
+  DECstation 5000/200 running Ultrix 4.2 using cc and gcc; it has
+  been known to run on Linux, Solaris, and others.
 
-  Xlbiff requires X11R5 or beyond and works best with MH 6.7 and up.
+  Xlbiff requires X11R5 or beyond and works best with MH 6.7 and up,
+  or nmh 1.1.
 
   On systems that don't have strerror(), eg, SunOS, you will need to
   uncomment the NEED_STRERROR line in Imakefile or Makefile.std.
@@ -123,7 +140,9 @@ PORTING (or, if INSTALLING didn't work)
   to me, esm@pobox.com, and I will wrap them up for future releases.
 
 
+==========
 BACKGROUND
+==========
 
   I wrote xlbiff because I don't always want to read my mail.  Regular
   xbiff lets me know when I have mail but not what it is -- this makes
@@ -136,7 +155,10 @@ BACKGROUND
   but I had always wanted to do it right.
 
 
+=======
 HISTORY
+=======
+
   The following describes changes made to xlbiff throughout its history.
   Where applicable, changes are attributed to the people who submitted
   the ideas and, in many cases, patches and source code.
@@ -234,6 +256,12 @@ HISTORY
   * Version 1.0 posted to alt.sources  Thu 19 Sep 1991
 
 
+======
 AUTHOR
+======
 
   Ed Santiago <esm@pobox.com>
+
+  The latest version of xlbiff may be found at
+
+	http://www.edsantiago.com/xlbiff/
