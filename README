@@ -1,45 +1,94 @@
-This is xlbiff, the X Literate Biff.
+  Is xbiff just not quite enough for you?
 
-Xlbiff lurks in the background, monitoring your mailbox file (normally
-/usr/spool/mail/<yourusername>).  When something shows up there, it
-invokes the MH scan(1) command and displays the output in a window.
-Clicking the left mouse button anywhere in the window causes it to
-vanish.  It will also vanish if you inc(1) and the mailbox becomes 
-empty.  Xlbiff is a lot like xconsole -- its job is to sit invisibly
-and pop up only when something demands your attention.
+  This is xlbiff, the X Literate Biff.
+
+  Xlbiff lurks in the background, monitoring your mailbox file (normally
+  /usr/spool/mail/<yourusername>).  When something shows up there, it
+  invokes the MH scan(1) command and displays the output in a window.
+  If more mail comes in, it scans again and resizes accordingly.
+
+  Clicking the left mouse button anywhere in the window causes it to
+  vanish.  It will also vanish if you inc(1) and the mailbox becomes
+  empty.  Xlbiff is modeled after xconsole -- its job is to sit invisibly
+  and pop up only when something demands your attention.
+
+
+ADVANTAGES (or, Why Yet Another Biff?)
+
+  Xlbiff:
+    + occupies no screen real estate until mail comes in
+    + lets you preview new mail to decide if you want to read it immediately
+    + is easy to make go away
 
 
 INSTALLING
 
-Edit the Makefile and type `make'.  If that works,  type `make install'
-or just xrdb the resources yourself and type `xlbiff'.
+  The usual:  edit the Makefile and type `make'.  If that works,  type 
+  `make install' or install by hand -- you should be able to figure it out.
+  You may want to tweak some values in the app-defaults file and/or add
+  some resources to your .Xdefaults.  Don't forget to add an `l' to 
+  that xbiff invocation in your .Xlogin!
+
+  Note that an MH format file, xlbiff.form, is included.  This form:
+
+	- omits message number, which is meaningless in this context
+	- omits message size, since `scan -file' can't figure it out
+	- puts a `*' next to the message if your name is on the To: list
+	  (before you say "duh", think about mailing lists and cc's)
+	- displays the date in a friendly format
+	- packs as much subject & body into one line as possible.
+
+  Xlbiff.form was stolen & hacked from Jerry Peek's excellent Nutshell
+  book on MH & xmh.
+
+
+*THINGS TO BE AWARE OF*
+
+  Xlbiff invokes `scan -file xxx' by default, and thus requires MH 6.7 
+  or above.  If your MH isn't at this level, and you don't feel like
+  upgrading, there's games you can play with `inc -notruncate' but
+  they are such horrible kludges that I will not even attempt to 
+  describe them.
+
+  If you're a Berkeley mail person, you can set scanCommand to:
+
+	mail </dev/null | grep "^.[NU]"
+
+  but it sure does look ugly.  Perhaps there are .mailrc settings
+  to make it look more decent?
 
 
 PORTING (or, if INSTALLING didn't work)
 
-Xlbiff has been tested only on one DECstation 5000 running Ultrix 4.2 
-and X11R5.  It compiles under cc and gcc, but not under DEC ANSI C for
-reasons I haven't bothered to investigate.  The only things I can imagine
-causing trouble are the use of alarm(3) and getlogin/getpwuid(3).  If
-fixes are required, or if you add any whizzy features, please mail them
-to me (santiago@lerad.pa.dec.com) and I will take care of the normal 
-release nonsense.
+  Xlbiff has been tested only on one DECstation 5000 running Ultrix 4.2 
+  and X11R5.  It compiles under cc and gcc, but not under DEC ANSI C for
+  reasons I haven't bothered to investigate.
 
-Xlbiff comes with a Makefile, not an 
+  The only things I can imagine causing trouble are the use of alarm(3)
+  and getlogin/getpwuid(3) -- but you're already saying "huh, I bet there's
+  tons of bugs in there".  If fixes are required, or if you add any whizzy
+  features (see TODO for a partial list), please mail them to me,
+  santiago@lerad.pa.dec.com, and I will wrap them up for future
+  releases.
+
+  Xlbiff comes with a Makefile, no Imakefile.  
+
 
 BACKGROUND
 
-I wrote xlbiff because I don't always want to read my mail.  Xbiff, from
-the X distribution, lets me know when I have mail but not what it is -- this
-makes me have to inc(1) just so I can decide if I want to bother reading 
-it.  Xlbiff gives me a much better indication of whether or not I want to
-take time to read a new message.
+  I wrote xlbiff because I don't always want to read my mail.  Regular
+  xbiff lets me know when I have mail but not what it is -- this makes
+  me have to inc(1) just so I can decide if I want to bother reading it.
+  Xlbiff gives me a much better indication of whether or not I want to
+  take time to read a new message.  If I don't, I just click it away
+  and continue with what I'm doing.
 
-Before xlbiff, I wrote a crude hack using perl and xmessage.  It worked,
-but I had always wanted to do it right.  This is it, I hope.
+  Before xlbiff, I wrote a crude hack using perl and xmessage.  It worked,
+  but I had always wanted to do it right.
 
 
-LEGALESE NONSENSE
+AUTHOR
 
-Xlbiff has been placed under the GNU General Public License.  See the
-file COPYING, included in this distribution, for more information.
+  Ed Santiago
+  DEC Workstation Systems Engineering
+  santiago@lerad.pa.dec.com
