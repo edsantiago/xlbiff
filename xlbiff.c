@@ -1,4 +1,4 @@
-static char rcsid[]= "$Id: xlbiff.c,v 1.28 1991/09/30 23:12:37 santiago Exp $";
+static char rcsid[]= "$Id: xlbiff.c,v 1.29 1991/10/01 21:49:55 santiago Exp $";
 /*\
 |* xlbiff  --  X Literate Biff
 |*
@@ -76,16 +76,17 @@ void	handler();
 char	*doScan();
 void	Usage();
 void	Exit();
-void	Popdown(), Popup();
 
 #ifdef	FUNCPROTO
 void	Shrink(Widget, caddr_t, XEvent*);
 void	initStaticData(int*,int*,int*);
-void	setXbuf(char*);
+void	Popdown(), Popup(char*);
+void	getDimensions(char*,Dimension*,Dimension*);
 #else
 void	Shrink();
 void	initStaticData();
-void	setXbuf();
+void	Popdown(), Popup();
+void	getDimensions();
 #endif
 
 /*****************************************************************************\
@@ -95,9 +96,7 @@ extern int errno;
 
 Widget	topLevel,textBox;		/* my widgets			*/
 XtAppContext app_context;		/* application context		*/
-int	visible;			/* is window visible?		*/
-int	text_width;			/* new width of text widget	*/
-int	text_height;			/* new height of text widget	*/
+Boolean	visible;			/* is window visible?		*/
 char	*default_file;			/* default filename		*/
 char	*progname;			/* my program name		*/
 
@@ -107,7 +106,7 @@ typedef struct {
     char	*cmd;			/* command to execute		*/
     int		update;			/* update interval, in seconds	*/
     int		width;			/* number of columns across	*/
-    int		maxRows;		/* max# of lines in display	*/
+    int		maxHeight;		/* max# of lines in display	*/
     int		volume;			/* bell volume, 0-100 percent	*/
     Boolean	bottom;			/* Put window at window bottom  */
 } AppData, *AppDataPtr;
@@ -126,8 +125,8 @@ static XtResource	xlbiff_resources[] = {
 	offset(update), XtRString, "15"},
     { "width", "Width", XtRInt, sizeof(int),
 	offset(width), XtRString, "80"},
-    { "maxRows", "Height", XtRInt, sizeof(int),
-	offset(maxRows), XtRString, "20"},
+    { "maxHeight", "MaxHeight", XtRInt, sizeof(int),
+	offset(maxHeight), XtRString, "20"},
     { "volume", "Volume", XtRInt, sizeof(int),
 	offset(volume), XtRString, "100"},
     { "bottom", "Boolean", XtRBoolean, sizeof(Boolean),
@@ -346,10 +345,9 @@ checksize()
 	    char *s = doScan();
 
 	    if (strlen(s) != 0)	{		/* is there anything new? */
-		setXbuf(s);
 		if (visible && lbiff_data.bottom)  /* popdown if at bottom */
 		  Popdown();
-		Popup();			/* pop back up */
+		Popup(s);			/* pop back up */
 	    }
 	}
     } else {
@@ -392,7 +390,7 @@ doScan()
     ** Initialise command string
     */
     if (buf == NULL) {
-	bufsize = lbiff_data.width * lbiff_data.maxRows;
+	bufsize = lbiff_data.width * lbiff_data.maxHeight;
 
 	buf = (char*)malloc(bufsize);
 	if (buf == NULL) {
@@ -400,7 +398,7 @@ doScan()
 	    perror("buf malloc()");
 	    exit(1);
 	}
-	DP(("---size= %dx%d\n", lbiff_data.maxRows, lbiff_data.width));
+	DP(("---size= %dx%d\n", lbiff_data.maxHeight, lbiff_data.width));
 
 	cmd_buf = (char*)malloc(strlen(lbiff_data.cmd) +
 				strlen(lbiff_data.file) + 10);
@@ -436,109 +434,6 @@ doScan()
 
     DP(("scanned:\n%s\n",buf));
     return buf;
-}
-
-
-/*************\
-|*  setXbuf  *|  reformats X window and tells Xt what the text will be
-\*************/
-void
-#ifdef	FUNCPROTO
-setXbuf( char *s )
-#else
-setXbuf(s)
-    char *s;
-#endif
-{
-    Arg 	args[1];
-    int 	i,
-                len = strlen(s);
-    Dimension 	w= 0,
-                h= 1;
-    Dimension	tmp_w = 0;
-    static int	fontWidth, fontHeight;
-    static int	borderWidth= -1;
-
-    DP(("setXbuf\n"));
-    if (borderWidth == -1)
-      initStaticData(&borderWidth,&fontHeight,&fontWidth);
-
-    /*
-    ** Set label text to the message scan list
-    */
-    XtSetArg(args[0],XtNlabel,s);
-    XtSetValues(textBox,args,1);
-
-    /*
-    ** If we're NOT running with -bottom, we're all done since the widget
-    ** resizes automatically.
-    */
-    if (!lbiff_data.bottom)
-      return;
-
-    /*
-    ** Unfortunately, when running with -bottom, we need to explicitly
-    ** resize the widget.  To do this, we get its width & height and 
-    ** multiply by the font size.
-    */
-
-    /*
-    ** count rows and columns
-    */
-    for (i=0; i < len-1; i++) {
-	if (s[i] == '\n') {			/* new line: clear width */
-	    ++h;
-	    tmp_w = 0;
-	} else {
-	    ++tmp_w;
-	    if (tmp_w > w)			/* monitor highest width */
-	      w = tmp_w;
-	}
-    }
-
-    if (h > lbiff_data.maxRows)			/* cut to fit max wid/hgt */
-      h = lbiff_data.maxRows;
-    if (w > lbiff_data.width)
-      w = lbiff_data.width;
-    DP(("geom= %dx%d (%dx%d pixels)\n",w,h,w*fontWidth,h*fontHeight));
-
-    /*
-    ** Set widget to given size, plus some leeway.
-    */
-    text_width = w*fontWidth+6;
-    text_height = h*fontHeight+4;
-}
-
-
-/********************\
-|*  initStaticData  *|  initializes font size & borderWidth
-\********************/
-void
-#ifdef	FUNCPROTO
-initStaticData( int *bw, int *fontH, int *fontW )
-#else
-initStaticData(bw, fontH, fontW)
-    int *bw, *fontH, *fontW;
-#endif
-{
-    Arg		args[2];
-    XFontStruct *fs;
-    int tmp;
-
-    DP(("++initStaticData..."));
-    XtSetArg(args[0],XtNfont,&fs);
-    XtSetArg(args[1],XtNborderWidth,&tmp);
-    XtGetValues(textBox, args, 2);
-    if (fs == NULL) {
-	fprintf(stderr,"%s: unknown font!\n",progname);
-	exit(1);
-    }
-
-    *bw	   = tmp;
-    *fontW = fs->max_bounds.width;
-    *fontH = fs->max_bounds.ascent + fs->max_bounds.descent;
-
-    DP(("font= %dx%d,  borderWidth= %d\n",*fontH,*fontW,*bw));
 }
 
 
@@ -578,29 +473,138 @@ Popdown()
 	XtUnmapWidget(topLevel);
     }
 
-    visible = 0;
+    visible = False;
 }
 
 
 /***********\
-|*  Popup  *|  bring window up
+|*  Popup  *|  reformat window, set the text and bring window up
 \***********/
 void
-Popup()
+#ifdef	FUNCPROTO
+Popup( char *s )
+#else
+Popup( s )
+     char *s;
+#endif
 {
-    Arg args[2];
+    Arg		args[4];
+    int		n;
 
     DP(("++Popup()\n"));
-    XBell(XtDisplay(topLevel),lbiff_data.volume - 100);
 
+    /*
+    ** Set the contents of the window
+    */
+    n = 0;
+    XtSetArg(args[n],XtNlabel,s); n++;
+    XtSetValues(textBox, args, n);
+
+    /*
+    ** If running with *bottom, we need to tell the widget what size it
+    ** is before realize()ing it.  This is so the WM can position it
+    ** properly at the bottom of the screen.
+    */
     if (lbiff_data.bottom) {
+	Dimension width,height;
+
+	getDimensions(s,&width,&height);
+
+	n = 0;
+ 	XtSetArg(args[n], XtNwidth, width); n++;
+	XtSetArg(args[n], XtNheight, height); n++;
+	XtSetArg(args[n], XtNy, -1); n++;
+
+	XtSetValues(topLevel, args, n);
 	XtRealizeWidget(topLevel);
-	XtSetArg(args[0], XtNwidth, text_width);
-	XtSetArg(args[1], XtNheight, text_height);
-	XtSetValues(textBox, args, 2);
     } else {
 	XtMapWidget(topLevel);
     }
 
-    visible = 1;
+    XBell(XtDisplay(topLevel),lbiff_data.volume - 100);
+
+    visible = True;
+}
+
+
+/*******************\
+|*  getDimensions  *|  get width x height of text string
+\*******************/
+void
+#ifdef	FUNCPROTO
+getDimensions( char *s, Dimension *width, Dimension *height )
+#else
+getDimensions()
+     char *s;
+     Dimension *width, *height;
+#endif
+{
+    Dimension	tmp_width;
+    int		i,
+                len = strlen(s);
+    static int	fontWidth, fontHeight;
+    static int	borderWidth = -1;
+
+    tmp_width = *width = *height = 1;
+
+    if (borderWidth == -1)
+      initStaticData(&borderWidth,&fontHeight,&fontWidth);
+
+    /*
+    ** count rows and columns
+    */
+    for (i=0; i < len-1; i++) {
+	if (s[i] == '\n') {			/* new line: clear width */
+	    ++*height;
+	    tmp_width = 0;
+	} else {
+	    ++tmp_width;
+	    if (tmp_width > *width)		/* monitor highest width */
+	      *width = tmp_width;
+	}
+    }
+
+    if (*height > lbiff_data.maxHeight)		/* cut to fit max wid/hgt */
+      *height = lbiff_data.maxHeight;
+    if (*width > lbiff_data.width)
+      *width = lbiff_data.width;
+
+    DP(("geom= %dx%d chars (%dx%d pixels)\n",*width,*height,
+	                                     *width*fontWidth,
+	                                     *height*fontHeight));
+
+    *width  *= fontWidth;  *width  += 6;	/* convert to pixels 	  */
+    *height *= fontHeight; *height += 4;	/* and add a little fudge */
+}
+
+
+/********************\
+|*  initStaticData  *|  initializes font size & borderWidth
+\********************/
+void
+#ifdef	FUNCPROTO
+initStaticData( int *bw, int *fontH, int *fontW )
+#else
+initStaticData(bw, fontH, fontW)
+    int *bw, *fontH, *fontW;
+#endif
+{
+    Arg		args[2];
+    XFontStruct *fs;
+    int tmp;
+
+    DP(("++initStaticData..."));
+    XtSetArg(args[0],XtNfont,&fs);
+    XtSetArg(args[1],XtNborderWidth,&tmp);
+    XtGetValues(textBox, args, 2);
+    if (fs == NULL) {
+	fprintf(stderr,"%s: unknown font!\n",progname);
+	exit(1);
+    }
+
+    *bw	   = tmp;
+    *fontW = fs->max_bounds.width;
+    *fontH = fs->max_bounds.ascent + fs->max_bounds.descent;
+
+    DP(("font= %dx%d,  borderWidth= %d\n",*fontH,*fontW,*bw));
 }
