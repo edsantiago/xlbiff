@@ -7,7 +7,7 @@ MAILPATH = XlbiffMailPath
 #if	defined(SYSV) || defined(SVR4)
 MAILPATH = /usr/mail/%s
 #else
-MAILPATH = /usr/spool/mail/%s
+MAILPATH = /var/spool/mail/%s
 #endif
 #endif
 
