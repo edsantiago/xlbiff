@@ -1,4 +1,4 @@
-static char rcsid[]= "$Id: xlbiff.c,v 1.61 1991/12/13 00:09:17 santiago Exp $";
+static char rcsid[]= "$Id: xlbiff.c,v 1.62 1992/07/28 20:23:02 esm Exp $";
 /*\
 |* xlbiff  --  X Literate Biff
 |*
@@ -161,7 +161,8 @@ typedef struct {
     Boolean	resetSaver;		/* reset screensaver on popup   */
     long	refresh;		/* seconds before reposting msg	*/
     int		led;			/* led number to light up	*/
-    Boolean	ledPopdown;		/* turn off LED on popdown?     */
+    Boolean	ledPopdown;		/* turn off LED on popdown?	*/
+    char	*sound;			/* Sound file to use		*/
 } AppData, *AppDataPtr;
 AppData		lbiff_data;
 
@@ -182,6 +183,8 @@ static XtResource	xlbiff_resources[] = {
 	offset(columns), XtRImmediate, (XtPointer)80},
     { "rows", "Rows", XtRInt, sizeof(int),
 	offset(rows), XtRImmediate, (XtPointer)20},
+    { "sound", "Sound", XtRString, sizeof(String),
+	offset(sound), XtRString, "" },
     { "volume", "Volume", XtRInt, sizeof(int),
 	offset(volume), XtRImmediate, (XtPointer)100},
     { "bottom", "Bottom", XtRBoolean, sizeof(Boolean),
@@ -788,7 +791,26 @@ lbiffRealize( s )
     }
 
 
-    XBell(XtDisplay(topLevel),lbiff_data.volume - 100);
+    if (lbiff_data.sound[0] == "\0") {
+	XBell(XtDisplay(topLevel),lbiff_data.volume - 100);
+	DP(("---sound= %s\n","XBell default"));
+    }
+    else {
+	static char	*sound_buf;
+
+	/*
+	** Initialise sound string
+	*/
+	if (sound_buf == NULL) {
+	    sound_buf = (char*)malloc(strlen(lbiff_data.sound) + 10);
+	    if (sound_buf == NULL)
+	      ErrExit(True,"sound_buf malloc()");
+
+	    sprintf(sound_buf,lbiff_data.sound, lbiff_data.volume);
+	    DP(("---sound= %s\n",sound_buf));
+	}
+	system(sound_buf);
+    }
 
     if (lbiff_data.resetSaver)
       XResetScreenSaver(XtDisplay(topLevel));
