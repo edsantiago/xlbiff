@@ -1,4 +1,4 @@
-static char rcsid[]= "$Id: xlbiff.c,v 1.64 1992/09/24 22:04:51 esm Exp $";
+static char rcsid[]= "$Id: xlbiff.c,v 1.65 1992/10/27 22:04:29 esm Exp $";
 /*\
 |* xlbiff  --  X Literate Biff
 |*
@@ -105,6 +105,7 @@ void	Shrink(Widget, caddr_t, XEvent*, Boolean*);
 void	handler(XtPointer,XtIntervalId*);
 void	initStaticData(int*,int*,int*);
 void	Exit(Widget, XEvent*, String*, Cardinal*);
+void	Mailer(Widget, XEvent*, String*, Cardinal*);
 void	lbiffUnrealize(), lbiffRealize(char*);
 void	getDimensions(char*,Dimension*,Dimension*);
 void	toggle_key_led(int);
@@ -115,6 +116,7 @@ void	Shrink();
 void	handler();
 void	initStaticData();
 void	Exit();
+void	Mailer();
 void	lbiffUnrealize(), lbiffRealize();
 void	getDimensions();
 void	toggle_key_led();
@@ -143,6 +145,7 @@ typedef struct {
     char	*file;			/* file to monitor size of 	*/
     char	*checkCmd;		/* command to run for check     */
     char	*cmd;			/* command to run for output	*/
+    char	*mailerCmd;		/* command to read mail		*/
     int		update;			/* update interval, in seconds	*/
     int		fade;			/* popdown interval, in seconds */
     int		columns;		/* number of columns across	*/
@@ -168,6 +171,8 @@ static XtResource	xlbiff_resources[] = {
 	offset(checkCmd), XtRString, NULL},
     { "scanCommand", "ScanCommand", XtRString, sizeof(String),
 	offset(cmd), XtRString, "scan -file %s -width %d" },
+    { "mailerCommand", "MailerCommand", XtRString, sizeof(String),
+	offset(mailerCmd), XtRString, NULL },
     { "update", "Interval", XtRInt, sizeof(int),
 	offset(update), XtRImmediate, (XtPointer)15},
     { "fade", "Fade", XtRInt, sizeof(int),
@@ -209,6 +214,7 @@ static XrmOptionDescRec	optionDescList[] = {
     { "-ledPopdown",  ".ledPopdown",  XrmoptionNoArg,	(caddr_t) "true"},
     { "+ledPopdown",  ".ledPopdown",  XrmoptionNoArg,	(caddr_t) "false"},
     { "-scanCommand", ".scanCommand", XrmoptionSepArg,	(caddr_t) NULL},
+    { "-mailerCommand",".mailerCommand",XrmoptionSepArg,(caddr_t) NULL},
     { "-checkCommand",".checkCommand",XrmoptionSepArg,  (caddr_t) NULL}
 };
 
@@ -220,6 +226,7 @@ static char *fallback_resources[] = {
 
 static XtActionsRec lbiff_actions[] = {
     {"exit",Exit},
+    {"mailer",Mailer},
     {"popdown",Popdown}
 };
 
@@ -308,15 +315,27 @@ main(argc, argv)
     }
     DP(("file= %s\n",lbiff_data.file));
 
+
+    /*
+    ** Fix DISPLAY environment variable, might be needed by subprocesses
+    */
+    {
+      char *envstr = malloc(strlen("DISPLAY=") + 1
+			    + strlen(XDisplayString(XtDisplay(topLevel))));
+
+      sprintf(envstr, "DISPLAY=%s", XDisplayString(XtDisplay(topLevel)));
+      putenv(envstr);
+    }
+
     textBox = XtVaCreateManagedWidget("text",
 				      commandWidgetClass,
 				      topLevel,
 				      NULL);
 
-    XtAddCallback(textBox,XtNcallback, Popdown, textBox);
-    XtAppAddActions(app_context,lbiff_actions,XtNumber(lbiff_actions));
-    XtAddEventHandler(topLevel,StructureNotifyMask,False,
-		      (XtEventHandler)Shrink,(caddr_t)NULL);
+    XtAddCallback(textBox, XtNcallback, Popdown, textBox);
+    XtAppAddActions(app_context, lbiff_actions, XtNumber(lbiff_actions));
+    XtAddEventHandler(topLevel, StructureNotifyMask, False,
+		      (XtEventHandler)Shrink, (caddr_t)NULL);
 
     XtOverrideTranslations(topLevel,
 	XtParseTranslationTable ("<Message>WM_PROTOCOLS: exit()"));
@@ -364,6 +383,7 @@ Usage()
 "    -ledPopdown                        turn off LED when popped down",
 "    -scanCommand command               command to interpret and display",
 "    -checkCommand command              command used to check for change",
+"    -mailerCommand command             command used to read mail",
 NULL};
     char **s;
 
@@ -389,7 +409,7 @@ String *params;
 Cardinal *num_params;
 #endif
 {
-    DP(("++exit()\n"));
+    DP(("++Exit()\n"));
 
     if (event->type == ClientMessage) {
 	if (event->xclient.data.l[0] != wm_delete_window) {
@@ -405,6 +425,31 @@ Cardinal *num_params;
     XCloseDisplay(XtDisplay(w));
 
     exit(0);
+}
+
+
+/************\
+|*  Mailer  *|  called via callback, starts a mailer
+\************/
+void
+#ifdef	FUNCPROTO
+Mailer(Widget w, XEvent *event, String *params, Cardinal *num_params)
+#else
+Mailer(w, event, params, num_params)
+Widget w;
+XEvent *event;
+String *params;
+Cardinal *num_params;
+#endif
+{
+    DP(("++Mailer()\n"));
+
+    if (lbiff_data.mailerCmd != NULL) {
+	Popdown();
+	system(lbiff_data.mailerCmd);
+	Popup();
+	checksize();
+    }
 }
 
 
@@ -553,7 +598,7 @@ doScan()
     static char	*cmd_buf;
     static char *buf = NULL;
     static int	bufsize;
-    static char scan_fail_msg[] = "\n---->>>>scanCommand failed<<<<<----\n";
+    static char scan_fail_msg[] = "\n---->>>> scanCommand failed <<<<<----\n";
     FILE 	*p;
     size_t	size;
     waitType	status;
@@ -704,8 +749,11 @@ Popdown()
     struct timezone tzp;
 
     DP(("++Popdown()\n"));
-    if (visible)
-      XtPopdown(topLevel);
+
+    if (visible) {
+	XtPopdown(topLevel);
+	XSync(XtDisplay(topLevel), False);
+    }
     visible = False;
 
     /*
@@ -719,6 +767,7 @@ Popdown()
     if (lbiff_data.ledPopdown)		/* Turn off LED if so requested */
       toggle_key_led(False);
 }
+
 
 void
 Popup()
@@ -735,8 +784,10 @@ Popup()
       ErrExit(True,"gettimeofday() in Popup()");
     popup_time = tp.tv_sec;
 
-    if (hasdata && !visible)
-      XtPopup(topLevel, XtGrabNone);
+    if (hasdata && !visible) {
+	XtPopup(topLevel, XtGrabNone);
+	XSync(XtDisplay(topLevel), False);
+    }
     visible = True;
 }
 
