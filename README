@@ -96,15 +96,18 @@ PORTING (or, if INSTALLING didn't work)
   running Ultrix 4.2 using cc and gcc (DEC ANSI C barfs on it); Suns 
   running SunOS 4.1.1 with cc and gcc; and even an SVR3 system.
 
+  Xlbiff requires X11R4 or beyond and works best with MH 6.7 and up.
+
   On systems that don't have strerror(), eg, SunOS, you will need to
   uncomment the NEED_STRERROR line in Imakefile or Makefile.std.
 
-  Xlbiff requires X11R4 or beyond and works best with MH 6.7 and up.
+  On systems that don't have memcpy, you may want to uncomment the
+  USE_BCOPY line in Imakefile or Makefile.std.
 
   I *think* most portability bugs have been ironed out, but of course
   there are always a few left.  If fixes are required, or if you add 
   any whizzy features (see TODO for a partial list), please mail them 
-  to me, santiago@lerad.pa.dec.com, and I will wrap them up for future
+  to me, santiago@pa.dec.com, and I will wrap them up for future
   releases.
 
 
@@ -126,7 +129,7 @@ HISTORY
   Where applicable, changes are attributed to the people who submitted
   the ideas and, in many cases, patches and source code.
 
-  * Version 2.1 (patch) submitted to comp.sources.x  Fri 24 Oct 1991
+  * Version 2.1 BETA (not submitted anywhere official yet)
       From  Daren W Latham <dwl@mentat.udev.cdc.com>
 	+ add -refresh and -led options.
 	+ handle WM_DELETE_WINDOW.
@@ -137,9 +140,13 @@ HISTORY
       From Stephen Gildea <gildea@expo.lcs.mit.edu>
 	+ Lots of cleanup in the default resources.
 
+      From Yuan Liu <liu@cs.UMD.EDU>
+	+ Handle remapping better, don't vanish when WM restarts.
+
       From me:
 	+ add ErrExit routine, do some more cleanup.
 	+ output error message if scan fails, but don't die.
+	+ add ledPopdown resource.
 
   * Version 2.0 submitted for X11R5 contrib tape  Fri  4 Oct 1991
 	+ no change, just up rev level
@@ -192,4 +199,4 @@ AUTHOR
 
   Ed Santiago
   DEC Workstation Systems Engineering
-  santiago@lerad.pa.dec.com
+  santiago@pa.dec.com
