@@ -1,4 +1,5 @@
-static char rcsid[]= "$Id: xlbiff.c,v 1.46 1991/11/02 20:24:41 santiago Exp $";
+static char rcsid[]= "$Id: xlbiff.c,v 1.47 1991/11/02 20:48:09 santiago Exp $";
+/* with mods by gildea  Time-stamp: <91/10/28 08:48:53 gildea> */
 /*\
 |* xlbiff  --  X Literate Biff
 |*
@@ -89,7 +90,7 @@ void	Exit(Widget, XEvent*, String*, Cardinal*);
 void	Popup(char*);
 void	getDimensions(char*,Dimension*,Dimension*);
 void	toggle_key_led(int);
-void	ErrExit(Boolean,char*,...);
+void	ErrExit(Boolean,char*);
 #else
 void	Shrink();
 void	handler();
@@ -502,12 +503,19 @@ doScan()
     }
 
     /*
-    ** execute the command, read the results, then set the contents of window
+    ** Execute the command, read the results, then set the contents of window.
+    ** If there is data remaining in the pipe, read it in (and throw it away)
+    ** so our exit status is correct (eg, not "Broken pipe").
     */
     if ((p= popen(cmd_buf,"r")) == NULL)
       ErrExit(True,"popen");
     if ((size= fread(buf,1,bufsize,p)) < 0)
       ErrExit(True,"fread");
+    if (size == bufsize) {
+	char junkbuf[100];
+	while (fread(junkbuf, 1, 100, p) > 0)
+	  ;	/* Keep reading until no more left */
+    }
     if ((status= pclose(p)) != 0) {
 	strcpy(buf+size,"\n---->>>>scanCommand failed<<<<<----\n");
 	size = strlen(buf);
@@ -759,11 +767,11 @@ int	flag;
 \*/
 void
 #ifdef	FUNCPROTO
-ErrExit(char *s, Boolean errno_valid)
+ErrExit(Boolean errno_valid, char *s)
 #else
-ErrExit(s, errno_valid)
-     char    *s;
+ErrExit(errno_valid, s)
      Boolean errno_valid;
+     char    *s;
 #endif
 {
     if (errno_valid)
@@ -772,6 +780,9 @@ ErrExit(s, errno_valid)
       fprintf(stderr,"%s: %s\n", progname, s);
 
     toggle_key_led(False);
+
+    XCloseDisplay(XtDisplay(topLevel));
+
     exit(1);
 }
 
