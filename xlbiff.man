@@ -80,7 +80,7 @@ The application class name is XLbiff.
 It understands all of the core resource names and classes as well as:
 .TP 8
 .B bottom (\fPclass\fB Bottom)
-Same as the \fB-bottom\fP option.  
+Same as the \fB\-bottom\fP option.  
 .TP 8
 .B file (\fPclass\fB File)
 Same as the \fB\-file\fP option.
@@ -100,7 +100,7 @@ so a %s and %d respectively in \fBscanCommand\fP will generate the values
 of \fBfile\fP and \fBwidth\fP.
 .TP 8
 .B resetSaver (\fPclass\fB ResetSaver)
-Same as the \fB-resetSaver\fP option.
+Same as the \fB\-resetSaver\fP option.
 .TP 8
 .B update (\fPclass\fB Interval)
 Same as the \fB\-update\fP option.
