@@ -1,0 +1,13 @@
+#ifdef XlbiffMailPath
+MAILPATH = XlbiffMailPath
+#else
+/* MAILPATH = /udir/%s/.maildrop */
+MAILPATH = /usr/spool/mail/%s
+#endif
+
+        DEFINES = -DMAILPATH=\"$(MAILPATH)\"
+        DEPLIBS = XawClientDepLibs
+LOCAL_LIBRARIES = XawClientLibs
+
+SimpleProgramTarget(xlbiff)
+InstallAppDefaults(XLbiff)
