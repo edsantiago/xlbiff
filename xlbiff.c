@@ -1,4 +1,4 @@
-static char rcsid[]= "$Id: xlbiff.c,v 1.42 1991/10/15 03:52:37 santiago Exp $";
+static char rcsid[]= "$Id: xlbiff.c,v 1.43 1991/10/15 04:54:10 santiago Exp $";
 /*\
 |* xlbiff  --  X Literate Biff
 |*
@@ -51,6 +51,9 @@ static char rcsid[]= "$Id: xlbiff.c,v 1.42 1991/10/15 03:52:37 santiago Exp $";
 #include <pwd.h>
 #include <errno.h>
 
+#ifdef	NEED_STRERROR
+extern char	*strerror();
+#endif
 
 /*
 ** if compiled with -DDEBUG *and* run with debugging on, this does lots
@@ -786,6 +789,7 @@ strerror(err)
 #endif	/* FUNCPROTO */
 {
     static char unknown[20];
+    extern int	sys_nerr;
     extern char *sys_errlist[];
 
     if (err >= 0 && err < sys_nerr)
