@@ -1,4 +1,4 @@
-static char rcsid[]= "$Id: xlbiff.c,v 1.19 1991/08/27 21:56:16 santiago Exp $";
+static char rcsid[]= "$Id: xlbiff.c,v 1.20 1991/08/30 20:53:41 santiago Exp $";
 /*\
 |* xlbiff  --  X Literate Biff
 |*
@@ -47,6 +47,7 @@ static char rcsid[]= "$Id: xlbiff.c,v 1.19 1991/08/27 21:56:16 santiago Exp $";
 #include <setjmp.h>
 #include <pwd.h>
 #include <unistd.h>
+#include <limits.h>
 
 #include <X11/Intrinsic.h>
 #include <X11/StringDefs.h>
@@ -91,7 +92,7 @@ extern int errno;
 Widget	topLevel,textBox;		/* my widgets			*/
 jmp_buf	myjumpbuf;			/* for longjmp()ing after timer	*/
 int	visible;			/* is window visible?		*/
-char	default_file[80];		/* default filename		*/
+char	default_file[PATH_MAX];		/* default filename		*/
 char	*progname;			/* my program name		*/
 
 typedef struct {
