@@ -4,11 +4,11 @@
 #
 # Normally invoked by xlbiff.  Not intended for general use.
 #
-# $Id: Bscan,v 1.4 2003/11/09 01:50:18 esm Exp $
+# $Id: Bscan,v 1.5 2003/11/11 20:40:54 esm Exp $
 #
 
 # Width of the FOLDER (left hand) side of the box
-WIDTH_L=12
+WIDTH_L=13
 # Width of the COUNT (right hand) side.  3 digits is plenty for me.
 WIDTH_R=3
 
