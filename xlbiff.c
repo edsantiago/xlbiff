@@ -1,4 +1,4 @@
-static char rcsid[]= "$Id: xlbiff.c,v 1.36 1991/10/02 20:49:42 santiago Exp $";
+static char rcsid[]= "$Id: xlbiff.c,v 1.37 1991/10/02 22:43:33 santiago Exp $";
 /*\
 |* xlbiff  --  X Literate Biff
 |*
@@ -330,19 +330,22 @@ checksize()
     DP(("++checksize()..."));
 
     /*
-    ** Do the stat to get the mail file size.  If it fails because the
-    ** file doesn't exist, that's not an error because some Berkeley
-    ** mailers delete the spool file instead of truncating it.
+    ** Do the stat to get the mail file size.  If it fails for any reason,
+    ** ignore the failure and assume the file is size 0.  Failures I can
+    ** think of are that should be ignored are:
+    **
+    **		+ nonexistent file.  Some Berkeley-style mailers delete
+    **		  the spool file when they're done with it.
+    **		+ NFS stale filehandle.  Yuk.  This one happens if
+    ** 		  your mail spool file is on an NFS-mounted directory
+    **		  _and_ your update interval is too low _and_ you use
+    **		  a Berkeleyish mailer.  Yuk.
+    **
+    ** Doubtless there are errors we should complain about, but this 
+    ** would get too ugly.
     */
-    if (stat(lbiff_data.file,&mailstat) == -1) {
-	if (errno == ENOENT) {
-	    mailstat.st_size = 0;
-	} else {
-	    fprintf(stderr,"%s: stat() failed on file %s", progname, 
-		                                           lbiff_data.file);
-	    perror("");
-	    exit(1);
-	}
+    if (stat(lbiff_data.file,&mailstat) != 0) {
+	mailstat.st_size = 0;
     }
 
     /*
