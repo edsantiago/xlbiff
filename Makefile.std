@@ -72,4 +72,4 @@ clean:
 shar:
 	shar -l 25 -o  $(EXE).shar 				\
 		README TODO Imakefile Makefile.std $(APPRES).ad	\
-		$(HDRS) $(SRC) $(EXE).form  $(MAN)
+		$(MAN)  $(HDRS) $(SRC) $(EXE).form
