@@ -1,4 +1,4 @@
-static char rcsid[]= "$Id: xlbiff.c,v 1.15 1991/08/21 15:53:32 santiago Exp $";
+static char rcsid[]= "$Id: xlbiff.c,v 1.16 1991/08/21 16:33:09 santiago Exp $";
 /*\
 |* xlbiff  --  X Literate Biff
 |*
@@ -184,7 +184,7 @@ main( int argc, char *argv[] )
 	    printf("xlbiff version %s, patchlevel %d\n",VERSION,PATCHLEVEL);
 	    exit(0);
 	} else if (argv[1][0] != '-') {
-	    strcpy(lbiff_data.file,argv[1]);
+	    lbiff_data.file = argv[1];
 	} else 
 	  Usage();
     }
