@@ -1,0 +1,137 @@
+.TH XLBIFF 1 "20 August 1991"
+.SH NAME
+xlbiff - mailbox previewer for X
+.SH SYNOPSIS
+.B xlbiff
+[-\fItoolkitoption\fP ...] [-option ...]
+.SH DESCRIPTION
+The
+.I xlbiff
+program lurks in the background, watching your mailbox file, waiting for
+something to pop in there.  When mail arrives, it invokes the MH scan(1)
+command and pops up a window with the results.  Clicking the left mouse
+button anywhere in this window makes it go away.  The window will also
+disappear if iconised or if the mailbox size drops to zero.
+.PP
+.SH OPTIONS
+.I Xlbiff
+accepts all of the standard X Toolkit command line options along with the
+additional options listed below:
+.TP 8
+.B \-help
+This option indicates that a brief summary of the allowed options should be
+printed on the standard error.
+.TP 8
+.B \-update \fIseconds\fP
+This option specifies the frequency in seconds at which \fIxlbiff\fP
+should update its display.  The default is 15 seconds.
+.TP 8
+.B \-file \fIfilename\fP
+This option specifies the name of the file which should be monitored.  By
+default, it watches /usr/spool/mail/\fIusername\fP, where \fIusername\fP
+is your login name.
+.TP 8
+.B \-volume \fIpercentage\fP
+This option specifies how loud the bell should be rung when new mail comes in.
+.TP 8
+.B \-width \fIwidth\fP
+This option specifies the width, in characters, of the
+.I xlbiff
+window.
+.PP
+The following standard X Toolkit command line arguments are commonly used with 
+.I xlbiff:
+.TP 8
+.B \-display \fIdisplay\fP
+This option specifies the X server to contact.
+.TP 8
+.B \-geometry \fI=+x+y\fP
+This option specifies the preferred position of the scan window.
+.TP 8
+.B \-bg \fIcolor\fP
+This option specifies the color to use for the background of the window.  
+.TP 8
+.B \-fg \fIcolor\fP
+This option specifies the color to use for the foreground of the window.
+.TP 8
+.B \-xrm \fIresourcestring\fP
+This option specifies a resource string to be used.  This is especially
+useful for setting resources that do not have separate command line options.
+.SH X DEFAULTS
+The application class name is XLbiff.
+It understands all of the core resource names and classes as well as:
+.PP
+.TP 8
+.B scanCommand (\fPclass\fB ScanCommand)
+Specifies a shell command to be executed to list the contents of mailbox
+\fBfile\fP.  The specified string value is used as the
+argument to a \fIsystem\fP(3) call and may therefore contain i/o redirection.
+The command's stdout is used to generate the window.  
+Internally, the command is generated as
+.sp
+.nf
+              sprintf(buf,scanCommand,file,width)
+.fi
+.sp
+so a %s and %d respectively in \fBscanCommand\fP will generate the values
+of \fBfile\fP and \fBwidth\fP.
+.TP 8
+.B file (\fPclass\fB File)
+Same as the \-file option.
+.TP 8
+.B width (\fPclass\fB Width)
+Same as the \-width option.
+.TP 8
+.B maxRows (\fPclass\fB MaxRows)
+Specifies the maximum height, in lines, of the 
+.I xbiff
+window.  
+.TP 8
+.B update (\fPclass\fB Interval)
+Same as the \-update option.
+.TP 8
+.B volume (\fPclass\fB Volume)
+Same as the \-volume option.
+.TP 8
+.B foreground (\fPclass\fB Foreground)
+Specifies the color for the foreground.
+.TP 8
+.B background (\fPclass\fB Background)
+Specifies the color for the background.
+.SH ACTIONS
+.I Xlbiff
+provides the following actions for use in event translations:
+.TP 8
+.B popdown()
+This action causes the window to vanish.
+.TP 8
+.B exit()
+This action causes 
+.I xlbiff
+to exit.
+.PP
+The default translation is 
+.sp
+.nf
+        <Button1Press>:  popdown()
+        <Button3Press>:  exit()
+.fi
+.sp
+.SH ENVIRONMENT
+.PP
+.TP 8
+.B DISPLAY
+to get the default host and display number.
+.SH "SEE ALSO"
+X(1),
+scan(1)
+.SH BUGS
+none yet
+.SH COPYRIGHT
+Copyright 1991, Eduardo Santiago Munoz
+.SH AUTHOR
+Ed Santiago, santiago@pa.dec.com
+.SH ACKNOWLEDGEMENTS
+Most of the Xt code is structured around the \fBxgoodbye\fP sample program
+in the O'Reilly \fIX Toolkit Intrinsics Programming Manual\fP.  A lot of
+code was stolen from \fBxbiff\fP, including this man page.
