@@ -126,6 +126,9 @@ HISTORY
 	+ add -refresh and -led options.
 	+ handle WM_DELETE_WINDOW.
 
+      From Peter Fischman <peterf@ima.isc.com>
+	+ Add some comments to Makefile.std to help out SYSV'ers
+
       From me:
 	+ add ErrExit routine.
 
