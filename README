@@ -48,9 +48,16 @@ INSTALLING
 
   Xlbiff invokes `scan -file xxx' by default, and thus requires MH 6.7 
   or above.  If your MH isn't at this level, and you don't feel like
-  upgrading, there's games you can play with `inc -notruncate' but
-  they are such horrible kludges that I will not even attempt to 
-  describe them.
+  upgrading, there's a really, really ugly kludge you can do with inc:
+
+	tcx inc -notruncate -silent -file %s -form xlbiff.form          \
+                -width %d -audit /tmp/xlbiff.$$ +.null >/dev/null 2>&1; \
+                cat /tmp/xlbiff.$$;                                     \
+                rm /tmp/xlbiff.$$ >/dev/null 2>&1;                      \
+                rmf +.null >/dev/null 2>&1
+
+  where 'tcx' is a script by Jerry Peek that runs an MH command while
+  preserving context.  It is included in this distribution.
 
   If you're a Berkeley mail person, you can set scanCommand to:
 
