@@ -1,4 +1,4 @@
-static char rcsid[]= "$Id: xlbiff.c,v 1.26 1991/09/27 23:36:16 santiago Exp $";
+static char rcsid[]= "$Id: xlbiff.c,v 1.27 1991/09/28 01:05:52 santiago Exp $";
 /*\
 |* xlbiff  --  X Literate Biff
 |*
@@ -249,6 +249,16 @@ main(argc, argv)
     XtAppAddActions(app_context,lbiff_actions,XtNumber(lbiff_actions));
     XtAddEventHandler(topLevel,StructureNotifyMask,False,Shrink,(caddr_t)NULL);
 
+    /*
+    ** Unless running with *bottom, realize the widget but don't map it.
+    **
+    ** If running with *bottom, things are more complicated.  You can't
+    ** just map/unmap(), because since the window has already been placed
+    ** at the bottom (when realized) any lines that get added to it when
+    ** more mail comes in will just drop off the edge of the screen.
+    ** Thus when *bottom is true we need to realize() the window anew
+    ** each time something changes in it.
+    */
     if (!lbiff_data.bottom) {
 	XtSetMappedWhenManaged(topLevel, FALSE);
 	XtRealizeWidget(topLevel);
@@ -547,6 +557,11 @@ Shrink(w, data, e)
 }
 
 
+/*
+** These here routines (Popdown/Popup) bring the main window up or down.
+** They are pretty simple except for the issue with *bottom... read the
+** notes on *bottom above (do a reverse search for XtRealize from here).
+*/
 /*************\
 |*  Popdown  *|  kill window
 \*************/
