@@ -6,3 +6,5 @@
 *   <from gildea@expo.lcs.mit.edu> pop up alert window on error
 
 *   Handle width resizes
+
+*   <from shepard@finch.pa.dec.com> add user-specifiable "watch" commands
