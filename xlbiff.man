@@ -110,7 +110,7 @@ This action causes
 .I xlbiff
 to exit.
 .PP
-The default translation is 
+The default translations are 
 .sp
 .nf
         <Button1Press>:  popdown()
@@ -126,7 +126,7 @@ to get the default host and display number.
 X(1),
 scan(1)
 .SH BUGS
-none yet
+specifying dimensions in -geometry causes badness.
 .SH COPYRIGHT
 Copyright 1991, Eduardo Santiago Munoz
 .SH AUTHOR
