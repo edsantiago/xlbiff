@@ -171,6 +171,15 @@ Same as the \fB\-ledPopdown\fP option.
 .B refresh (\fPclass\fB Refresh)
 Same as the \fB\-refresh\fP option.
 .TP 8
+.B sound (\fPclass\fB Sound)
+Specify a command to be run in place of a bell when new mail arrives.
+For example, on a Sun Sparc you might use:
+.sp
+.nf
+ *sound: /usr/demo/SOUND/play /usr/demo/SOUND/sounds/doorbell.au
+.fi
+.sp
+.TP 8
 .B volume (\fPclass\fB Volume)
 Same as the \fB\-volume\fP option.
 .SH ACTIONS
