@@ -1,4 +1,4 @@
-static char rcsid[]= "$Id: xlbiff.c,v 1.17 1991/08/21 21:09:40 santiago Exp $";
+static char rcsid[]= "$Id: xlbiff.c,v 1.18 1991/08/26 20:32:21 santiago Exp $";
 /*\
 |* xlbiff  --  X Literate Biff
 |*
@@ -157,20 +157,20 @@ static XtActionsRec lbiff_actions[] = {
 main( int argc, char *argv[] )
 {
     char *username;
+    struct passwd  *pwd;
     XtAppContext app_context;
 
     progname = argv[0];
     /*
     ** Get user name, in case no explicit path is given
     */
-    if ((username= getlogin()) == NULL) {
-	struct passwd *pwd= getpwuid(getuid());
-
-	if (pwd == NULL) {
+    if ((pwd= getpwuid(getuid())) != NULL) {
+	username = pwd->pw_name;
+    } else {
+	if ((username= getlogin()) == NULL) {
 	    fprintf(stderr,"%s: cannot get username\n",progname);
 	    exit(1);
 	}
-	username = pwd->pw_name;
     }
 
     /*
@@ -223,6 +223,7 @@ main( int argc, char *argv[] )
 	sprintf(default_file,MAILPATH,username);
 	lbiff_data.file = default_file;
     }
+    DP(("username= %s\tfile= %s\n",username,lbiff_data.file));
 
     /*
     ** check to see if there's something to do, pop up window if necessary,
