@@ -23,13 +23,18 @@ ADVANTAGES (or, Why Yet Another Biff?)
 
 INSTALLING
 
-  The usual.
+  Xlbiff is old... it uses the archaic X11 "imake" mechanism:
 
-  For those that don't know what 'the usual' means:  if you have a working 
-  imake, look at the Imakefile to make sure you agree with the default 
-  values in it, then type 'xmkmf'.  If you don't have imake, copy the 
-  file Makefile.std to 'Makefile' and edit it to make sure everything 
-  looks good.
+      % xmkmf
+      % make
+
+  You may want to look at the Imakefile to make sure you agree with
+  the default values in it, first.
+
+INSTALLING -- WITHOUT IMAKE
+
+  If you don't have imake, copy the file Makefile.std to 'Makefile'
+  and edit it to make sure everything looks good.
 
   Type 'make' and cross your fingers.  If that all works, su and type 
   `make install' or install by hand -- you should be able to figure
@@ -115,7 +120,7 @@ PORTING (or, if INSTALLING didn't work)
   I *think* most portability bugs have been ironed out, but of course
   there are always a few left.  If fixes are required, or if you add 
   any whizzy features (see TODO for a partial list), please mail them 
-  to me, santiago@vix.com, and I will wrap them up for future releases.
+  to me, esm@pobox.com, and I will wrap them up for future releases.
 
 
 BACKGROUND
@@ -227,4 +232,4 @@ HISTORY
 
 AUTHOR
 
-  Ed Santiago <santiago@vix.com>
+  Ed Santiago <esm@pobox.com>
