@@ -65,6 +65,15 @@ This option specifies the frequency in seconds at which
 .I xlbiff
 should update its display.  The default is 15 seconds.
 .TP 8
+.B \-led \fIledNum\fP
+This option specifies a keyboard LED to light up when there is mail waiting
+in the \fIfile.\fP  The default is zero (do not light a LED).
+.TP 8
+.B \-refresh \fIseconds\fP
+This option specifies the number of seconds to wait before re-posting the
+mail window after you acknowledge it, and it still contains the same mail.
+The default is 1800 (30 minutes).
+.TP 8
 .B \-volume \fIpercentage\fP
 This option specifies how loud the bell should be rung when new mail comes in.
 .PP
@@ -123,6 +132,12 @@ Same as the \fB\-columns\fP option.
 Specifies the maximum height, in lines, of the 
 .I xlbiff
 window.  The default is 20.
+.TP 8
+.B led (\fPclass\fB Led)
+Same as the \fB\-led\fP option.
+.TP 8
+.B refresh (\fPclass\fB Refresh)
+Same as the \fB\-refresh\fP option.
 .TP 8
 .B volume (\fPclass\fB Volume)
 Same as the \fB\-volume\fP option.
