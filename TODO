@@ -1,4 +1,5 @@
-*   BUG: Xlbiff window grabs keyboard focus when it pops up.
+*   BUG: <from jnelson@gauche.zko.dec.com (Jeff E. Nelson)>:
+    Xlbiff window grabs keyboard focus when it pops up.
 
 *   put binary count of messages in LEDs?  Or is that too geeky?
 
