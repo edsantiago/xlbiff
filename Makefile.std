@@ -1,9 +1,12 @@
+# -*- Makefile -*-
 #
 # Makefile for xlbiff
 #
+# $Id: Makefile.std,v 1.14 2003/11/09 02:08:20 esm Exp $
+#
 
 #
-# Where your mail file is.  
+# Where your mail file is.
 #
 #	BSD systems should probably define it as /usr/spool/mail/%s
 #	SYSV systems will probably want /usr/mail/%s
@@ -11,7 +14,7 @@
 #
 #MAILPATH=	/udir/%s/.maildrop
 #MAILPATH=	/usr/mail/%s
-MAILPATH=	/usr/spool/mail/%s
+MAILPATH=	/var/spool/mail/%s
 
 #
 # Build with debugging enabled or disabled.  Note that you can build
@@ -47,7 +50,7 @@ MHLIBDIR=	/usr/new/lib/mh
 # SYSV systems might need to link with the stuff below
 #
 #EXTRALIBS=	-lnsl_s
-EXTRALIBS= 
+EXTRALIBS=
 
 #
 # Systems that don't have strerror() (eg, SunOS) should uncomment this:
@@ -90,22 +93,3 @@ install: $(EXE) $(APPRES).ad
 
 clean:
 	$(RM) -f $(EXE) *~ *.o
-
-
-SHAR_LIMIT = 50
-
-shar:
-	shar -l $(SHAR_LIMIT) -o  $(EXE).shar 				\
-		README TODO Imakefile Makefile.std $(APPRES).ad	\
-		$(MAN)  $(HDRS) $(SRC) $(EXE).form
-
-patch:
-	@-if [ -z "$(PREVIOUS)" ]; then\
-		echo "must define PREVIOUS when making patch";\
-		exit 1;\
-	fi
-	echo >patch-$(PREVIOUS)
-	@-for i in patchlevel.h README TODO Imakefile Makefile.std	\
-			$(APPRES).ad $(MAN) $(SRC) $(EXE).form; do	\
-		   rcsdiff -c -r$(PREVIOUS) $$i >>patch-$(PREVIOUS);	\
-	done
