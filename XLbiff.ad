@@ -23,7 +23,7 @@ XLbiff.maxRows:			20
 !
 XLbiff.volume:			100
 XLbiff.update:			15
-XLbiff.fit:			0
+XLbiff.fit:			False
 !
 ! actions
 !
