@@ -1,4 +1,4 @@
-static char rcsid[]= "$Id: xlbiff.c,v 1.43 1991/10/15 04:54:10 santiago Exp $";
+static char rcsid[]= "$Id: xlbiff.c,v 1.44 1991/10/15 20:44:29 santiago Exp $";
 /*\
 |* xlbiff  --  X Literate Biff
 |*
@@ -732,7 +732,7 @@ int	flag;
     if (lbiff_data.led == 0)		/* return if no led action desired */
       return;
 
-    DP(("++toggle_key_led(%d,%s)\n",flag ? "True" : "False", lbiff_data.led));
+    DP(("++toggle_key_led(%d,%s)\n", lbiff_data.led, flag ? "True" : "False"));
 
     if (flag)
 	keyboard.led_mode = LedModeOn;
@@ -740,8 +740,6 @@ int	flag;
 	keyboard.led_mode = LedModeOff;
 
     keyboard.led = lbiff_data.led;
-
-    DP(("will toggle key led = %d\n",lbiff_data.led));
 
     XChangeKeyboardControl(XtDisplay(topLevel), KBLed | KBLedMode, &keyboard);
     XSync(XtDisplay(topLevel),False);
