@@ -11,8 +11,8 @@ MAILPATH=	/usr/spool/mail/%s
 #
 # pick one
 #
-CFLAGS=		-g -DDEBUG  -DMAILPATH="\"$(MAILPATH)\""
-#CFLAGS=		-O   -DMAILPATH="\"$(MAILPATH)\""
+#CFLAGS=		-g -DDEBUG  -DMAILPATH="\"$(MAILPATH)\""
+CFLAGS=		-O   -DMAILPATH="\"$(MAILPATH)\""
 
 
 #
@@ -21,37 +21,45 @@ CFLAGS=		-g -DDEBUG  -DMAILPATH="\"$(MAILPATH)\""
 BINDIR=		/usr/local/bin
 
 #
-# Where to put the app-defaults file,	eg, /usr/lib/X11/app-defaults
+# Where to put the app-defaults file,	eg, /usr/lib
 #
-LIBDIR=		/usr/local/lib/X11/app-defaults
+LIBDIR=		/usr/local/lib
+XAPPLOADDIR=	$(LIBDIR)/X11/app-defaults
 
 #
 # Where to put the man page,		eg, /usr/man/man1
 #
 MANDIR=		/usr/local/man/man1
-MANEXT=		1
-
-
+MANEXT=		1X
 
 #
+# MH library directory,			eg, /usr/new/lib/mh
+#
+MHLIBDIR=	/usr/new/lib/mh
+
+
+###############################################################################
 # DO NOT MODIFY ANYTHING UNDER HERE
-#
+###############################################################################
 EXE=	xlbiff
 OBJ=	xlbiff.o
-SRC=	patchlevel.h  xlbiff.c
+SRC=	xlbiff.c
+HDRS=	patchlevel.h
 MAN=	xlbiff.man
+APPRES= XLbiff
 
+LIBS=	-lXaw -lXmu -lXt -lX11 -lXext
 
 
 $(EXE):	$(OBJ)
-	$(CC) $(CFLAGS) -o $@ $?  -lXaw -lXmu -lXt -lX11 -lXext
+	$(CC) $(CFLAGS) -o $@ $?  $(LIBS)
 
 
-install:
+install: $(EXE) $(APPRES).ad
 	cp $(EXE)	$(BINDIR)/$(EXE)
-	cp $(APPDEF)	$(LIBDIR)/
+	cp $(APPRES).ad	$(XAPPLOADDIR)/$(APPRES)
 	cp $(MAN)	$(MANDIR)/$(EXE).$(MANEXT)
-
+	cp $(EXE).form	$(MHLIBDIR)/$(EXE).form
 
 
 clean:
@@ -59,4 +67,5 @@ clean:
 
 
 shar:
-	shar README TODO Makefile XLbiff $(SRC) xlbiff.form COPYING $(MAN) >shar
+	shar -o 	$(EXE).shar README TODO Makefile $(APPRES).ad	\
+			$(HDRS) $(SRC) $(EXE).form  $(MAN) >shar
