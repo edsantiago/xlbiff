@@ -16,12 +16,12 @@
 !
 ! Dimensions of the display window
 !
-*width:			80
+*maxWidth:		80
 *maxHeight:		20
 !
 ! miscellaneous
 !
-*bottom:		True
+*bottom:		False
 *resetSaver:		False
 *update:		15
 *volume:		100
