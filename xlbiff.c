@@ -1,4 +1,4 @@
-static char rcsid[]= "$Id: xlbiff.c,v 1.69 1993/06/08 22:01:24 esm Exp $";
+static char rcsid[]= "$Id: xlbiff.c,v 1.70 1993/06/08 22:58:22 esm Exp $";
 /*\
 |* xlbiff  --  X Literate Biff
 |*
@@ -213,6 +213,7 @@ static XrmOptionDescRec	optionDescList[] = {
     { "-led",         ".led",         XrmoptionSepArg,	(caddr_t) NULL},
     { "-ledPopdown",  ".ledPopdown",  XrmoptionNoArg,	(caddr_t) "true"},
     { "+ledPopdown",  ".ledPopdown",  XrmoptionNoArg,	(caddr_t) "false"},
+    { "-sound",	      ".sound",       XrmoptionSepArg,  (caddr_t) NULL},
     { "-scanCommand", ".scanCommand", XrmoptionSepArg,	(caddr_t) NULL},
     { "-mailerCommand",".mailerCommand",XrmoptionSepArg,(caddr_t) NULL},
     { "-checkCommand",".checkCommand",XrmoptionSepArg,  (caddr_t) NULL}
