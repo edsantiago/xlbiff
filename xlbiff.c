@@ -1,4 +1,4 @@
-static char rcsid[]= "$Id: xlbiff.c,v 1.24 1991/09/23 18:47:23 santiago Exp $";
+static char rcsid[]= "$Id: xlbiff.c,v 1.25 1991/09/23 20:13:20 santiago Exp $";
 /*\
 |* xlbiff  --  X Literate Biff
 |*
@@ -48,8 +48,6 @@ static char rcsid[]= "$Id: xlbiff.c,v 1.24 1991/09/23 18:47:23 santiago Exp $";
 
 #include <stdio.h>
 #include <sys/stat.h>
-#include <signal.h>
-#include <setjmp.h>
 #include <pwd.h>
 
 
@@ -96,7 +94,7 @@ void	setXbuf();
 extern int errno;
 
 Widget	topLevel,textBox;		/* my widgets			*/
-jmp_buf	myjumpbuf;			/* for longjmp()ing after timer	*/
+XtAppContext app_context;		/* application context		*/
 int	visible;			/* is window visible?		*/
 char	*default_file;			/* default filename		*/
 char	*progname;			/* my program name		*/
@@ -174,7 +172,6 @@ main(argc, argv)
 {
     char *username;
     struct passwd  *pwd;
-    XtAppContext app_context;
 
     progname = argv[0];
     /*
@@ -257,10 +254,8 @@ main(argc, argv)
     ** check to see if there's something to do, pop up window if necessary,
     ** and set up alarm to wake us up again every so often.
     */
-    setjmp(myjumpbuf);
     checksize();
-    signal(SIGALRM,handler);
-    alarm(lbiff_data.update);
+    XtAppAddTimeOut(app_context,lbiff_data.update * 1000, handler, NULL);
 
     /*
     ** main program loop  --  mostly just loops forever waiting for events
@@ -342,7 +337,8 @@ checksize()
 void
 handler()
 {
-    longjmp(myjumpbuf,1);
+    checksize();
+    XtAppAddTimeOut(app_context,lbiff_data.update * 1000, handler, NULL);
 }
 
 
