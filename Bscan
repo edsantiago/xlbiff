@@ -4,11 +4,13 @@
 #
 # Normally invoked by xlbiff.  Not intended for general use.
 #
-# $Id: Bscan,v 1.2 2003/11/09 00:40:28 esm Exp $
+# $Id: Bscan,v 1.3 2003/11/09 01:20:33 esm Exp $
 #
 
-# Width of the box
-WIDTH=15
+# Width of the FOLDER (left hand) side of the box
+WIDTH_L=12
+# Width of the COUNT (right hand) side.  3 digits is plenty for me.
+WIDTH_R=3
 
 # Don't clobber existing context... that makes it impossible for us to
 # read messages from the command line.
@@ -44,8 +46,8 @@ for i in `flist -all -recurse -sequence unseen -noshowzero -fast`; do
 
     # Show the rest of the folder name, right-padding for alignment.  Show
     # the unseen message count.
-    fmt=$(expr $WIDTH - ${#dir})
-    printf "%-*s%3d\n" "$fmt" "$folder" "$count"
+    fmt=$(expr $WIDTH_L - ${#dir} - 1)
+    printf "%-*s%*d\n" "$fmt" "$folder" $WIDTH_R "$count"
 
     # Remember this dir for next time
     last_dir=$dir
