@@ -1,4 +1,4 @@
-.TH XLBIFF 1 "1 October 1991"
+.TH XLBIFF 1 "4 October 1991"
 .SH NAME
 xlbiff \- mailbox message previewer for X
 .SH SYNOPSIS
