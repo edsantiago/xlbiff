@@ -1,4 +1,4 @@
-static char rcsid[]= "$Id: xlbiff.c,v 1.63 1992/09/14 20:02:39 esm Exp $";
+static char rcsid[]= "$Id: xlbiff.c,v 1.64 1992/09/24 22:04:51 esm Exp $";
 /*\
 |* xlbiff  --  X Literate Biff
 |*
@@ -12,9 +12,18 @@ static char rcsid[]= "$Id: xlbiff.c,v 1.63 1992/09/14 20:02:39 esm Exp $";
 |*
 |*	Author:		Eduardo Santiago Munoz,  esm@auspex.com
 |* 	Created:	20 August 1991
-|*	Last Updated:	14 September 1992
+|*	Last Updated:	24 September 1992
 |*
 |*	Copyright 1991, 1992 Eduardo Santiago Munoz
+|*	Portions copyright 1991 Digital Equipment Corporation
+|*
+|*	Permission to use, copy, modify, distribute, and sell this software
+|*	and its documentation for any purpose is hereby granted without
+|*	fee, provided that the above copyright notice appear in all copies
+|*	and that both that copyright notice and this permission notice
+|*	appear in supporting documentation.  The author makes no repre-
+|*	sentation about the suitability of this software for any purpose.
+|*	It is provided "as is" without express or implied warranty.
 |*
 \*/
 
