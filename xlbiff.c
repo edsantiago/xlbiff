@@ -1,4 +1,4 @@
-static char rcsid[]= "$Id: xlbiff.c,v 1.35 1991/10/02 19:51:00 santiago Exp $";
+static char rcsid[]= "$Id: xlbiff.c,v 1.36 1991/10/02 20:49:42 santiago Exp $";
 /*\
 |* xlbiff  --  X Literate Biff
 |*
@@ -260,21 +260,6 @@ main(argc, argv)
 		      (XtEventHandler)Shrink,(caddr_t)NULL);
 
     /*
-    ** Unless running with *bottom, realize the widget but don't map it.
-    **
-    ** If running with *bottom, things are more complicated.  You can't
-    ** just map/unmap(), because since the window has already been placed
-    ** at the bottom (when realized) any lines that get added to it when
-    ** more mail comes in will just drop off the edge of the screen.
-    ** Thus when *bottom is true we need to realize() the window anew
-    ** each time something changes in it.
-    */
-    if (!lbiff_data.bottom) {
-	XtSetMappedWhenManaged(topLevel, FALSE);
-	XtRealizeWidget(topLevel);
-    }
-
-    /*
     ** check to see if there's something to do, pop up window if necessary,
     ** and set up alarm to wake us up again every so often.
     */
@@ -492,10 +477,15 @@ Shrink(w, data, e, b)
 
 
 /*
-** These here routines (Popdown/Popup) bring the main window up or down.
-** They are pretty simple except for the issue with *bottom... read the
-** notes on *bottom above (do a reverse search for XtRealize from here).
-*/
+ ** These here routines (Popdown/Popup) bring the main window up or down.
+ ** They are pretty simple except for the issue with *bottom...
+ ** If running with *bottom, things are more complicated.  You can't
+ ** just map/unmap(), because since the window has already been placed
+ ** at the bottom (when realized) any lines that get added to it when
+ ** more mail comes in will just drop off the edge of the screen.
+ ** Thus when *bottom is true we need to realize() the window anew
+ ** each time something changes in it.
+ */
 /*************\
 |*  Popdown  *|  kill window
 \*************/
@@ -506,7 +496,7 @@ Popdown()
     if (lbiff_data.bottom) {
 	XtUnrealizeWidget(topLevel);
     } else {
-	XtUnmapWidget(topLevel);
+	XtPopdown(topLevel);
     }
 
     visible = False;
@@ -554,14 +544,9 @@ Popup( s )
 	XtSetValues(topLevel, args, n);
 	XtRealizeWidget(topLevel);
     } else {
-	XtMapWidget(topLevel);
+	XtPopup(topLevel, XtGrabNone);
     }
 
-    /*
-    ** Pop window up to top of stack, also beep to attract attention.
-    ** If resetSaver is set, reset the screensaver.
-    */
-    XRaiseWindow(XtDisplay(topLevel),XtWindow(topLevel));
     XBell(XtDisplay(topLevel),lbiff_data.volume - 100);
 
     if (lbiff_data.resetSaver)
