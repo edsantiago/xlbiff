@@ -92,8 +92,10 @@ clean:
 	$(RM) -f $(EXE) *~ *.o
 
 
+SHAR_LIMIT = 50
+
 shar:
-	shar -l 25 -o  $(EXE).shar 				\
+	shar -l $(SHAR_LIMIT) -o  $(EXE).shar 				\
 		README TODO Imakefile Makefile.std $(APPRES).ad	\
 		$(MAN)  $(HDRS) $(SRC) $(EXE).form
 
