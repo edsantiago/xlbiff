@@ -133,14 +133,16 @@ HISTORY
   Where applicable, changes are attributed to the people who submitted
   the ideas and, in many cases, patches and source code.
 
-  * Version 3
+  * Version 3.0
+	+ miscellaneous bug fixes
+
       From Gary Weimer <weimer@ssd.kodak.com>
 	+ add "sound" resource -- allows playing any sound on popup.
 
       From Neil O'Sullivan <Neil.OSullivan@eng.sun.com>
 	+ add "fade" resource -- pops window down after certain time.
 
-  * Version 2.1 BETA (not submitted anywhere official yet)
+  * Version 2.1 BETA
       From  Daren W Latham <dwl@mentat.udev.cdc.com>
 	+ add -refresh and -led options.
 	+ handle WM_DELETE_WINDOW.
