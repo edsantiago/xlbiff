@@ -3,9 +3,14 @@
 #
 
 #
-# Where your mail file is
+# Where your mail file is.  
+#
+#	BSD systems should probably define it as /usr/spool/mail/%s
+#	SYSV systems will probably want /usr/mail/%s
+#	I'm sure someone else will have /%s/incoming-mail/temp/../geewhiz/.x
 #
 #MAILPATH=	/udir/%s/.maildrop
+#MAILPATH=	/usr/mail/%s
 MAILPATH=	/usr/spool/mail/%s
 
 #
@@ -22,7 +27,7 @@ DEBUG=		-O
 BINDIR=		/usr/local/bin
 
 #
-# Where to put the app-defaults file,	eg, /usr/lib
+# Where to put the app-defaults file,	eg, /usr/lib, /usr/local/lib
 #
 LIBDIR=		/usr/local/lib
 XAPPLOADDIR=	$(LIBDIR)/X11/app-defaults
@@ -34,10 +39,15 @@ MANDIR=		/usr/local/man/man1
 MANEXT=		1X
 
 #
-# MH library directory,			eg, /usr/new/lib/mh
+# MH library directory,			eg, /usr/new/lib/mh, /usr/local/lib/mh
 #
 MHLIBDIR=	/usr/new/lib/mh
 
+#
+# SYSV systems might need to link with the stuff below
+#
+#EXTRALIBS=	-lnsl_s
+EXTRALIBS= 
 
 ###############################################################################
 # DO NOT MODIFY ANYTHING UNDER HERE
@@ -51,7 +61,7 @@ HDRS=	patchlevel.h
 MAN=	xlbiff.man
 APPRES= XLbiff
 
-LIBS=	-lXaw -lXmu -lXt -lX11 -lXext
+LIBS=	-lXaw -lXmu -lXt -lX11 -lXext $(EXTRALIBS)
 
 
 $(EXE):	$(OBJ)
