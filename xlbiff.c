@@ -1,4 +1,4 @@
-static char rcsid[]= "$Id: xlbiff.c,v 1.56 1991/11/07 19:11:59 santiago Exp $";
+static char rcsid[]= "$Id: xlbiff.c,v 1.57 1991/11/15 18:51:13 santiago Exp $";
 /*\
 |* xlbiff  --  X Literate Biff
 |*
@@ -682,10 +682,21 @@ Shrink(w, data, e, b)
 void
 Popdown()
 {
+    struct timeval tp;
+    struct timezone tzp;
+
     DP(("++Popdown()\n"));
     if (visible)
       XtPopdown(topLevel);
     visible = False;
+
+    /*
+    ** Remember when we were popped down so we can refresh later
+    */
+    if (gettimeofday(&tp,&tzp) != 0)
+      ErrExit(True,"gettimeofday() in lbiffUnrealize()");
+
+    acknowledge_time = tp.tv_sec;
 
     if (lbiff_data.ledPopdown)		/* Turn off LED if so requested */
       toggle_key_led(False);
@@ -707,22 +718,11 @@ Popup()
 void
 lbiffUnrealize()
 {
-    struct timeval tp;
-    struct timezone tzp;
-
     DP(("++lbiffUnrealize()\n"));
     if (lbiff_data.bottom)
       XtUnrealizeWidget(topLevel);
     else
       Popdown();
-
-    /*
-    ** Remember when we were popped down so we can refresh later
-    */
-    if (gettimeofday(&tp,&tzp) != 0)
-      ErrExit(True,"gettimeofday() in lbiffUnrealize()");
-
-    acknowledge_time = tp.tv_sec;
 
     visible = False;
 }
@@ -741,6 +741,7 @@ lbiffRealize( s )
 {
     Arg		args[4];
     int		n;
+    static int	first_time = 1;
 
     DP(("++Popup()\n"));
 
@@ -771,10 +772,11 @@ lbiffRealize( s )
     }
     Popup();
 
-    if (acknowledge_time == 0) {
+    if (first_time) {
 	/* first time through this code */
 	(void) XSetWMProtocols (XtDisplay(topLevel), XtWindow(topLevel),
 				&wm_delete_window, 1);
+	first_time = 0;
     }
 
 
