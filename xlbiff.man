@@ -97,6 +97,9 @@ Invoking this action will pop down the main window.  When the command exits,
 it will pop up again.  Due to mailbox consistency considerations, the
 mailerCommand should not exit before it is finished with the mailbox, i.e.
 it should not be run in the background.
+.sp
+There is no default
+.BR mailerCommand .
 .TP 8
 .B \-scanCommand \fIcommand\fP
 Specifies a shell command to be executed to list the contents of mailbox
