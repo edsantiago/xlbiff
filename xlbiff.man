@@ -65,6 +65,13 @@ This option specifies the frequency in seconds at which
 .I xlbiff
 should update its display.  The default is 15 seconds.
 .TP 8
+.B \-fade \fIseconds\fP
+Number of seconds to wait before popping window back down.  This option
+can be used to monitor events of non-lasting importance, such as syslog
+or UUCP queues.  The default value of 0 disables the
+.B fade
+option.
+.TP 8
 .B \-led \fIledNum\fP
 This option specifies a keyboard LED to light up when there is mail waiting
 in the \fIfile.\fP  The default is zero (do not light a LED).
@@ -94,7 +101,14 @@ Internally, the command is generated as
 .fi
 .sp
 so a %s and %d respectively in \fBscanCommand\fP will generate the values
-of \fBfile\fP and \fBcolumns\fP.
+of \fBfile\fP and \fBcolumns\fP.  The default 
+.B scanCommand
+is
+.sp
+.nf
+		scan -file %s -width %d
+.fi
+.sp
 .TP 8
 .B \-checkCommand \fIcommand\fP
 Specifies a shell command to be executed to check for new mail (or some
@@ -109,7 +123,7 @@ in status and 2 indicates that the condition has been cleared and the
 window should pop down.  By default, no shell command is provided.
 .sp
 This option may be useful to monitor logins (by checking update times
-of /etc/utmp), syslog warnings and so forth.  Let your imagination go wild!
+of /etc/utmp), using POP, and so forth.  Let your imagination go wild!
 .TP 8
 .B \-volume \fIpercentage\fP
 This option specifies how loud the bell should be rung when new mail comes in.
@@ -153,6 +167,8 @@ Same as the \fB\-resetSaver\fP option.
 .TP 8
 .B update (\fPclass\fB Interval)
 Same as the \fB\-update\fP option.
+.B fade (\fPclass=fB Fade)
+Same as the \fB\-fade\fP option.
 .TP 8
 .B columns (\fPclass\fB Columns)
 Same as the \fB\-columns\fP option.
@@ -217,11 +233,8 @@ default mail file to check.
 specifying dimensions in \-geometry causes badness.
 .PP
 The \fBled\fP option does not work on Suns before SunOS 4.1/X11R5.
-.SH COPYRIGHT
-Copyright 1991, Digital Equipment Corporation.
-See the source code for a full statement of rights and permissions.
 .SH AUTHOR
-Ed Santiago, santiago@pa.dec.com
+Ed Santiago, esm@auspex.com
 .SH ACKNOWLEDGEMENTS
 .I Xlbiff
 took shape around the \fBxgoodbye\fP sample program
