@@ -96,6 +96,21 @@ Internally, the command is generated as
 so a %s and %d respectively in \fBscanCommand\fP will generate the values
 of \fBfile\fP and \fBcolumns\fP.
 .TP 8
+.B \-checkCommand \fIcommand\fP
+Specifies a shell command to be executed to check for new mail (or some
+other condition) rather than simply examining the size of the mail file.
+The specified string value is used as the argument to a \fIsystem\fP(3) 
+call and may therefore contain i/o redirection.  Like
+.I xbiff,
+an exit status of 0 indicates that a change in condition demands a new
+evaluation of scanCommand and subsequent popup, 1 indicates no change 
+in status and 2 indicates that the condition has been cleared and the
+.I xlbiff
+window should pop down.  By default, no shell command is provided.
+.sp
+This option may be useful to monitor logins (by checking update times
+of /etc/utmp), syslog warnings and so forth.  Let your imagination go wild!
+.TP 8
 .B \-volume \fIpercentage\fP
 This option specifies how loud the bell should be rung when new mail comes in.
 .PP
@@ -128,7 +143,10 @@ Same as the \fB\-bottom\fP option.
 Same as the \fB\-file\fP option.
 .TP 8
 .B scanCommand (\fPclass\fB ScanCommand)
-Same as the \fB\-scanCommand option.
+Same as the \fB\-scanCommand\fP option.
+.TP 8
+.B checkCommand (\fPclass\fB CheckCommand)
+Same as the \fB\-checkCommand\fP option.
 .TP 8
 .B resetSaver (\fPclass\fB ResetSaver)
 Same as the \fB\-resetSaver\fP option.
