@@ -1,3 +1,5 @@
+*   put binary count of messages in LEDs?  Or is that too geeky?
+
 *   BUG: *bottom doesn't interoperate with tvtwm's 'Sticky' feature.
 
 *   Do like xbiffR5, popdown window if mailbox file is read?  nah.
