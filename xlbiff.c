@@ -1,4 +1,4 @@
-static char rcsid[]= "$Id: xlbiff.c,v 1.58 1991/11/15 18:57:19 santiago Exp $";
+static char rcsid[]= "$Id: xlbiff.c,v 1.59 1991/11/26 19:10:32 santiago Exp $";
 /*\
 |* xlbiff  --  X Literate Biff
 |*
@@ -649,7 +649,9 @@ Shrink(w, data, e, b)
     Boolean *b;
 #endif
 {
+    DP(("++Shrink()\n"));
     if (e->type == MapNotify || e->type == UnmapNotify) {
+	int    event_seen = 0;
 	Window win = e->xmap.window;
 
 #ifdef	USE_BCOPY
@@ -661,7 +663,10 @@ Shrink(w, data, e, b)
 	XSync(XtDisplay(w),False);
 
 	while(XCheckIfEvent(XtDisplay(w),&lastEvent,CheckEvent,(caddr_t)win))
-	  ;
+	  event_seen = 1;
+
+	if (!event_seen)
+	  return;
 
 	if (lastEvent.type == UnmapNotify && visible)
 	  Popdown();
