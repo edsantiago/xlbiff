@@ -1,0 +1,66 @@
+#!/usr/bin/perl
+#
+# Bcheck -- check for new mail in "bulk" maildrops
+#
+# Called by xlbiff(1).  Not intended for general consumption.
+#
+
+($ME = $0) =~ s,.*/,,;
+
+require 'getopts.pl';
+&Getopts("f:p:");  $previous_count = $opt_p;
+
+  #
+  # This script is run often from the background, and we don't
+  # want to disturb the user's context, so let's set up our own.
+  #
+  $TMP = $ENV{"TMPDIR"} || "/tmp";
+  $MH  = $TMP . "/mh_profile.tmp.$$";
+  $MHC = $TMP . "/mh_context.tmp.$$";
+
+  open(MH,"> $MH") || die "$ME: cannot open $MH: $!\n";
+  open(MHP,"mhpath + |") || die "$ME: cannot open mhpath: $!\n";
+  $_ = <MHP>;
+  printf MH "Path: %s",$_;
+  close MHP;
+  printf MH "context: %s\n",$MHC;
+  close MH;
+
+  $ENV{"MH"} = $MH;
+
+  #
+  # Now scan through all subfolders of "in-bulk"
+  #
+  open(FOLDERS,"folders +in-bulk |") || die "$ME: open(folders): $!\n";
+
+  $total = 0;
+  while (<FOLDERS>) {
+      m#inB/(\S+)\s+has\s+(\d+)\s+message# && $total += &hash($1,$2);
+  }
+  close FOLDERS;
+
+  #
+  # xlbiff will read this, then feed it back to us next time.
+  #
+  printf "%d\n",$total;
+
+  unlink $MH;
+  unlink $MHC;
+
+  exit ($total == $previous_count ? 1 : ($total == 0 ? 2 : 0) );
+
+
+#
+# hash -- hash a folder name and message count
+#
+sub hash {
+    local($folder,$count) = @_;
+    local($subtotal) = 0;
+
+    while ($folder =~ s/^(\S)//) {
+	$subtotal += ord($1);
+	$subtotal <<= 1;
+    }
+
+    $subtotal + $count;
+}

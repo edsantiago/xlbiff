@@ -1,0 +1,36 @@
+  Do you subscribe to a lot of mailing lists?  If so, do you have a mail
+filter that sorts incoming messages into different bins without bothering
+you?  If so, you may find the included scripts useful.
+
+  In my bin directory is a symbolic link, "xlbiff-bulk", that points to
+the xlbiff executable.  In my .Xdefaults file are the following resources:
+
+
+	xlbiff-bulk*background:      purple
+	xlbiff-bulk*foreground:      green
+	xlbiff-bulk.checkCommand:    Bcheck -f %s -p %d
+	xlbiff-bulk.scanCommand:     Bscan
+	xlbiff-bulk.mailerCommand:   /bin/true
+	xlbiff-bulk.bottom:          true
+	xlbiff-bulk.geometry:        -0+0
+	xlbiff-bulk.led:             0
+	xlbiff-bulk.refresh:         0
+	xlbiff-bulk.sound:           play -v 20 /usr/demo/SOUND/sounds/clink.au
+
+
+  Running "xlbiff-bulk" gets me a window on the top right of my screen
+with an output something like:
+
+	    bayprofs:  4
+	         cvs: 62
+	    libernet: 31*
+	      saturn:332
+	   ultralite:  1
+
+  These are subfolders of my "in-bulk" folder.
+
+  As more mail comes into each bin, the count for each one gets updated.
+When I read and delete mail in a given bin, the count drops.  The "*"
+next to libernet indicates that there is a gap between messages, ie,
+there are 31 messages in the folder but not numbered 1 through 31.
+

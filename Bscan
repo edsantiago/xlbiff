@@ -1,0 +1,24 @@
+#!/bin/sh
+#
+# Bscan -- display count of messages in "bulk" folders
+#
+# Normally invoked by xlbiff.  Not intended for general use.
+#
+
+MH=/tmp/mh_profile.tmp.$$
+MHC=/tmp/mh_context.tmp.$$
+
+echo "Path: `mhpath +`" >  $MH
+echo "context: $MHC"	>> $MH
+
+export MH
+
+folders +in-bulk |\
+	perl -ne 'm#in-bulk/([a-z]\S+)\s+has\s+(\d+)\s+message# && do {
+		  ($folder,$num_msgs) = ($1,$2);
+		  $not_packed = "";
+		  $not_packed = "*" if (m#\(\s*(\d+)\s*-\s*(\d+)\)# &&
+				    ($1 != 1  ||  $2 != $num_msgs));
+		  printf "%12s:%3d%s\n",$folder,$num_msgs,$not_packed; }'
+
+rm -f $MH $MHC
