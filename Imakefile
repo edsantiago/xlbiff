@@ -18,10 +18,15 @@ MHLIBDIR = XmhLibDir
 MHLIBDIR = /usr/new/lib/mh
 #endif
 
+/*
+** Define this if your OS doesn't have strerror (eg, SunOS)
+*/
+/* NEED_STRERROR = -DNEED_STRERROR */
+
 
 /*    CDEBUGFLAGS = -g -DDEBUG*/
 
-        DEFINES = -DMAILPATH=\"$(MAILPATH)\"
+        DEFINES = -DMAILPATH=\"$(MAILPATH)\"  $(NEED_STRERROR)
         DEPLIBS = XawClientDepLibs
 LOCAL_LIBRARIES = XawClientLibs
 
