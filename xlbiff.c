@@ -1,4 +1,4 @@
-static char rcsid[]= "$Id: xlbiff.c,v 1.71 1993/08/03 23:54:45 esm Exp $";
+static char rcsid[]= "$Id: xlbiff.c,v 1.72 1994/04/04 23:35:25 esm Exp $";
 /*\
 |* xlbiff  --  X Literate Biff
 |*
@@ -321,7 +321,7 @@ main(argc, argv)
     ** Fix DISPLAY environment variable, might be needed by subprocesses
     */
     {
-      char *envstr = malloc(strlen("DISPLAY=") + 1
+      char *envstr = (char*)malloc(strlen("DISPLAY=") + 1
 			    + strlen(XDisplayString(XtDisplay(topLevel))));
 
       sprintf(envstr, "DISPLAY=%s", XDisplayString(XtDisplay(topLevel)));
@@ -893,8 +893,15 @@ lbiffRealize( s )
 
 
     if (lbiff_data.sound[0] == '\0') {
-	XBell(XtDisplay(topLevel),lbiff_data.volume - 100);
-	DP(("---sound= %s\n","XBell default"));
+	/*
+	** No, the following is not a typo, nor is it redundant code.
+	** Apparently there is one X terminal that beeps whenever XBell()
+	** is called, even with volume zero.
+	*/
+	if (lbiff_data.volume > 0) {
+	    XBell(XtDisplay(topLevel),lbiff_data.volume - 100);
+	    DP(("---sound= %s\n","XBell default"));
+	}
     }
     else {
 	static char	*sound_buf;
