@@ -1,4 +1,4 @@
-static char rcsid[]= "$Id: xlbiff.c,v 1.27 1991/09/28 01:05:52 santiago Exp $";
+static char rcsid[]= "$Id: xlbiff.c,v 1.28 1991/09/30 23:12:37 santiago Exp $";
 /*\
 |* xlbiff  --  X Literate Biff
 |*
@@ -96,6 +96,8 @@ extern int errno;
 Widget	topLevel,textBox;		/* my widgets			*/
 XtAppContext app_context;		/* application context		*/
 int	visible;			/* is window visible?		*/
+int	text_width;			/* new width of text widget	*/
+int	text_height;			/* new height of text widget	*/
 char	*default_file;			/* default filename		*/
 char	*progname;			/* my program name		*/
 
@@ -503,7 +505,8 @@ setXbuf(s)
     /*
     ** Set widget to given size, plus some leeway.
     */
-    XtResizeWidget(topLevel,w*fontWidth+6,h*fontHeight+4,borderWidth);
+    text_width = w*fontWidth+6;
+    text_height = h*fontHeight+4;
 }
 
 
@@ -571,7 +574,6 @@ Popdown()
     DP(("++Popdown()\n"));
     if (lbiff_data.bottom) {
 	XtUnrealizeWidget(topLevel);
-	XSync(XtDisplay(topLevel), False);
     } else {
 	XtUnmapWidget(topLevel);
     }
@@ -586,12 +588,16 @@ Popdown()
 void
 Popup()
 {
+    Arg args[2];
+
     DP(("++Popup()\n"));
     XBell(XtDisplay(topLevel),lbiff_data.volume - 100);
 
     if (lbiff_data.bottom) {
 	XtRealizeWidget(topLevel);
-	XSync(XtDisplay(topLevel), False);
+	XtSetArg(args[0], XtNwidth, text_width);
+	XtSetArg(args[1], XtNheight, text_height);
+	XtSetValues(textBox, args, 2);
     } else {
 	XtMapWidget(topLevel);
     }
