@@ -121,6 +121,14 @@ HISTORY
   Where applicable, changes are attributed to the people who submitted
   the ideas and, in many cases, patches and source code.
 
+  * Version 1.5 submitted for testing  Thu  3 Oct 1991
+      From  Jhon Honce <honce@spso.gsfc.nasa.gov>
+	+ change 'maxWidth/maxHeight' to 'columns/rows'.  Bottom option
+	  was broken and I hadn't even noticed!
+
+      From me:
+	+ I need to track revisions better...
+
   * Version 1.4 submitted for testing  Thu  3 Oct 1991
       From  Arthur Castonguay <arthurc@doe.carleton.ca>
 	+ ignore stat() errors, treat them as empty file.
