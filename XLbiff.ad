@@ -6,17 +6,24 @@ XLbiff*geometry:		=+250-0
 !
 ! set these if you have a colour monitor, or put in your .Xdefaults
 !
-XLbiff*foreground:		purple
-XLbiff*background:		green
+!XLbiff*foreground:		purple
+!XLbiff*background:		green
 !
 ! command to use
 !
 XLbiff.scanCommand:		scan -file %s -width %d -form xlbiff.form
+!XLbiff.scanCommand:		mail </dev/null | grep -v '^.[UN]'
 !
 ! Dimensions of the display window
 !
-XLbiff.width:			120
+XLbiff.width:			80
 XLbiff.maxRows:			20
+!
+! miscellaneous
+!
+XLbiff.volume:			100
+XLbiff.update:			15
+XLbiff.fit:			0
 !
 ! actions
 !
