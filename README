@@ -121,6 +121,14 @@ HISTORY
   Where applicable, changes are attributed to the people who submitted
   the ideas and, in many cases, patches and source code.
 
+  * Version 2.1 <pre-release>  Mon 14 Oct 1991
+      From  Daren W Latham <dwl@mentat.udev.cdc.com>
+	+ add -refresh and -led options.
+	+ handle WM_DELETE_WINDOW.
+
+      From me:
+	+ add ErrExit routine.
+
   * Version 2.0 submitted for X11R5 contrib tape  Fri  4 Oct 1991
 	+ no change, just up rev level
 
