@@ -167,7 +167,8 @@ Same as the \fB\-resetSaver\fP option.
 .TP 8
 .B update (\fPclass\fB Interval)
 Same as the \fB\-update\fP option.
-.B fade (\fPclass=fB Fade)
+.TP 8
+.B fade (\fPclass\fB Fade)
 Same as the \fB\-fade\fP option.
 .TP 8
 .B columns (\fPclass\fB Columns)
