@@ -1,4 +1,4 @@
-.TH XLBIFF 1 "24 September 1991"
+.TH XLBIFF 1 "1 October 1991"
 .SH NAME
 xlbiff \- mailbox message previewer for X
 .SH SYNOPSIS
@@ -25,24 +25,18 @@ printed on standard output.
 .B \-bottom
 This option tells 
 .I xlbiff 
-to realize/unrealize() instead of map/unmap().
+to realize/unrealize() the output window instead of using map/unmap().
 This has the effect of causing the window manager to reposition the window
 each time it pops up, and is useful for when you specify negative Y
-coordinates, ie, at the bottom of the screen.  Running xlbiff in this
-situation without \-bottom would cause new lines to run off the edge of
-the screen.
+coordinates, ie, at the bottom of the screen.  Running 
+.I xlbiff
+in this situation without \-bottom would cause new lines to run off the
+bottom edge of the screen.
 .TP 8
 .B \-file \fIfilename\fP
 This option specifies the name of the file which should be monitored.  By
 default, it watches /usr/spool/mail/\fIusername\fP, where \fIusername\fP
 is your login name.
-.TP 8
-.B \-update \fIseconds\fP
-This option specifies the frequency in seconds at which \fIxlbiff\fP
-should update its display.  The default is 15 seconds.
-.TP 8
-.B \-volume \fIpercentage\fP
-This option specifies how loud the bell should be rung when new mail comes in.
 .TP 8
 .B \-resetSaver
 If this option is set, 
@@ -50,11 +44,18 @@ If this option is set,
 will reset the screen saver when new mail comes in.  This is useful if 
 you're doing something near your workstation but not on it.
 .TP 8
+.B \-update \fIseconds\fP
+This option specifies the frequency in seconds at which
+.I xlbiff
+should update its display.  The default is 15 seconds.
+.TP 8
+.B \-volume \fIpercentage\fP
+This option specifies how loud the bell should be rung when new mail comes in.
+.TP 8
 .B \-width \fIwidth\fP
 This option specifies the width, in characters, of the
 .I xlbiff
-window.
-The default is 80.
+window.  The default is 80.
 .PP
 The following standard X Toolkit command line arguments are commonly used with 
 .I xlbiff:
@@ -78,7 +79,7 @@ useful for setting resources that do not have separate command line options.
 The application class name is XLbiff.
 It understands all of the core resource names and classes as well as:
 .TP 8
-.B bottom (\fPclass\fB Boolean)
+.B bottom (\fPclass\fB Bottom)
 Same as the \fB-bottom\fP option.  
 .TP 8
 .B file (\fPclass\fB File)
@@ -98,22 +99,22 @@ Internally, the command is generated as
 so a %s and %d respectively in \fBscanCommand\fP will generate the values
 of \fBfile\fP and \fBwidth\fP.
 .TP 8
+.B resetSaver (\fPclass\fB ResetSaver)
+Same as the \fB-resetSaver\fP option.
+.TP 8
 .B update (\fPclass\fB Interval)
 Same as the \fB\-update\fP option.
 .TP 8
 .B width (\fPclass\fB Width)
 Same as the \fB\-width\fP option.
 .TP 8
-.B maxRows (\fPclass\fB Height)
+.B maxHeight (\fPclass\fB MaxHeight)
 Specifies the maximum height, in lines, of the 
 .I xlbiff
-window.
-The default is 20.
+window.  The default is 20.
 .TP 8
 .B volume (\fPclass\fB Volume)
 Same as the \fB\-volume\fP option.
-.B resetSaver (\fPclass\fB ResetSaver)
-Same as the \fB-resetSaver\fP option.
 .SH ACTIONS
 .I Xlbiff
 provides the following actions for use in event translations:
@@ -137,11 +138,11 @@ The default translations are
 .PP
 .TP 8
 .B DISPLAY
-to get the default host and display number.
+is used to get the default host and display number.
 .SH FILES
 .TP 8
 /usr/spool/mail/\fIusername\fP
-default file to check.  This can be changed with a compile-time option.
+default mail file to check.
 .SH "SEE ALSO"
 .IR X (1),
 .IR scan (1)
@@ -156,5 +157,6 @@ Most of the Xt code is structured around the \fBxgoodbye\fP sample program
 in the O'Reilly \fIX Toolkit Intrinsics Programming Manual\fP.  A lot of
 code was stolen from \fBxbiff\fP, including this man page.  Thanks also
 to Stephen Gildea (gildea@expo.lcs.mit.edu) for the many, many 
-contributions that made xlbiff grow from a midnight hack to a more
-mature product.
+contributions that made
+.I xlbiff 
+grow from a midnight hack to a more mature product.
