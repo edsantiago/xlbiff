@@ -21,6 +21,8 @@
 ! miscellaneous
 !
 *bottom:		False
+*led:			0
+*refresh:		1800
 *resetSaver:		False
 *update:		15
 *volume:		100
