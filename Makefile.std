@@ -55,10 +55,17 @@ EXTRALIBS=
 
 # NEED_STRERROR = -DNEED_STRERROR
 
+#
+# Systems that don't have memcpy() should uncomment this
+#
+
+# USE_BCOPY = -DUSE_BCOPY
+
 ###############################################################################
 # DO NOT MODIFY ANYTHING UNDER HERE
 ###############################################################################
-CFLAGS=		$(DEBUG)   $(NEED_STRERROR)  -DMAILPATH="\"$(MAILPATH)\""
+CFLAGS=		$(DEBUG)   $(NEED_STRERROR)  $(USE_BCOPY)  \
+		-DMAILPATH="\"$(MAILPATH)\""
 
 EXE=	xlbiff
 OBJ=	xlbiff.o
