@@ -4,6 +4,8 @@
 #
 # Called by xlbiff(1).  Not intended for general consumption.
 #
+# $Id: Bcheck,v 1.3 2003/11/09 00:17:51 esm Exp $
+#
 (our $ME = $0) =~ s,.*/,,;
 
 our $State = ".$ME.results";
@@ -13,11 +15,15 @@ use Digest::MD5;
 
 my $context = Digest::MD5->new;
 
+# All operations take place under our Mail dir.  Theoretically we should
+# read this (Mail) from the Path: component of ~/.mh_profile.  But I'm lazy.
 chdir "$ENV{HOME}/Mail"
   or die "$ME: cd: $!\n";
 
-my $seen = 0;
+my $seen = 0;					# Number of unseen messages
 
+# Exmh keeps this nice cache for us.  If you don't use exmh, you could
+# instead run 'folders -fast -recurse'.
 open FOLDERS, ".folders"
   or die "$ME: open(.folders): $!\n";
 while (defined (my $f = <FOLDERS>)) {
@@ -38,18 +44,19 @@ close FOLDERS;
 
 print "0\n";	# xlbiff expects this
 
-# IF no new messages exist, pop down the window
+# If no new messages exist, pop down the window
 if ($seen == 0) {
   exit 2;			# 0 = change, 1 = no change, 2 = zero'ed
 }
 
-# Read results from last time
+# Read results from the last time we ran.
 my $last_results = "";
 open LAST, $State and do {
   chop ($last_results = <LAST>);
   close LAST;
 };
 
+# Compare our results now against those from last time.  If no change, exit now
 my $new = $context->hexdigest;
 #printf STDERR "old: %s\nnew: %s\n", $last_results, $new;
 if ($new eq $last_results) {
@@ -57,7 +64,7 @@ if ($new eq $last_results) {
 }
 
 
-# Something changed.
+# Something changed. Write out our new results, and exit with status 0 (change)
 my $tmp = "$State.tmp.$$";
 open OUT, ">", $tmp
   or die "$ME: Error creating $tmp: $!\n";
