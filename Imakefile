@@ -1,9 +1,25 @@
+XCOMM
+XCOMM Choose whatever mail path is appropriate for your system
+XCOMM
 #ifdef XlbiffMailPath
 MAILPATH = XlbiffMailPath
 #else
-/* MAILPATH = /udir/%s/.maildrop */
+/* MAILPATH = /udir/%s/.maildrop	*/
+/* MAILPATH = /usr/mail/%s 		*/
 MAILPATH = /usr/spool/mail/%s
 #endif
+
+XCOMM
+XCOMM Where you want the xlbiff.form file to go
+XCOMM
+#ifdef	XmhLibDir
+MHLIBDIR = XmhLibDir
+#else
+MHLIBDIR = /usr/new/lib/mh
+#endif
+
+
+/*    CDEBUGFLAGS = -g -DDEBUG*/
 
         DEFINES = -DMAILPATH=\"$(MAILPATH)\"
         DEPLIBS = XawClientDepLibs
@@ -11,3 +27,4 @@ LOCAL_LIBRARIES = XawClientLibs
 
 SimpleProgramTarget(xlbiff)
 InstallAppDefaults(XLbiff)
+InstallNonExecFile(xlbiff.form,$(MHLIBDIR))
