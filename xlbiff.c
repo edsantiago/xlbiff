@@ -1,4 +1,4 @@
-static char rcsid[]= "$Id: xlbiff.c,v 1.21 1991/09/20 00:23:40 santiago Exp $";
+static char rcsid[]= "$Id: xlbiff.c,v 1.22 1991/09/20 01:58:11 santiago Exp $";
 /*\
 |* xlbiff  --  X Literate Biff
 |*
@@ -55,10 +55,13 @@ static char rcsid[]= "$Id: xlbiff.c,v 1.21 1991/09/20 00:23:40 santiago Exp $";
 
 
 /*
-** This is an ANSIism, so some compiler libraries don't have it/
+** These are an ANSIisms, so some compiler libraries don't have them
 */
 #ifndef	PATH_MAX
 #define PATH_MAX	256
+#endif
+#ifndef	ARG_MAX
+#define ARG_MAX		1024
 #endif
 
 /*
@@ -338,7 +341,7 @@ handler()
 char *
 doScan()
 {
-    static char	cmd_buf[200];
+    static char	cmd_buf[ARG_MAX];
     static char *buf = NULL;
     static int	bufsize;
     FILE 	*p;
