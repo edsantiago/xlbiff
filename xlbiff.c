@@ -1,4 +1,4 @@
-static char rcsid[]= "$Id: xlbiff.c,v 1.23 1991/09/23 18:07:28 santiago Exp $";
+static char rcsid[]= "$Id: xlbiff.c,v 1.24 1991/09/23 18:47:23 santiago Exp $";
 /*\
 |* xlbiff  --  X Literate Biff
 |*
@@ -110,6 +110,7 @@ typedef struct {
     int		maxRows;		/* max# of lines in display	*/
     Boolean	fit;			/* fit display to widest line?	*/
     int		volume;			/* bell volume, 0-100 percent	*/
+    Boolean	bottom;			/* Put window at window bottom  */
 } AppData, *AppDataPtr;
 AppData		lbiff_data;
 
@@ -131,7 +132,9 @@ static XtResource	xlbiff_resources[] = {
     { "fit", "Fit", XtRBoolean, sizeof(Boolean),
 	offset(fit), XtRString, "false"},
     { "volume", "Volume", XtRInt, sizeof(int),
-	offset(volume), XtRString, "100"}
+	offset(volume), XtRString, "100"},
+    { "bottom", "Bottom", XtRBoolean, sizeof(Boolean),
+	offset(bottom), XtRString, "false"}
 };
 
 static XrmOptionDescRec	optionDescList[] = {
@@ -188,29 +191,18 @@ main(argc, argv)
 	}
     }
 
-    /*
-    ** Do all the X stuff
-    */
     topLevel = XtVaAppInitialize(&app_context,
 				 "XLbiff",
 				 optionDescList, XtNumber(optionDescList),
 				 &argc, argv,
 				 fallback_resources,
+				 XtNallowShellResize, TRUE,
 				 NULL);
-
-    textBox = XtVaCreateManagedWidget("text",
-				      commandWidgetClass,
-				      topLevel,
-				      NULL);
 
     XtGetApplicationResources(topLevel, &lbiff_data,
 			      xlbiff_resources, XtNumber(xlbiff_resources),
 			      (ArgList)NULL,0);
 
-
-    XtAddCallback(textBox,XtNcallback, Popdown, textBox);
-    XtAppAddActions(app_context,lbiff_actions,XtNumber(lbiff_actions));
-    XtAddEventHandler(topLevel,StructureNotifyMask,False,Shrink,(caddr_t)NULL);
 
 #ifndef	DEBUG
     if (lbiff_data.debug)
@@ -247,6 +239,20 @@ main(argc, argv)
     }
     DP(("username= %s\tfile= %s\n",username,lbiff_data.file));
 
+    textBox = XtVaCreateManagedWidget("text",
+				      commandWidgetClass,
+				      topLevel,
+				      NULL);
+
+    XtAddCallback(textBox,XtNcallback, Popdown, textBox);
+    XtAppAddActions(app_context,lbiff_actions,XtNumber(lbiff_actions));
+    XtAddEventHandler(topLevel,StructureNotifyMask,False,Shrink,(caddr_t)NULL);
+
+    if (!lbiff_data.bottom) {
+	XtSetMappedWhenManaged(topLevel, FALSE);
+	XtRealizeWidget(topLevel);
+    }
+
     /*
     ** check to see if there's something to do, pop up window if necessary,
     ** and set up alarm to wake us up again every so often.
@@ -261,11 +267,7 @@ main(argc, argv)
     **
     ** note that we will continually be interrupted by the timeout code
     */
-    if (visible) {
-	XtAppMainLoop(app_context);
-    } else {
-	pause();
-    }
+    XtAppMainLoop(app_context);
 }
 
 
@@ -323,7 +325,7 @@ checksize()
 	if (mailsize == 0) {
 	    Popdown();
 	} else {
-	    if (visible)
+	    if (visible && lbiff_data.bottom)
 	      Popdown();
 	    setXbuf(doScan());
 	    Popup();
@@ -526,8 +528,12 @@ void
 Popdown()
 {
     DP(("++Popdown()\n"));
-    XtUnrealizeWidget(topLevel);
-    XSync(XtDisplay(topLevel), False);
+    if (lbiff_data.bottom) {
+	XtUnrealizeWidget(topLevel);
+	XSync(XtDisplay(topLevel), False);
+    } else {
+	XtUnmapWidget(topLevel);
+    }
 
     visible = 0;
 }
@@ -541,8 +547,13 @@ Popup()
 {
     DP(("++Popup()\n"));
     XBell(XtDisplay(topLevel),lbiff_data.volume - 100);
-    XtRealizeWidget(topLevel);
-    XSync(XtDisplay(topLevel), False);
+
+    if (lbiff_data.bottom) {
+	XtRealizeWidget(topLevel);
+	XSync(XtDisplay(topLevel), False);
+    } else {
+	XtMapWidget(topLevel);
+    }
 
     visible = 1;
 }
