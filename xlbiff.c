@@ -4,6 +4,7 @@
 |* This application does mumble
 \*/
 
+#include "patchlevel.h"
 
 #include <stdio.h>
 #include <sys/types.h>
@@ -20,7 +21,7 @@
 
 #ifdef	DEBUG
 #undef	DEBUG
-#define	DEBUG(x)	printf x
+#define	DEBUG(x)	if (lbiff_data.debug) printf x
 #else
 #define DEBUG(x)
 #endif
@@ -37,23 +38,26 @@
 ** prototypes
 */
 void	handler();
-void	byedebye();
-void	Quit(Widget,XtPointer,XtPointer);
+void	Exit();
+void	Popdown(Widget,XtPointer,XtPointer);
+void	initStaticData();
 
 
 /*****************************************************************************\
 ** globals								     *|
 \*****************************************************************************/
-Widget	topLevel,goodbye;
+Widget	topLevel,textBox;
 jmp_buf	myjumpbuf;
 int	visible;
 char	default_file[80];
+int	borderWidth;
+int	fontHeight,fontWidth;
 
 typedef struct {
-    Boolean	debug;
-    char	*file;
-    char	*cmd;
-    int		update;
+    Boolean	debug;			/* print out useful stuff 	*/
+    char	*file;			/* file to monitor size of 	*/
+    char	*cmd;			/* command to execute		*/
+    int		update;			/* update interval, in seconds	*/
 } AppData, *AppDataPtr;
 
 AppData		lbiff_data;
@@ -65,10 +69,10 @@ static XtResource	xlbiff_resources[] = {
 	offset(debug), XtRString, "false"},
     { "file", "File", XtRString, sizeof(String),
 	offset(file), XtRString, NULL},
-    { "update", "Interval", XtRInt, sizeof(int),
-	offset(update), XtRString, "10"},
     { "command", "Command", XtRString, sizeof(String),
-	offset(cmd), XtRString, "scan -file %s" }
+	offset(cmd), XtRString, "scan -file %s" },
+    { "update", "Interval", XtRInt, sizeof(int),
+	offset(update), XtRString, "10"}
 };
 
 static XrmOptionDescRec	optionDescList[] = {
@@ -82,17 +86,17 @@ static char *fallback_resources[] = {
 };
 
 static XtActionsRec lbiff_actions[] = {
-    {"exit",byedebye},
-    {"popdown",Quit}
+    {"exit",Exit},
+    {"popdown",Popdown}
 };
 
 
 
 /*\
-|*  Quit  --  callback for buttonpress anywhere in text window
+|*  Popdown  --  callback for buttonpress anywhere in text window
 \*/
 void
-Quit(Widget w, XtPointer client_data, XtPointer call_data)
+Popdown(Widget w, XtPointer client_data, XtPointer call_data)
 {
     DEBUG(("++Quit()\n"));
 /*    popdown();*/
@@ -132,7 +136,7 @@ main( int argc, char *argv[] )
 				 fallback_resources,
 				 NULL);
 
-    goodbye = XtVaCreateManagedWidget("goodbye",
+    textBox = XtVaCreateManagedWidget("text",
 				      commandWidgetClass,
 				      topLevel,
 				      NULL);
@@ -142,8 +146,17 @@ main( int argc, char *argv[] )
 			      (ArgList)NULL,0);
 
 
-    XtAddCallback(goodbye,XtNcallback, Quit, goodbye );
     XtAppAddActions(app_context,lbiff_actions,XtNumber(lbiff_actions));
+    initStaticData();
+
+    if (argc > 1) {
+	if (!strncmp(argv[1],"-v",2)) {
+	    printf("xlbiff version %s, patchlevel %d\n",VERSION,PATCHLEVEL);
+	    exit(0);
+	} else if (!strncmp(argv[1],"-h",2)) {
+	    printf("usage:\txlbiff\n");
+	}
+    }
 
     /*
     ** If no data file was explicitly given, make our best guess
@@ -168,14 +181,7 @@ main( int argc, char *argv[] )
     ** note that we will continually be interrupted by the timeout code
     */
     if (visible) {
-	while (1) {
-	    XEvent ev;
-
-	    XtAppNextEvent(app_context,&ev);
-	    DEBUG(("got event\n"));
-	    XtDispatchEvent(&ev);
-	}
-/*	XtAppMainLoop(app_context);*/
+	XtAppMainLoop(app_context);
     } else {
 	popdown();
 	while (1) sleep(1000);
@@ -184,10 +190,10 @@ main( int argc, char *argv[] )
 
 
 /*\
-|*  byedebye  --  called via callback, exits the program
+|*  Exit  --  called via callback, exits the program
 \*/
 void
-byedebye()
+Exit()
 {
     DEBUG(("++exit()\n"));
     exit(0);
@@ -205,7 +211,7 @@ checksize()
     DEBUG(("++checksize()..."));
     stat(lbiff_data.file,&mailstat);
     if (mailstat.st_size != mailsize) {
-	DEBUG(("changed size: %d\n",mailstat.st_size));
+	DEBUG(("changed size: %d -> %d\n",mailsize,mailstat.st_size));
 	mailsize = mailstat.st_size;
 	if (mailsize == 0) {
 	    popdown();
@@ -239,7 +245,6 @@ handler()
 int
 doscan()
 {
-    Arg 	args[1];
     char	cmd_buf[200];
     char 	buf[1024];
     FILE 	*p;
@@ -263,21 +268,68 @@ doscan()
 
     DEBUG(("scanned: %s\n",buf));
 
-    XtSetArg(args[0],XtNlabel,buf);
-    XtSetValues(goodbye,args,1);
+    domagic(buf);
 }
 
+
+int
+domagic(char *s)
+{
+    Arg 	args[1];
+    int 	i,
+                len = strlen(s);
+    Dimension 	w= 0,
+                h= 1;
+    int 	tmp_w = 0;
+
+    for (i=0; i < len-1; i++) {
+
+	if (s[i] == '\n') {
+	    ++h;
+	    tmp_w = 0;
+	} else {
+	    ++tmp_w;
+	    if (tmp_w > w)
+	      w = tmp_w;
+	}
+    }
+    
+    DEBUG(("geom= %dx%d (%dx%d pixels)\n",w,h,w*fontWidth,h*fontHeight));
+    XtResizeWidget(topLevel,w*fontWidth,h*fontHeight+4,borderWidth);
+
+    XtSetArg(args[0],XtNlabel,s);
+    XtSetValues(textBox,args,1);
+}
+
+
+void
+initStaticData()
+{
+    Arg		args[2];
+    XFontStruct *fs;
+
+    XtSetArg(args[0],XtNfont,&fs);
+    XtSetArg(args[1],XtNborderWidth,&borderWidth);
+    XtGetValues(textBox, args, 2);
+    if (fs == NULL) {
+	fprintf(stderr,"unknown font!\n");
+	exit(1);
+    }
+
+    fontWidth = fs->max_bounds.width;
+    fontHeight= fs->max_bounds.ascent + fs->max_bounds.descent;
+    XtFree(fs);
+}
 
 /*****************************\
 |*  popdown  --  kill window *|
 \*****************************/
 popdown()
 {
-    DEBUG(("++popdown()..."));
-    XtSetMappedWhenManaged(topLevel,True);
-    XtUnmapWidget(topLevel);
+    DEBUG(("++popdown()\n"));
     XtUnrealizeWidget(topLevel);
-    DEBUG(("..done\n"));
+    XSync(XtDisplay(topLevel),0);
+
     visible = 0;
 }
 
@@ -290,5 +342,7 @@ popup()
     DEBUG(("++popup()\n"));
     XBell(XtDisplay(topLevel),0);
     XtRealizeWidget(topLevel);
+    XSync(XtDisplay(topLevel),0);
+
     visible = 1;
 }
