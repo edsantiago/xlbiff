@@ -9,6 +9,15 @@
 
 #include <X11/Xaw/Command.h>
 
+
+#ifdef	DEBUG
+#undef	DEBUG
+#define	DEBUG(x)	printf x
+#else
+#define DEBUG(x)
+#endif
+
+
 /*
 ** globals
 */
@@ -24,10 +33,8 @@ void	handler();
 
 void Quit(Widget w, XtPointer client_data, XtPointer call_data)
 {
-    printf("nice knowing you\n");
-    XtUnmapWidget(topLevel);
-    XtUnrealizeWidget(topLevel);
-    visible = 0;
+    DEBUG(("++Quit()\n"));
+    popdown();
     longjmp(myjumpbuf);
 }
 
@@ -62,29 +69,36 @@ main( int argc, char *argv[] )
 }
 
 
+/*\
+|*  checksize  --  checks mail file to see if size has changed
+\*/
 checksize()
 {
     static int mailsize = 0;
     struct stat mailstat;
 
+    DEBUG(("++checksize()..."));
     stat("/usr/spool/mail/santiago",&mailstat);
     if (mailstat.st_size != mailsize) {
-	printf("changed size: %d\n",mailstat.st_size);
+	DEBUG(("changed size: %d\n",mailstat.st_size));
 	mailsize = mailstat.st_size;
 	if (mailsize == 0) {
-	    visible = 0;
-	    /* vanish the window */
+	    popdown();
 	} else {
+	    if (visible)
+	      popdown();
 	    doscan();
-	    visible = 1;
-	    XBell(XtDisplay(topLevel),0);
-	    XtRealizeWidget(topLevel);
+	    popup();
 	}
+    } else {
+	DEBUG(("ok\n"));
     }
 }
 
 
-
+/*\
+|*  handler  --  handles SIGALRM, checks mail file, and resets alarm
+\*/
 void
 handler()
 {
@@ -95,6 +109,11 @@ handler()
 }
 
 
+/*\
+|*  doscan  --  invoke MH ``scan'' command to examine mail messages
+|*
+|*	This routine looks at the mail file to see if it 
+\*/
 int
 doscan()
 {
@@ -104,6 +123,7 @@ doscan()
     FILE 	*p;
     size_t	size;
 
+    DEBUG(("++doscan()\n"));
     sprintf(cmd,"scan -file %s -form %s -width %d",
 	    "/usr/spool/mail/santiago",
 	    "xmsg.form",
@@ -121,7 +141,34 @@ doscan()
 
     pclose(p);
 
+    DEBUG(("scanned: %s\n",buf));
+
     XtSetArg(args[0],XtNlabel,buf);
     XtSetValues(goodbye,args,1);
 }
 
+
+
+
+/*\
+|*  popdown  --  kill window
+\*/
+popdown()
+{
+    DEBUG(("++popdown()..."));
+    XtUnmapWidget(topLevel);
+    XtUnrealizeWidget(topLevel);
+    DEBUG(("..done\n"));
+    visible = 0;
+}
+
+/*\
+|*  popup  --  bring window up
+\*/
+popup()
+{
+    DEBUG(("++popup()\n"));
+    XBell(XtDisplay(topLevel),0);
+    XtRealizeWidget(topLevel);
+    visible = 1;
+}
