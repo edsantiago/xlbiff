@@ -1,10 +1,10 @@
-static char rcsid[]= "$Id: xlbiff.c,v 1.37 1991/10/02 22:43:33 santiago Exp $";
+static char rcsid[]= "$Id: xlbiff.c,v 1.38 1991/10/03 17:13:01 santiago Exp $";
 /*\
 |* xlbiff  --  X Literate Biff
 |*
-|* LEGALESE GARBAGE:
+|* by Eduardo Santiago Munoz
 |*
-|*	Copyright (c) 1991 by Eduardo Santiago Munoz
+|*	Copyright (c) 1991 Digital Equipment Corporation, All Rights Reserved
 |*
 |* Permission to use, copy, modify, distribute, and sell this software and its
 |* documentation for any purpose is hereby granted without fee, provided that
@@ -108,7 +108,7 @@ typedef struct {
     char	*file;			/* file to monitor size of 	*/
     char	*cmd;			/* command to execute		*/
     int		update;			/* update interval, in seconds	*/
-    int		width;			/* number of columns across	*/
+    int		maxWidth;		/* number of columns across	*/
     int		maxHeight;		/* max# of lines in display	*/
     int		volume;			/* bell volume, 0-100 percent	*/
     Boolean	bottom;			/* Put window at window bottom  */
@@ -124,11 +124,11 @@ static XtResource	xlbiff_resources[] = {
     { "file", "File", XtRString, sizeof(String),
 	offset(file), XtRString, NULL},
     { "scanCommand", "ScanCommand", XtRString, sizeof(String),
-	offset(cmd), XtRString, "scan -file %s -width %d" },
+	offset(cmd), XtRString, "scan -file %s -maxWidth %d" },
     { "update", "Interval", XtRInt, sizeof(int),
 	offset(update), XtRString, "15"},
-    { "width", "Width", XtRInt, sizeof(int),
-	offset(width), XtRString, "80"},
+    { "maxWidth", "MaxWidth", XtRInt, sizeof(int),
+	offset(maxWidth), XtRString, "80"},
     { "maxHeight", "MaxHeight", XtRInt, sizeof(int),
 	offset(maxHeight), XtRString, "20"},
     { "volume", "Volume", XtRInt, sizeof(int),
@@ -140,15 +140,16 @@ static XtResource	xlbiff_resources[] = {
 };
 
 static XrmOptionDescRec	optionDescList[] = {
-    { "-bottom",".bottom",	XrmoptionNoArg,		(caddr_t) "true"},
-    { "+bottom",".bottom",	XrmoptionNoArg,		(caddr_t) "false"},
-    { "-debug", ".debug",	XrmoptionNoArg,		(caddr_t) "true"},
-    { "-file",	".file",	XrmoptionSepArg,	(caddr_t) NULL},
-    { "-update",".update",	XrmoptionSepArg,	(caddr_t) NULL},
-    { "-volume",".volume",	XrmoptionSepArg,	(caddr_t) NULL},
-    { "-resetSaver",".resetSaver",XrmoptionNoArg,	(caddr_t) "true"},
-    { "+resetSaver",".resetSaver",XrmoptionNoArg,	(caddr_t) "false"},
-    { "-width", ".width",	XrmoptionSepArg,	(caddr_t) NULL}
+    { "-bottom",      ".bottom",      XrmoptionNoArg,	(caddr_t) "true"},
+    { "+bottom",      ".bottom",      XrmoptionNoArg,	(caddr_t) "false"},
+    { "-debug",       ".debug",	      XrmoptionNoArg,	(caddr_t) "true"},
+    { "-file",	      ".file",        XrmoptionSepArg,	(caddr_t) NULL},
+    { "-maxHeight",   ".maxHeight",   XrmoptionSepArg,	(caddr_t) NULL},
+    { "-maxWidth",    ".maxWidth",    XrmoptionSepArg,	(caddr_t) NULL},
+    { "-update",      ".update",      XrmoptionSepArg,	(caddr_t) NULL},
+    { "-volume",      ".volume",      XrmoptionSepArg,	(caddr_t) NULL},
+    { "-resetSaver",  ".resetSaver",  XrmoptionNoArg,	(caddr_t) "true"},
+    { "+resetSaver",  ".resetSaver",  XrmoptionNoArg,	(caddr_t) "false"}
 };
 
 static char *fallback_resources[] = {
@@ -284,7 +285,8 @@ Usage()
 "where options include:",
 "    -display host:dpy                  X server to contact",
 "    -geometry +x+y                     x,y coords of window",
-"    -width width                       width of window, in characters",
+"    -maxHeight height                  height of window, in lines",
+"    -maxWidth width                    width of window, in characters",
 "    -file file                         file to watch",
 "    -update seconds                    how often to check for mail",
 "    -volume percentage                 how loud to ring the bell",
@@ -413,7 +415,7 @@ doScan()
     ** Initialise command string
     */
     if (buf == NULL) {
-	bufsize = lbiff_data.width * lbiff_data.maxHeight;
+	bufsize = lbiff_data.maxWidth * lbiff_data.maxHeight;
 
 	buf = (char*)malloc(bufsize);
 	if (buf == NULL) {
@@ -421,7 +423,7 @@ doScan()
 	    perror("buf malloc()");
 	    exit(1);
 	}
-	DP(("---size= %dx%d\n", lbiff_data.maxHeight, lbiff_data.width));
+	DP(("---size= %dx%d\n", lbiff_data.maxHeight, lbiff_data.maxWidth));
 
 	cmd_buf = (char*)malloc(strlen(lbiff_data.cmd) +
 				strlen(lbiff_data.file) + 10);
@@ -431,7 +433,7 @@ doScan()
 	    exit(1);
 	}
 
-	sprintf(cmd_buf,lbiff_data.cmd,  lbiff_data.file,  lbiff_data.width);
+	sprintf(cmd_buf,lbiff_data.cmd, lbiff_data.file, lbiff_data.maxWidth);
 	DP(("---cmd= %s\n",cmd_buf));
     }
 
@@ -598,8 +600,8 @@ getDimensions(s,width,height)
 
     if (*height > lbiff_data.maxHeight)		/* cut to fit max wid/hgt */
       *height = lbiff_data.maxHeight;
-    if (*width > lbiff_data.width)
-      *width = lbiff_data.width;
+    if (*width > lbiff_data.maxWidth)
+      *width = lbiff_data.maxWidth;
 
     DP(("geom= %dx%d chars (%dx%d pixels)\n",*width,*height,
 	                                     *width*fontWidth,
