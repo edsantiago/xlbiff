@@ -83,7 +83,11 @@ CUSTOMIZING
   but it sure does look ugly.  Perhaps there are .mailrc settings
   to make it look more decent?
 
-  If you use Elm you may want to use `frm' as your scanCommand.
+  If you use Elm you may want to use `frm' as your scanCommand.  Some
+  people seem to be very satisfied with the `fromwho' package, posted
+  by jearls@blackbird.csc.calpoly.edu to comp.sources.unix volume 25,
+  available on gatekeeper.dec.com or ftp.uu.net or other places Archie
+  surely knows about.
 
   Also be aware that problems have been detected with xlbiff reading a
   mail file on an NFS-mounted directory.  Xlbiff is not guaranteed to
