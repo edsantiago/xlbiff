@@ -83,6 +83,8 @@ CUSTOMIZING
   but it sure does look ugly.  Perhaps there are .mailrc settings
   to make it look more decent?
 
+  If you use Elm you may want to use `frm' as your scanCommand.
+
   Also be aware that problems have been detected with xlbiff reading a
   mail file on an NFS-mounted directory.  Xlbiff is not guaranteed to
   work under these conditions.
