@@ -22,6 +22,14 @@ additional options listed below:
 This option indicates that a brief summary of the allowed options should be
 printed on standard output.
 .TP 8
+.B \-bottom
+This option tells xlbiff to realize/unrealize() instead of map/unmap().
+This has the effect of causing the window manager to reposition the window
+each time it pops up, and is useful for when you specify negative Y
+coordinates, ie, at the bottom of the screen.  Running xlbiff in this
+situation without \-bottom would cause new lines to run off the edge of
+the screen.
+.TP 8
 .B \-file \fIfilename\fP
 This option specifies the name of the file which should be monitored.  By
 default, it watches /usr/spool/mail/\fIusername\fP, where \fIusername\fP
@@ -62,6 +70,9 @@ useful for setting resources that do not have separate command line options.
 The application class name is XLbiff.
 It understands all of the core resource names and classes as well as:
 .TP 8
+.B bottom (\fPclass\fB Boolean)
+Same as the \fB-bottom\fP option.  
+.TP 8
 .B file (\fPclass\fB File)
 Same as the \fB\-file\fP option.
 .TP 8
@@ -85,7 +96,7 @@ Same as the \fB\-update\fP option.
 .B width (\fPclass\fB Width)
 Same as the \fB\-width\fP option.
 .TP 8
-.B maxRows (\fPclass\fB MaxRows)
+.B maxRows (\fPclass\fB Height)
 Specifies the maximum height, in lines, of the 
 .I xlbiff
 window.
