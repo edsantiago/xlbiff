@@ -1,4 +1,4 @@
-static char rcsid[]= "$Id: xlbiff.c,v 1.68 1993/01/05 21:36:21 esm Exp $";
+static char rcsid[]= "$Id: xlbiff.c,v 1.69 1993/06/08 22:01:24 esm Exp $";
 /*\
 |* xlbiff  --  X Literate Biff
 |*
@@ -504,6 +504,7 @@ checksize()
 	if (fread(outbuf,1,sizeof outbuf,p) < 0)
 	  ErrExit(True,"fread(checkCommand)");
 	previous = atol(outbuf);
+	DP(("checkCommand returns %d\n",previous));
 
 #ifdef	INTWAITTYPE
 	status = 	  pclose(p);
