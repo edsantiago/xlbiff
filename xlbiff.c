@@ -15,7 +15,6 @@
 
 #include <X11/Intrinsic.h>
 #include <X11/StringDefs.h>
-
 #include <X11/Xaw/Command.h>
 
 
@@ -46,7 +45,7 @@ typedef struct {
     Boolean	debug;
     char	*file;
     char	*cmd;
-    int		timeout;
+    int		update;
 } AppData, *AppDataPtr;
 
 AppData		lbiff_data;
@@ -58,10 +57,10 @@ static XtResource	xlbiff_resources[] = {
 	offset(debug), XtRString, "false"},
     { "file", "File", XtRString, sizeof(String),
 	offset(file), XtRString, NULL},
-    { "timeout", "Timeout", XtRString, sizeof(String),
-	offset(timeout), XtRString, "5"},
+    { "update", "Interval", XtRInt, sizeof(int),
+	offset(update), XtRString, "10"},
     { "command", "Command", XtRString, sizeof(String),
-	offset(cmd), XtRString, "scan" }
+	offset(cmd), XtRString, "scan -file %s" }
 };
 
 static XrmOptionDescRec	optionDescList[] = {
@@ -147,7 +146,7 @@ main( int argc, char *argv[] )
     */
     checksize();
     signal(SIGALRM,handler);
-    alarm(10);
+    alarm(lbiff_data.update);
 
     /*
     ** main program loop  --  mostly just loops forever waiting for events
@@ -205,7 +204,7 @@ handler()
 {
     checksize();
 
-    alarm(10);
+    alarm(lbiff_data.update);
     longjmp(myjumpbuf,1);
 }
 
@@ -253,6 +252,7 @@ doscan()
 popdown()
 {
     DEBUG(("++popdown()..."));
+    XtSetMappedWhenManaged(topLevel,True);
     XtUnmapWidget(topLevel);
     XtUnrealizeWidget(topLevel);
     DEBUG(("..done\n"));
