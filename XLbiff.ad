@@ -15,8 +15,8 @@
 !
 ! Dimensions of the display window
 !
-*maxWidth:		80
-*maxHeight:		20
+*columns:		80
+*rows:			20
 !
 ! miscellaneous
 !
