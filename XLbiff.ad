@@ -22,7 +22,7 @@
 !
 *bottom:		False
 *led:			0
-*refresh:		1800
+*refresh:		0
 *resetSaver:		False
 *update:		15
 *volume:		100
