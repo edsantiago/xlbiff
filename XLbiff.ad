@@ -41,6 +41,7 @@
 !
 *translations:		#override\n\
 			:<Key>space:		popdown()\n\
+			:<Key>Return:		popdown()\n\
 			:<Btn1Down>,<Btn1Up>:	popdown()\n\
 			:<Btn2Down>,<Btn2Up>:	mailer()\n\
 			:<Btn3Down>,<Btn3Up>:	exit()\n\
