@@ -1,4 +1,4 @@
-static char rcsid[]= "$Id: xlbiff.c,v 1.50 1991/11/04 00:24:11 santiago Exp $";
+static char rcsid[]= "$Id: xlbiff.c,v 1.51 1991/11/04 00:38:38 santiago Exp $";
 /* with mods by gildea  Time-stamp: <91/10/28 08:48:53 gildea> */
 /*\
 |* xlbiff  --  X Literate Biff
@@ -586,7 +586,7 @@ Shrink(w, data, e, b)
     if (e->type == MapNotify || e->type == UnmapNotify) {
 	Window win = e->xmap.window;
 
-#ifdef	DO_BCOPY
+#ifdef	USE_BCOPY
 	bcopy((char*)e,(char*)&lastEvent,sizeof(XEvent));
 #else
 	memcpy((char*)&lastEvent,(char*)e,sizeof(XEvent));
