@@ -1,4 +1,4 @@
-static char rcsid[]= "$Id: xlbiff.c,v 1.41 1991/10/15 02:43:45 santiago Exp $";
+static char rcsid[]= "$Id: xlbiff.c,v 1.42 1991/10/15 03:52:37 santiago Exp $";
 /*\
 |* xlbiff  --  X Literate Biff
 |*
@@ -86,6 +86,7 @@ void	Exit(Widget, XEvent*, String*, Cardinal*);
 void	Popup(char*);
 void	getDimensions(char*,Dimension*,Dimension*);
 void	toggle_key_led(int);
+void	ErrExit(char*,Boolean);
 #else
 void	Shrink();
 void	handler();
@@ -94,6 +95,7 @@ void	Exit();
 void	Popup();
 void	getDimensions();
 void	toggle_key_led();
+void	ErrExit();
 #endif
 
 /*****************************************************************************\
@@ -250,11 +252,8 @@ main(argc, argv)
 	}
 
 	default_file = (char*)malloc(strlen(MAILPATH) + strlen(username));
-	if (default_file == NULL) {
-	    fprintf(stderr,"%s: ", progname);
-	    perror("default_file malloc()");
-	    exit(1);
-	}
+	if (default_file == NULL)
+	  ErrExit("default_file malloc()",True);
 
 	sprintf(default_file,MAILPATH,username);
 	lbiff_data.file = default_file;
@@ -413,10 +412,7 @@ checksize()
 	** If window has been popped down, check if it's time to refresh
 	*/
 	if (gettimeofday(&tp,&tzp) != 0) {
-	    fprintf(stderr,"%s: ",progname);
-	    perror("gettimeofday() in checksize()");
-	    toggle_key_led(False);
-	    exit(1);
+	    ErrExit("gettimeofday(), in checksize()",True);
 	} else {
 	    if ((tp.tv_sec - acknowledge_time) > lbiff_data.refresh) {
 		DP(("reposting window, repost time reached\n"));
@@ -488,22 +484,15 @@ doScan()
 	bufsize = lbiff_data.columns * lbiff_data.rows;
 
 	buf = (char*)malloc(bufsize);
-	if (buf == NULL) {
-	    fprintf(stderr,"%s: ",progname);
-	    perror("buf malloc()");
-	    toggle_key_led(False);
-	    exit(1);
-	}
+	if (buf == NULL)
+	  ErrExit("text buffer malloc()",True);
+
 	DP(("---size= %dx%d\n", lbiff_data.rows, lbiff_data.columns));
 
 	cmd_buf = (char*)malloc(strlen(lbiff_data.cmd) +
 				strlen(lbiff_data.file) + 10);
-	if (cmd_buf == NULL) {
-	    fprintf(stderr,"%s: ",progname);
-	    perror("cmd_buf malloc()");
-	    toggle_key_led(False);
-	    exit(1);
-	}
+	if (cmd_buf == NULL)
+	  ErrExit("command buffer malloc()",True);
 
 	sprintf(cmd_buf,lbiff_data.cmd, lbiff_data.file, lbiff_data.columns);
 	DP(("---cmd= %s\n",cmd_buf));
@@ -512,23 +501,12 @@ doScan()
     /*
     ** execute the command, read the results, then set the contents of window
     */
-    if ((p= popen(cmd_buf,"r")) == NULL) {
-	fprintf(stderr,"%s: ",progname);
-	perror("popen");
-	toggle_key_led(False);
-	exit(1);
-    }
-    if ((size= fread(buf,1,bufsize,p)) < 0) {
-	fprintf(stderr,"%s: ",progname);
-	perror("fread");
-	toggle_key_led(False);
-	exit(1);
-    }
-    if ((status= pclose(p)) != 0) {
-	fprintf(stderr,"%s: scanCommand failed\n",progname);
-	toggle_key_led(False);
-	exit(status);
-    }
+    if ((p= popen(cmd_buf,"r")) == NULL)
+      ErrExit("popen",True);
+    if ((size= fread(buf,1,bufsize,p)) < 0)
+      ErrExit("fread",True);
+    if ((status= pclose(p)) != 0)
+      ErrExit("scanCommand failed",False);
 
     buf[size] = '\0';				/* null-terminate it! */
 
@@ -585,14 +563,10 @@ Popdown()
     /*
     ** Remember when we were popped down so we can refresh later
     */
-    if (gettimeofday(&tp,&tzp) != 0) {
-	fprintf(stderr,"%s: ",progname);
-	perror("gettimeofday() in Popdown()");
-	toggle_key_led(False);
-	exit(1);
-    } else {
-	acknowledge_time = tp.tv_sec;
-    }
+    if (gettimeofday(&tp,&tzp) != 0)
+      ErrExit("gettimeofday() in Popdown()",True);
+
+    acknowledge_time = tp.tv_sec;
 
     visible = False;
 }
@@ -728,11 +702,8 @@ initStaticData(bw, fontH, fontW)
     XtSetArg(args[0],XtNfont,&fs);
     XtSetArg(args[1],XtNborderWidth,&tmp);
     XtGetValues(textBox, args, 2);
-    if (fs == NULL) {
-	fprintf(stderr,"%s: unknown font!\n",progname);
-	toggle_key_led(False);
-	exit(1);
-    }
+    if (fs == NULL)
+      ErrExit("unknown font",False);
 
     *bw	   = tmp;
     *fontW = fs->max_bounds.width;
@@ -772,3 +743,55 @@ int	flag;
     XChangeKeyboardControl(XtDisplay(topLevel), KBLed | KBLedMode, &keyboard);
     XSync(XtDisplay(topLevel),False);
 }
+
+
+/*************\
+|*  ErrExit  *|  print out error message, clean up and exit
+|*************
+|* ErrExit prints out a given error message to stderr.  If <errno_valid>
+|* is True, it calls strerror(errno) to get the descriptive text for the
+|* indicated error.  It then clears the LEDs and exits.
+|*
+|* It is the intention that someday this will bring up a popup window.
+\*/
+void
+#ifdef	FUNCPROTO
+ErrExit(char *s, Boolean errno_valid)
+#else
+ErrExit(s, errno_valid)
+     char    *s;
+     Boolean errno_valid;
+#endif
+{
+    if (errno_valid)
+      fprintf(stderr,"%s: %s: %s\n", progname, s, strerror(errno));
+    else
+      fprintf(stderr,"%s: %s\n", progname, s);
+
+    toggle_key_led(False);
+    exit(1);
+}
+
+
+#ifdef	NEED_STRERROR
+/**************\
+|*  strerror  *|  return descriptive message text for given errno
+\**************/
+char *
+#ifdef	FUNCPROTO
+strerror(int err)
+#else	/* ~FUNCPROTO */
+strerror(err)
+     int err;
+#endif	/* FUNCPROTO */
+{
+    static char unknown[20];
+    extern char *sys_errlist[];
+
+    if (err >= 0 && err < sys_nerr)
+      return sys_errlist[err];
+
+    sprintf(unknown,"Unknown error %d", err);
+    return unknown;
+}
+#endif	/* NEED_STRERROR */
