@@ -33,6 +33,14 @@
 #endif
 
 
+/*
+** prototypes
+*/
+void	handler();
+void	byedebye();
+void	Quit(Widget,XtPointer,XtPointer);
+
+
 /*****************************************************************************\
 ** globals								     *|
 \*****************************************************************************/
@@ -64,17 +72,20 @@ static XtResource	xlbiff_resources[] = {
 };
 
 static XrmOptionDescRec	optionDescList[] = {
-    { "-file",	"*file",	XrmoptionSepArg,	(caddr_t) NULL}
+    { "-file",	"*file",	XrmoptionSepArg,	(caddr_t) NULL},
+    { "-update","*update",	XrmoptionSepArg,	(caddr_t) NULL}
 };
 
 static char *fallback_resources[] = {
     "XLbiff*font:	-*-clean-bold-r-normal--13-130-75-75-c-80-iso8859-1",
     NULL
-  };
-/*
-** prototypes
-*/
-void	handler();
+};
+
+static XtActionsRec lbiff_actions[] = {
+    {"exit",byedebye},
+    {"popdown",Quit}
+};
+
 
 
 /*\
@@ -84,7 +95,8 @@ void
 Quit(Widget w, XtPointer client_data, XtPointer call_data)
 {
     DEBUG(("++Quit()\n"));
-    popdown();
+/*    popdown();*/
+    visible = 0;
     longjmp(myjumpbuf,1);
 }
 
@@ -131,6 +143,7 @@ main( int argc, char *argv[] )
 
 
     XtAddCallback(goodbye,XtNcallback, Quit, goodbye );
+    XtAppAddActions(app_context,lbiff_actions,XtNumber(lbiff_actions));
 
     /*
     ** If no data file was explicitly given, make our best guess
@@ -144,6 +157,7 @@ main( int argc, char *argv[] )
     ** check to see if there's something to do, pop up window if necessary,
     ** and set up alarm to wake us up again every so often.
     */
+    setjmp(myjumpbuf);
     checksize();
     signal(SIGALRM,handler);
     alarm(lbiff_data.update);
@@ -153,7 +167,6 @@ main( int argc, char *argv[] )
     **
     ** note that we will continually be interrupted by the timeout code
     */
-    setjmp(myjumpbuf);
     if (visible) {
 	while (1) {
 	    XEvent ev;
@@ -163,9 +176,21 @@ main( int argc, char *argv[] )
 	    XtDispatchEvent(&ev);
 	}
 /*	XtAppMainLoop(app_context);*/
+    } else {
+	popdown();
+	while (1) sleep(1000);
     }
+}
 
-    while (1) sleep(1000);
+
+/*\
+|*  byedebye  --  called via callback, exits the program
+\*/
+void
+byedebye()
+{
+    DEBUG(("++exit()\n"));
+    exit(0);
 }
 
 
@@ -202,9 +227,6 @@ checksize()
 void
 handler()
 {
-    checksize();
-
-    alarm(lbiff_data.update);
     longjmp(myjumpbuf,1);
 }
 
