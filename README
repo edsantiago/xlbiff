@@ -9,16 +9,23 @@ empty.  Xlbiff is a lot like xconsole -- its job is to sit invisibly
 and pop up only when something demands your attention.
 
 
-PORTING
+INSTALLING
+
+Edit the Makefile and type `make'.  If that works,  type `make install'
+or just xrdb the resources yourself and type `xlbiff'.
+
+
+PORTING (or, if INSTALLING didn't work)
 
 Xlbiff has been tested only on one DECstation 5000 running Ultrix 4.2 
 and X11R5.  It compiles under cc and gcc, but not under DEC ANSI C for
 reasons I haven't bothered to investigate.  The only things I can imagine
 causing trouble are the use of alarm(3) and getlogin/getpwuid(3).  If
 fixes are required, or if you add any whizzy features, please mail them
-to santiago@lerad.pa.dec.com and I will take care of the normal release
-nonsense.
+to me (santiago@lerad.pa.dec.com) and I will take care of the normal 
+release nonsense.
 
+Xlbiff comes with a Makefile, not an 
 
 BACKGROUND
 
@@ -30,3 +37,9 @@ take time to read a new message.
 
 Before xlbiff, I wrote a crude hack using perl and xmessage.  It worked,
 but I had always wanted to do it right.  This is it, I hope.
+
+
+LEGALESE NONSENSE
+
+Xlbiff has been placed under the GNU General Public License.  See the
+file COPYING, included in this distribution, for more information.
