@@ -1,33 +1,33 @@
 !
 ! XLbiff  --  Literate Biff, displays incoming mail, etc
 !
-XLbiff*font:	-*-clean-bold-r-normal--13-130-75-75-c-80-iso8859-1
-XLbiff*geometry:		=+250-0
+*font:	-*-clean-bold-r-normal--13-130-75-75-c-80-iso8859-1
+*geometry:		+250-0
 !
 ! set these if you have a colour monitor, or put in your .Xdefaults
 !
-!XLbiff*foreground:		purple
-!XLbiff*background:		green
+!*foreground:		purple
+!*background:		green
 !
 ! command to use
 !
-XLbiff.scanCommand:		scan -file %s -width %d -form xlbiff.form
-!XLbiff.scanCommand:		mail </dev/null | grep -v '^.[UN]'
+.scanCommand:		scan -file %s -width %d -form xlbiff.form
+!.scanCommand:		mail </dev/null | grep -v '^.[UN]'
 !
 ! Dimensions of the display window
 !
-XLbiff.width:			80
-XLbiff.maxRows:			20
+.width:			80
+.maxRows:		20
 !
 ! miscellaneous
 !
-XLbiff.volume:			100
-XLbiff.update:			15
-XLbiff.fit:			False
+.volume:		100
+.update:		15
+.fit:			False
 !
 ! actions
 !
-XLbiff*translations:		#override\n\
-				:<Key>space:		popdown()\n\
-				:<Key>q:		exit()\n\
-				:<Btn3Down>,<Btn3Up>:	exit()\n
+*translations:		#override\n\
+			:<Key>space:		popdown()\n\
+			:<Key>q:		exit()\n\
+			:<Btn3Down>,<Btn3Up>:	exit()\n
