@@ -1,4 +1,4 @@
-static char rcsid[]= "$Id: xlbiff.c,v 1.51 1991/11/04 00:38:38 santiago Exp $";
+static char rcsid[]= "$Id: xlbiff.c,v 1.52 1991/11/04 04:29:18 santiago Exp $";
 /* with mods by gildea  Time-stamp: <91/10/28 08:48:53 gildea> */
 /*\
 |* xlbiff  --  X Literate Biff
@@ -51,6 +51,36 @@ static char rcsid[]= "$Id: xlbiff.c,v 1.51 1991/11/04 00:38:38 santiago Exp $";
 #include <sys/stat.h>
 #include <pwd.h>
 #include <errno.h>
+
+/*
+** This grody gunk stolen outright from mit/lib/Xaw/Mailbox.h
+*/
+#ifndef X_NOT_POSIX
+#ifdef _POSIX_SOURCE
+# include <sys/wait.h>
+#else
+#define _POSIX_SOURCE
+# include <sys/wait.h>
+#undef _POSIX_SOURCE
+#endif
+# define waitCode(w)    WEXITSTATUS(w)
+# define waitSig(w)     WIFSIGNALED(w)
+typedef int             waitType;
+# define INTWAITTYPE
+#else /* ! X_NOT_POSIX */
+#ifdef SYSV
+# define waitCode(w)    (((w) >> 8) & 0x7f)
+# define waitSig(w)     ((w) & 0xff)
+typedef int             waitType;
+# define INTWAITTYPE
+#else
+# include       <sys/wait.h>
+# define waitCode(w)    ((w).w_T.w_Retcode)
+# define waitSig(w)     ((w).w_T.w_Termsig)
+typedef union wait      waitType;
+#endif /* SYSV else */
+#endif /* ! X_NOT_POSIX else */
+
 
 #ifdef	NEED_STRERROR
 char	*strerror();
@@ -122,7 +152,8 @@ static Atom wm_delete_window;		/* for handling WM_DELETE	*/
 typedef struct {
     Boolean	debug;			/* print out useful stuff 	*/
     char	*file;			/* file to monitor size of 	*/
-    char	*cmd;			/* command to execute		*/
+    char	*checkCmd;		/* command to run for check     */
+    char	*cmd;			/* command to run for output	*/
     int		update;			/* update interval, in seconds	*/
     int		columns;		/* number of columns across	*/
     int		rows;			/* max# of lines in display	*/
@@ -142,6 +173,8 @@ static XtResource	xlbiff_resources[] = {
 	offset(debug), XtRImmediate, False},
     { "file", "File", XtRString, sizeof(String),
 	offset(file), XtRString, NULL},
+    { "checkCommand", "CheckCommand", XtRString, sizeof(String),
+	offset(checkCmd), XtRString, NULL},
     { "scanCommand", "ScanCommand", XtRString, sizeof(String),
 	offset(cmd), XtRString, "scan -file %s -width %d" },
     { "update", "Interval", XtRInt, sizeof(int),
@@ -179,7 +212,8 @@ static XrmOptionDescRec	optionDescList[] = {
     { "-led",         ".led",         XrmoptionSepArg,	(caddr_t) NULL},
     { "-ledPopdown",  ".ledPopdown",  XrmoptionNoArg,	(caddr_t) "true"},
     { "+ledPopdown",  ".ledPopdown",  XrmoptionNoArg,	(caddr_t) "false"},
-    { "-scanCommand", ".scanCommand", XrmoptionSepArg,	(caddr_t) NULL}
+    { "-scanCommand", ".scanCommand", XrmoptionSepArg,	(caddr_t) NULL},
+    { "-checkCommand",".checkCommand",XrmoptionSepArg,  (caddr_t) NULL}
 };
 
 static char *fallback_resources[] = {
@@ -327,6 +361,7 @@ Usage()
 "    -led ledNum                        keyboard LED to light up",
 "    -ledPopdown                        turn off LED when popped down",
 "    -scanCommand command               command to interpret and display",
+"    -checkCommand command              command used to check for change",
 NULL};
     char **s;
 
@@ -406,9 +441,29 @@ checksize()
     ** Doubtless there are errors we should complain about, but this 
     ** would get too ugly.
     */
-    if (stat(lbiff_data.file,&mailstat) != 0) {
-	DP(("stat() failed, errno=%d.  Assuming filesize=0!\n",errno));
-	mailstat.st_size = 0;
+    if (lbiff_data.checkCmd != NULL) {
+	waitType status;
+
+#ifdef	INTWAITTYPE
+	status = 	  system(lbiff_data.checkCmd);
+#else
+	status.w_status = system(lbiff_data.checkCmd);
+#endif
+	switch (waitCode(status)) {
+	case 0:					/* 0: new data */
+	    mailstat.st_size = mailsize + 1;
+	    break;
+        case 2:					/* 2: no data (clear) */
+	    mailstat.st_size = 0;
+	    break;
+	default:				/* 1: same as before */
+	    mailstat.st_size = mailsize;
+	}
+    } else {	/* no checkCmd, just stat the mailfile and check size */
+	if (stat(lbiff_data.file,&mailstat) != 0) {
+	    DP(("stat() failed, errno=%d.  Assuming filesize=0!\n",errno));
+	    mailstat.st_size = 0;
+	}
     }
 
     /*
@@ -489,7 +544,7 @@ doScan()
     static int	bufsize;
     FILE 	*p;
     size_t	size;
-    int		status;
+    waitType	status;
 
     DP(("++doScan()\n"));
 
@@ -529,7 +584,13 @@ doScan()
 	while (fread(junkbuf, 1, 100, p) > 0)
 	  ;	/* Keep reading until no more left */
     }
-    if ((status= pclose(p)) != 0) {
+
+#ifdef	INTWAITTYPE
+    status = 		pclose(p);
+#else
+    status.w_status =	pclose(p);
+#endif
+    if (waitCode(status) != 0) {
 	strcpy(buf+size,"\n---->>>>scanCommand failed<<<<<----\n");
 	size = strlen(buf);
     }
