@@ -25,7 +25,7 @@ MHLIBDIR = /usr/new/lib/mh
 /*
 ** Define this if your OS doesn't have strerror (eg, SunOS)
 */
-NEED_STRERROR = -DNEED_STRERROR
+/* NEED_STRERROR = -DNEED_STRERROR */
 
 /*
 ** Define this if your OS prefers bcopy to memcpy
