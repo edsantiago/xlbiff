@@ -25,26 +25,61 @@ Widget	topLevel,goodbye;
 jmp_buf	myjumpbuf;
 int	visible;
 
+typedef struct {
+    Boolean	debug;
+    char	*file;
+    char	*cmd;
+    int		timeout;
+} AppData, *AppDataPtr;
+
+AppData		lbiff_data;
+
+#define offset(field)	XtOffset(AppDataPtr,field)
+
+static XtResource	xlbiff_resources[] = {
+    { "debug", "Debug", XtRBoolean, sizeof(Boolean),
+	offset(debug), XtRString, "false"},
+    { "file", "File", XtRString, sizeof(String),
+	offset(file), XtRString, NULL},
+    { "timeout", "Timeout", XtRString, sizeof(String),
+	offset(timeout), XtRString, "5"},
+    { "command", "Command", XtRString, sizeof(String),
+	offset(cmd), XtRString, "scan" }
+};
+
+static XrmOptionDescRec	optionDescList[] = {
+    { "-file",	"*file",	XrmoptionSepArg,	(caddr_t) NULL}
+};
+
+
 /*
 ** prototypes
 */
 void	handler();
 
 
-void Quit(Widget w, XtPointer client_data, XtPointer call_data)
+/*\
+|*  Quit  --  callback for buttonpress anywhere in text window
+\*/
+void
+Quit(Widget w, XtPointer client_data, XtPointer call_data)
 {
     DEBUG(("++Quit()\n"));
     popdown();
-    longjmp(myjumpbuf);
+    longjmp(myjumpbuf,1);
 }
 
+
+/*\
+|*  main
+\*/
 main( int argc, char *argv[] )
 {
     XtAppContext app_context;
 
     topLevel = XtVaAppInitialize(&app_context,
-				 "XGoodbye",
-				 NULL, 0,
+				 "XLbiff",
+				 optionDescList, XtNumber(optionDescList),
 				 &argc, argv,
 				 NULL,
 				 NULL);
@@ -54,6 +89,11 @@ main( int argc, char *argv[] )
 				      topLevel,
 				      NULL);
 
+    XtGetApplicationResources(topLevel, &lbiff_data,
+			      xlbiff_resources, XtNumber(xlbiff_resources),
+			      (ArgList)NULL,0);
+
+
     XtAddCallback(goodbye,XtNcallback, Quit, goodbye );
 
     checksize();
@@ -62,7 +102,13 @@ main( int argc, char *argv[] )
 
     setjmp(myjumpbuf);
     if (visible) {
-	XtAppMainLoop(app_context);
+	while (1) {
+	    XEvent ev;
+
+	    XtAppNextEvent(app_context,&ev);
+	    XtDispatchEvent(&ev);
+	}
+/*	XtAppMainLoop(app_context);*/
     }
 
     while (1) sleep(1000);
@@ -78,7 +124,7 @@ checksize()
     struct stat mailstat;
 
     DEBUG(("++checksize()..."));
-    stat("/usr/spool/mail/santiago",&mailstat);
+    stat(lbiff_data.file,&mailstat);
     if (mailstat.st_size != mailsize) {
 	DEBUG(("changed size: %d\n",mailstat.st_size));
 	mailsize = mailstat.st_size;
@@ -105,7 +151,7 @@ handler()
     checksize();
 
     alarm(10);
-    longjmp(myjumpbuf);
+    longjmp(myjumpbuf,1);
 }
 
 
@@ -118,18 +164,15 @@ int
 doscan()
 {
     Arg 	args[1];
-    char 	cmd[200];
+    char	cmd_buf[200];
     char 	buf[1024];
     FILE 	*p;
     size_t	size;
 
     DEBUG(("++doscan()\n"));
-    sprintf(cmd,"scan -file %s -form %s -width %d",
-	    "/usr/spool/mail/santiago",
-	    "xmsg.form",
-	    120);
 
-    if ((p= popen(cmd,"r")) == NULL) {
+    sprintf(cmd_buf,lbiff_data.cmd,lbiff_data.file);
+    if ((p= popen(cmd_buf,"r")) == NULL) {
 	perror("popen");
 	exit(1);
     }
@@ -140,6 +183,7 @@ doscan()
     }
 
     pclose(p);
+    buf[size] = '\0';
 
     DEBUG(("scanned: %s\n",buf));
 
