@@ -1,4 +1,4 @@
-static char rcsid[]= "$Id: xlbiff.c,v 1.29 1991/10/01 21:49:55 santiago Exp $";
+static char rcsid[]= "$Id: xlbiff.c,v 1.30 1991/10/01 22:18:06 santiago Exp $";
 /*\
 |* xlbiff  --  X Literate Biff
 |*
@@ -129,7 +129,7 @@ static XtResource	xlbiff_resources[] = {
 	offset(maxHeight), XtRString, "20"},
     { "volume", "Volume", XtRInt, sizeof(int),
 	offset(volume), XtRString, "100"},
-    { "bottom", "Boolean", XtRBoolean, sizeof(Boolean),
+    { "bottom", "Bottom", XtRBoolean, sizeof(Boolean),
 	offset(bottom), XtRString, "false"}
 };
 
