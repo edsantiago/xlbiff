@@ -1,6 +1,6 @@
-XCOMM
-XCOMM Choose whatever mail path is appropriate for your system
-XCOMM
+/*
+** Choose whatever mail path is appropriate for your system
+*/
 #ifdef XlbiffMailPath
 MAILPATH = XlbiffMailPath
 #else
@@ -9,9 +9,9 @@ MAILPATH = XlbiffMailPath
 MAILPATH = /usr/spool/mail/%s
 #endif
 
-XCOMM
-XCOMM Where you want the xlbiff.form file to go
-XCOMM
+/*
+** Where you want the xlbiff.form file to go
+*/
 #ifdef	XmhLibDir
 MHLIBDIR = XmhLibDir
 #else
@@ -27,4 +27,7 @@ LOCAL_LIBRARIES = XawClientLibs
 
 SimpleProgramTarget(xlbiff)
 InstallAppDefaults(XLbiff)
-InstallNonExecFile(xlbiff.form,$(MHLIBDIR))
+/*
+** Uncomment this if you have R5 and want to install the scan format file
+*/
+/* InstallNonExecFile(xlbiff.form,$(MHLIBDIR)) */
