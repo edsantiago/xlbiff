@@ -1,17 +1,17 @@
-.TH XLBIFF 1 "20 August 1991"
+.TH XLBIFF 1 "24 September 1991"
 .SH NAME
-xlbiff - mailbox previewer for X
+xlbiff \- mailbox message previewer for X
 .SH SYNOPSIS
 .B xlbiff
-[-\fItoolkitoption\fP ...] [-option ...]
+[ \fI\-option\fP ... ]
 .SH DESCRIPTION
 The
 .I xlbiff
 program lurks in the background, watching your mailbox file, waiting for
-something to pop in there.  When mail arrives, it invokes the MH scan(1)
+new mail.  When mail arrives, it invokes the MH \fIscan\fP(1)
 command and pops up a window with the results.  Clicking the left mouse
 button anywhere in this window makes it go away.  The window will also
-disappear if iconised or if the mailbox size drops to zero.
+disappear if iconified or if the mailbox size drops to zero.
 .PP
 .SH OPTIONS
 .I Xlbiff
@@ -20,16 +20,16 @@ additional options listed below:
 .TP 8
 .B \-help
 This option indicates that a brief summary of the allowed options should be
-printed on the standard error.
-.TP 8
-.B \-update \fIseconds\fP
-This option specifies the frequency in seconds at which \fIxlbiff\fP
-should update its display.  The default is 15 seconds.
+printed on standard output.
 .TP 8
 .B \-file \fIfilename\fP
 This option specifies the name of the file which should be monitored.  By
 default, it watches /usr/spool/mail/\fIusername\fP, where \fIusername\fP
 is your login name.
+.TP 8
+.B \-update \fIseconds\fP
+This option specifies the frequency in seconds at which \fIxlbiff\fP
+should update its display.  The default is 15 seconds.
 .TP 8
 .B \-volume \fIpercentage\fP
 This option specifies how loud the bell should be rung when new mail comes in.
@@ -38,6 +38,7 @@ This option specifies how loud the bell should be rung when new mail comes in.
 This option specifies the width, in characters, of the
 .I xlbiff
 window.
+The default is 80.
 .PP
 The following standard X Toolkit command line arguments are commonly used with 
 .I xlbiff:
@@ -45,7 +46,7 @@ The following standard X Toolkit command line arguments are commonly used with
 .B \-display \fIdisplay\fP
 This option specifies the X server to contact.
 .TP 8
-.B \-geometry \fI=+x+y\fP
+.B \-geometry \fI+x+y\fP
 This option specifies the preferred position of the scan window.
 .TP 8
 .B \-bg \fIcolor\fP
@@ -57,10 +58,12 @@ This option specifies the color to use for the foreground of the window.
 .B \-xrm \fIresourcestring\fP
 This option specifies a resource string to be used.  This is especially
 useful for setting resources that do not have separate command line options.
-.SH X DEFAULTS
+.SH RESOURCES 
 The application class name is XLbiff.
 It understands all of the core resource names and classes as well as:
-.PP
+.TP 8
+.B file (\fPclass\fB File)
+Same as the \fB\-file\fP option.
 .TP 8
 .B scanCommand (\fPclass\fB ScanCommand)
 Specifies a shell command to be executed to list the contents of mailbox
@@ -70,34 +73,26 @@ The command's stdout is used to generate the window.
 Internally, the command is generated as
 .sp
 .nf
-              sprintf(buf,scanCommand,file,width)
+              sprintf(buf, scanCommand, file, width)
 .fi
 .sp
 so a %s and %d respectively in \fBscanCommand\fP will generate the values
 of \fBfile\fP and \fBwidth\fP.
 .TP 8
-.B file (\fPclass\fB File)
-Same as the \-file option.
+.B update (\fPclass\fB Interval)
+Same as the \fB\-update\fP option.
 .TP 8
 .B width (\fPclass\fB Width)
-Same as the \-width option.
+Same as the \fB\-width\fP option.
 .TP 8
 .B maxRows (\fPclass\fB MaxRows)
 Specifies the maximum height, in lines, of the 
-.I xbiff
-window.  
-.TP 8
-.B update (\fPclass\fB Interval)
-Same as the \-update option.
+.I xlbiff
+window.
+The default is 20.
 .TP 8
 .B volume (\fPclass\fB Volume)
-Same as the \-volume option.
-.TP 8
-.B foreground (\fPclass\fB Foreground)
-Specifies the color for the foreground.
-.TP 8
-.B background (\fPclass\fB Background)
-Specifies the color for the background.
+Same as the \fB\-volume\fP option.
 .SH ACTIONS
 .I Xlbiff
 provides the following actions for use in event translations:
@@ -122,11 +117,15 @@ The default translations are
 .TP 8
 .B DISPLAY
 to get the default host and display number.
+.SH FILES
+.TP 8
+/usr/spool/mail/\fIusername\fP
+default file to check.  This can be changed with a compile-time option.
 .SH "SEE ALSO"
-X(1),
-scan(1)
+.IR X (1),
+.IR scan (1)
 .SH BUGS
-specifying dimensions in -geometry causes badness.
+specifying dimensions in \-geometry causes badness.
 .SH COPYRIGHT
 Copyright 1991, Eduardo Santiago Munoz
 .SH AUTHOR
@@ -134,4 +133,7 @@ Ed Santiago, santiago@pa.dec.com
 .SH ACKNOWLEDGEMENTS
 Most of the Xt code is structured around the \fBxgoodbye\fP sample program
 in the O'Reilly \fIX Toolkit Intrinsics Programming Manual\fP.  A lot of
-code was stolen from \fBxbiff\fP, including this man page.
+code was stolen from \fBxbiff\fP, including this man page.  Thanks also
+to Stephen Gildea (gildea@expo.lcs.mit.edu) for the many, many 
+contributions that made xlbiff grow from a midnight hack to a more
+mature product.
