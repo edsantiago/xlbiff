@@ -1,4 +1,4 @@
-static char rcsid[]= "$Id: xlbiff.c,v 1.60 1991/11/26 19:26:53 santiago Exp $";
+static char rcsid[]= "$Id: xlbiff.c,v 1.61 1991/12/13 00:09:17 santiago Exp $";
 /*\
 |* xlbiff  --  X Literate Biff
 |*
@@ -595,7 +595,7 @@ doScan()
 #endif
     if (waitCode(status) != 0) {
 	strcpy(buf+size, scan_fail_msg);
-	size = strlen(buf);
+	size += strlen(scan_fail_msg);
     }
 
     buf[size] = '\0';				/* null-terminate it! */
