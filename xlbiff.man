@@ -25,7 +25,7 @@ printed on standard output.
 .B \-bottom
 This option tells 
 .I xlbiff 
-to realize/unrealize() the output window instead of using map/unmap().
+to realize/unrealize() the output window instead of using XtPopup/down().
 This has the effect of causing the window manager to reposition the window
 each time it pops up, and is useful for when you specify negative Y
 coordinates, ie, at the bottom of the screen.  Running 
@@ -33,16 +33,32 @@ coordinates, ie, at the bottom of the screen.  Running
 in this situation without \-bottom would cause new lines to run off the
 bottom edge of the screen.
 .TP 8
+.B \+bottom
+Opposite of \-bottom.
+.TP 8
 .B \-file \fIfilename\fP
 This option specifies the name of the file which should be monitored.  By
 default, it watches /usr/spool/mail/\fIusername\fP, where \fIusername\fP
 is your login name.
 .TP 8
+.B \-maxHeight \fIheight\fP
+This option specifies the maximum height, in lines of text, of the
+.I xlbiff
+window.  The default is 20.
+.TP 8
+.B \-maxWidth \fIwidth\fP
+This option specifies the maximum width, in characters, of the
+.I xlbiff
+window.  The default is 80.
+.TP 8
 .B \-resetSaver
 If this option is set, 
-.I xlbiff 
+.I xlbiff
 will reset the screen saver when new mail comes in.  This is useful if 
 you're doing something near your workstation but not on it.
+.TP 8
+.B \+resetSaver
+Opposite of \-resetSaver.
 .TP 8
 .B \-update \fIseconds\fP
 This option specifies the frequency in seconds at which
@@ -51,11 +67,6 @@ should update its display.  The default is 15 seconds.
 .TP 8
 .B \-volume \fIpercentage\fP
 This option specifies how loud the bell should be rung when new mail comes in.
-.TP 8
-.B \-width \fIwidth\fP
-This option specifies the width, in characters, of the
-.I xlbiff
-window.  The default is 80.
 .PP
 The following standard X Toolkit command line arguments are commonly used with 
 .I xlbiff:
@@ -93,11 +104,11 @@ The command's stdout is used to generate the window.
 Internally, the command is generated as
 .sp
 .nf
-              sprintf(buf, scanCommand, file, width)
+              sprintf(buf, scanCommand, file, maxWidth)
 .fi
 .sp
 so a %s and %d respectively in \fBscanCommand\fP will generate the values
-of \fBfile\fP and \fBwidth\fP.
+of \fBfile\fP and \fBmaxWidth\fP.
 .TP 8
 .B resetSaver (\fPclass\fB ResetSaver)
 Same as the \fB\-resetSaver\fP option.
@@ -105,8 +116,8 @@ Same as the \fB\-resetSaver\fP option.
 .B update (\fPclass\fB Interval)
 Same as the \fB\-update\fP option.
 .TP 8
-.B width (\fPclass\fB Width)
-Same as the \fB\-width\fP option.
+.B maxWidth (\fPclass\fB MaxWidth)
+Same as the \fB\-maxWidth\fP option.
 .TP 8
 .B maxHeight (\fPclass\fB MaxHeight)
 Specifies the maximum height, in lines, of the 
@@ -149,11 +160,13 @@ default mail file to check.
 .SH BUGS
 specifying dimensions in \-geometry causes badness.
 .SH COPYRIGHT
-Copyright 1991, Eduardo Santiago Munoz
+Copyright 1991, Digital Equipment Corporation.
+See the source code for a full statement of rights and permissions.
 .SH AUTHOR
 Ed Santiago, santiago@pa.dec.com
 .SH ACKNOWLEDGEMENTS
-Most of the Xt code is structured around the \fBxgoodbye\fP sample program
+.I Xlbiff
+took shape around the \fBxgoodbye\fP sample program
 in the O'Reilly \fIX Toolkit Intrinsics Programming Manual\fP.  A lot of
 code was stolen from \fBxbiff\fP, including this man page.  Thanks also
 to Stephen Gildea (gildea@expo.lcs.mit.edu) for the many, many 
