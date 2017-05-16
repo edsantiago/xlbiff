@@ -301,7 +301,7 @@ main(argc, argv)
 
 	if (username == NULL || username[0] == '\0') {
 	    struct passwd  *pwd = getpwuid(getuid());
-	    
+
 	    if (pwd == NULL) {
 		fprintf(stderr, "%s: cannot get username\n", progname);
 		exit(1);
@@ -461,7 +461,7 @@ Cardinal *num_params;
 |*  checksize  *|  checks mail file to see if new mail is present
 |***************
 |*	This routine stat's the mail spool file and compares its size
-|*	with the previously obtained result.  If the size has become 
+|*	with the previously obtained result.  If the size has become
 |*	zero, it pops down the window.  If nonzero, it calls a routine
 |*	to execute the scanCommand.  If the result of this is non-null,
 |*	it pops up a window showing it (note that users of Berkeley
@@ -538,7 +538,7 @@ checksize()
 	 **		  _and_ your update interval is too low _and_ you use
 	 **		  a Berkeleyish mailer.  Yuk.
 	 **
-	 ** Doubtless there are errors we should complain about, but this 
+	 ** Doubtless there are errors we should complain about, but this
 	 ** would get too ugly.
 	 */
 	if (stat(lbiff_data.file,&mailstat) != 0) {
@@ -695,7 +695,7 @@ doScan()
 
 
 /****************\
-|*  CheckEvent  *|  
+|*  CheckEvent  *|
 \****************/
 Bool
 #ifdef	FUNCPROTO
