@@ -10,11 +10,11 @@ static char rcsid[]= "$Id: xlbiff.c,v 1.75 2003/11/08 23:40:18 esm Exp $";
 |*	Xlbiff is modeled after xconsole; it remains invisible at non-
 |*	useful times, eg, when no mail is present.  See README for details.
 |*
-|*	Author:		Eduardo Santiago, esm@pobox.com
+|*	Author:		Eduardo Santiago, ed@edsantiago.com
 |* 	Created:	20 August 1991
-|*	Last Updated:	 8 November 2003
+|*	Last Updated:	16 May 2017
 |*
-|*    Copyright 1994 Eduardo Santiago
+|*    Copyright 1994, 2017 Eduardo Santiago
 |*
 |*    The X Consortium, and any party obtaining a copy of these files from
 |*    the X Consortium, directly or indirectly, is granted, free of charge, a

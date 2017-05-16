@@ -138,7 +138,7 @@ PORTING (or, if INSTALLING didn't work)
   I *think* most portability bugs have been ironed out, but of course
   there are always a few left.  If fixes are required, or if you add
   any whizzy features (see TODO for a partial list), please mail them
-  to me, esm@pobox.com, and I will wrap them up for future releases.
+  to me, <ed@edsantiago.com>, and I will wrap them up for future releases.
 
 
 ==========
@@ -163,6 +163,11 @@ HISTORY
   The following describes changes made to xlbiff throughout its history.
   Where applicable, changes are attributed to the people who submitted
   the ideas and, in many cases, patches and source code.
+
+  * Version 4.2  (16 May 2017)
+        + Primitive i18n support
+        + minor code cleanup (whitespace, warnings)
+        + Again, update email addresses and URLs
 
   * Version 4.1  (8 Nov 2003)
 	+ improved Bcheck and Bscan
@@ -262,8 +267,8 @@ HISTORY
 AUTHOR
 ======
 
-  Ed Santiago <esm@pobox.com>
+  Ed Santiago <ed@edsantiago.com>
 
   The latest version of xlbiff may be found at
 
-	http://www.edsantiago.com/xlbiff/
+	https://github.com/edsantiago/xlbiff/
