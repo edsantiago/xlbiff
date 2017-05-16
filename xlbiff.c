@@ -37,6 +37,8 @@ static char rcsid[]= "$Id: xlbiff.c,v 1.75 2003/11/08 23:40:18 esm Exp $";
 #include <X11/Xaw/Command.h>
 #include <X11/Xos.h>
 
+#include <unistd.h>
+#include <stdlib.h>
 #include <stdio.h>
 #include <sys/stat.h>
 #include <pwd.h>
@@ -102,7 +104,6 @@ void		Popdown(),Popup();
 void		Usage();
 extern char	*getlogin();
 
-#ifdef	FUNCPROTO
 void	Shrink(Widget, caddr_t, XEvent*, Boolean*);
 void	handler(XtPointer,XtIntervalId*);
 void	initStaticData(int*,int*,int*);
@@ -113,18 +114,6 @@ void	getDimensions(char*,Dimension*,Dimension*);
 void	toggle_key_led(int);
 void	ErrExit(Boolean,char*);
 Bool	CheckEvent(Display*,XEvent*,caddr_t);
-#else
-void	Shrink();
-void	handler();
-void	initStaticData();
-void	Exit();
-void	Mailer();
-void	lbiffUnrealize(), lbiffRealize();
-void	getDimensions();
-void	toggle_key_led();
-void	ErrExit();
-Bool	CheckEvent();
-#endif
 
 /*****************************************************************************\
 **                                 globals				     **
@@ -241,13 +230,8 @@ static XtActionsRec lbiff_actions[] = {
 /**********\
 |*  main  *|
 \**********/
-#ifdef	FUNCPROTO
+int
 main( int argc, char *argv[] )
-#else
-main(argc, argv)
-    int argc;
-    char *argv[];
-#endif
 {
     progname = argv[0];
 
@@ -403,15 +387,7 @@ NULL};
 |*  Exit  *|  called via callback, exits the program
 \**********/
 void
-#ifdef	FUNCPROTO
 Exit(Widget w, XEvent *event, String *params, Cardinal *num_params)
-#else
-Exit(w, event, params, num_params)
-Widget w;
-XEvent *event;
-String *params;
-Cardinal *num_params;
-#endif
 {
     DP(("++Exit()\n"));
 
@@ -432,31 +408,6 @@ Cardinal *num_params;
 }
 
 
-/************\
-|*  Mailer  *|  called via callback, starts a mailer
-\************/
-void
-#ifdef	FUNCPROTO
-Mailer(Widget w, XEvent *event, String *params, Cardinal *num_params)
-#else
-Mailer(w, event, params, num_params)
-Widget w;
-XEvent *event;
-String *params;
-Cardinal *num_params;
-#endif
-{
-    DP(("++Mailer()\n"));
-
-    if (lbiff_data.mailerCmd != NULL && lbiff_data.mailerCmd[0] != '\0') {
-	Popdown();
-	system(lbiff_data.mailerCmd);
-	Popup();
-	checksize();
-    }
-}
-
-
 /***************\
 |*  checksize  *|  checks mail file to see if new mail is present
 |***************
@@ -467,6 +418,7 @@ Cardinal *num_params;
 |*	it pops up a window showing it (note that users of Berkeley
 |*	mail may have non-empty mail files with all old mail).
 \*/
+void
 checksize()
 {
     static int mailsize = 0;
@@ -551,7 +503,7 @@ checksize()
     ** If it's changed size, take appropriate action.
     */
     if (mailstat.st_size != mailsize) {
-	DP(("changed size: %d -> %d\n",mailsize,mailstat.st_size));
+        DP(("changed size: %d -> %d\n",mailsize,(int)mailstat.st_size));
 	mailsize = mailstat.st_size;
 	pop_window = True;
     } else if (!visible && lbiff_data.refresh && mailsize != 0) {
@@ -602,18 +554,28 @@ checksize()
 }
 
 
+/************\
+|*  Mailer  *|  called via callback, starts a mailer
+\************/
+void
+Mailer(Widget w, XEvent *event, String *params, Cardinal *num_params)
+{
+    DP(("++Mailer()\n"));
+
+    if (lbiff_data.mailerCmd != NULL && lbiff_data.mailerCmd[0] != '\0') {
+	Popdown();
+        system(lbiff_data.mailerCmd);
+	Popup();
+	checksize();
+    }
+}
+
+
 /*************\
 |*  handler  *|  Checks mail file and reschedules itself to do so again
 \*************/
 void
-#ifdef	FUNCPROTO
 handler( XtPointer closure, XtIntervalId *id )
-#else
-/* ARGSUSED */
-handler( closure, id )
-     XtPointer 	   closure;
-     XtIntervalId  *id;
-#endif
 {
     checksize();
     XtAppAddTimeOut(app_context,lbiff_data.update * 1000, handler, NULL);
@@ -698,14 +660,7 @@ doScan()
 |*  CheckEvent  *|
 \****************/
 Bool
-#ifdef	FUNCPROTO
 CheckEvent( Display *d, XEvent *e, caddr_t arg )
-#else	/* ~FUNCPROTO */
-CheckEvent( d, e, arg )
-     Display *d;
-     XEvent  *e;
-     caddr_t arg;
-#endif	/* FUNCPROTO */
 {
     if (e->type == MapNotify || e->type == UnmapNotify)
       if (e->xmap.window == (Window)arg)
@@ -726,15 +681,7 @@ static XEvent lastEvent;
 |*  Shrink  *|  get StructureNotify events, popdown if iconified
 \************/
 void
-#ifdef	FUNCPROTO
 Shrink( Widget w, caddr_t data, XEvent *e, Boolean *b )
-#else
-Shrink(w, data, e, b)
-    Widget w;
-    caddr_t data;
-    XEvent *e;
-    Boolean *b;
-#endif
 {
     DP(("++Shrink()\n"));
     if (e->type == MapNotify || e->type == UnmapNotify) {
@@ -846,12 +793,7 @@ lbiffUnrealize()
 |*  lbiffRealize  *|  reformat window, set the text and bring window up
 \******************/
 void
-#ifdef	FUNCPROTO
 lbiffRealize( char *s )
-#else
-lbiffRealize( s )
-     char *s;
-#endif
 {
     Arg		args[4];
     int		n;
@@ -933,13 +875,7 @@ lbiffRealize( s )
 |*  getDimensions  *|  get width x height of text string
 \*******************/
 void
-#ifdef	FUNCPROTO
 getDimensions( char *s, Dimension *width, Dimension *height )
-#else
-getDimensions(s,width,height)
-     char *s;
-     Dimension *width, *height;
-#endif
 {
     Dimension	tmp_width;
     int		i,
@@ -984,12 +920,7 @@ getDimensions(s,width,height)
 |*  initStaticData  *|  initializes font size & borderWidth
 \********************/
 void
-#ifdef	FUNCPROTO
 initStaticData( int *bw, int *fontH, int *fontW )
-#else
-initStaticData(bw, fontH, fontW)
-    int *bw, *fontH, *fontW;
-#endif
 {
     Arg		args[2];
     XFontStruct *fs;
@@ -1014,12 +945,7 @@ initStaticData(bw, fontH, fontW)
 |*  toggle_key_led  *|  toggle a keyboard LED on and off
 \********************/
 void
-#ifdef	FUNCPROTO
 toggle_key_led(int flag)
-#else
-toggle_key_led(flag)
-int	flag;
-#endif
 {
     XKeyboardControl	keyboard;
 
@@ -1049,13 +975,7 @@ int	flag;
 |* It is the intention that someday this will bring up a popup window.
 \*/
 void
-#ifdef	FUNCPROTO
 ErrExit(Boolean errno_valid, char *s)
-#else
-ErrExit(errno_valid, s)
-     Boolean errno_valid;
-     char    *s;
-#endif
 {
     if (errno_valid)
       fprintf(stderr,"%s: %s: %s\n", progname, s, strerror(errno));
@@ -1075,12 +995,7 @@ ErrExit(errno_valid, s)
 |*  strerror  *|  return descriptive message text for given errno
 \**************/
 char *
-#ifdef	FUNCPROTO
 strerror(int err)
-#else	/* ~FUNCPROTO */
-strerror(err)
-     int err;
-#endif	/* FUNCPROTO */
 {
     static char unknown[30];
     extern int	sys_nerr;
