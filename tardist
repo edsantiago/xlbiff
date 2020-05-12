@@ -39,7 +39,7 @@ mkdir  $distdir
 
 cp -p $(<MANIFEST) $distdir/
 
-GZIP=-n tar --owner=0 --group=0 --numeric-owner "${tar_mtime[@]}" -cvzf \
+tar --owner=0 --group=0 --numeric-owner "${tar_mtime[@]}" -cvzf \
     $tarball $distdir
 chmod 0444 $tarball
 
