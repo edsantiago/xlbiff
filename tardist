@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # tardist - generate tarball
 #
@@ -22,6 +22,14 @@ END {
 
 test -z "$VERSION" && die "No VERSION"
 
+latest_release_date=$(
+    sed -n "/^  \* Version ${VERSION/./\\.} /{s/.*(\(.*\))$/\1/p;q}" README)
+tar_mtime=()
+if [[ "$latest_release_date" ]]; then
+    tar_mtime+=("--mtime=$(date --date "$latest_release_date +1 day -1 second")")
+    tar_mtime+=(--clamp-mtime)
+fi
+
 # Clean up, then recreate the dist dir
 distdir=$PROGRAM-$VERSION
 tarball=$distdir.tar.gz
@@ -31,7 +39,8 @@ mkdir  $distdir
 
 cp -p $(<MANIFEST) $distdir/
 
-tar cvzf $tarball $distdir
+GZIP=-n tar --owner=0 --group=0 --numeric-owner "${tar_mtime[@]}" -cvzf \
+    $tarball $distdir
 chmod 0444 $tarball
 
 
