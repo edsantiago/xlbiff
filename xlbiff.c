@@ -261,10 +261,11 @@ main( int argc, char *argv[] )
 	    fprintf(stderr,
 #if	TESTLEVEL != 0
 		    "%s version %d.%d.%d\n",
+		    progname,  VERSION,PATCHLEVEL,TESTLEVEL);
 #else
 		    "%s version %d.%d\n",
+		    progname,  VERSION,PATCHLEVEL);
 #endif
-		    progname,  VERSION,PATCHLEVEL,TESTLEVEL);
 	    exit(0);
 	} else if (!strncmp(argv[1],"-help",strlen(argv[1]))) {
 	    Usage();
@@ -459,7 +460,7 @@ checksize()
 
 	if ((p= popen(cmd_buf,"r")) == NULL)
 	  ErrExit(True,"popen(checkCommand)");
-	if (fread(outbuf,1,sizeof outbuf,p) < 0)
+	if (fread(outbuf,1,sizeof outbuf,p) <= 0)
 	  ErrExit(True,"fread(checkCommand)");
 	previous = atol(outbuf);
 	DP(("checkCommand returns %d\n",previous));
@@ -562,11 +563,16 @@ checksize()
 void
 Mailer(Widget w, XEvent *event, String *params, Cardinal *num_params)
 {
+    int system_return;
     DP(("++Mailer()\n"));
 
     if (lbiff_data.mailerCmd != NULL && lbiff_data.mailerCmd[0] != '\0') {
 	Popdown();
-        system(lbiff_data.mailerCmd);
+        system_return = system(lbiff_data.mailerCmd);
+	if (system_return != 0) {
+            fprintf(stderr, "mailer command \"%s\" returned %d (%#x)\n",
+                    lbiff_data.mailerCmd, system_return, system_return);
+        }
 	Popup();
 	checksize();
     }
@@ -851,6 +857,7 @@ lbiffRealize( char *s )
     }
     else {
 	static char	*sound_buf;
+        int		system_return;
 
 	/*
 	** Initialise sound string
@@ -863,7 +870,11 @@ lbiffRealize( char *s )
 	    sprintf(sound_buf,lbiff_data.sound, lbiff_data.volume);
 	    DP(("---sound= %s\n",sound_buf));
 	}
-	system(sound_buf);
+	system_return = system(sound_buf);
+	if (system_return != 0) {
+            fprintf(stderr, "sound command \"%s\" returned %d (%#x)\n",
+                    sound_buf, system_return, system_return);
+        }
     }
 
     if (lbiff_data.resetSaver)
