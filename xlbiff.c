@@ -1,4 +1,3 @@
-static char rcsid[]= "$Id: xlbiff.c,v 1.75 2003/11/08 23:40:18 esm Exp $";
 /*\
 |* xlbiff  --  X Literate Biff
 |*
