@@ -329,7 +329,6 @@ main( int argc, char *argv[] )
     textBox = XtVaCreateManagedWidget("text",
 				      commandWidgetClass,
 				      topLevel,
-                                      "international", True,
 				      NULL);
 
     XtAddCallback(textBox, XtNcallback, Popdown, textBox);
