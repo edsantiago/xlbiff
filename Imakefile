@@ -20,20 +20,10 @@ MHLIBDIR = XmhLibDir
 MHLIBDIR = /usr/new/lib/mh
 #endif
 
-XCOMM
-XCOMM  Define this if your OS doesn't have strerror (eg, SunOS)
-XCOMM
-XCOMM  NEED_STRERROR = -DNEED_STRERROR
-
-XCOMM
-XCOMM  Define this if your OS prefers bcopy to memcpy
-XCOMM
-XCOMM       USE_BCOPY = -DUSE_BCOPY
-
 
 XCOMM    CDEBUGFLAGS = -g -DDEBUG
 
-        DEFINES = -DMAILPATH=\"$(MAILPATH)\"  $(NEED_STRERROR)  $(USE_BCOPY)
+        DEFINES = -DMAILPATH=\"$(MAILPATH)\"
         DEPLIBS = XawClientDepLibs
 LOCAL_LIBRARIES = XawClientLibs
 

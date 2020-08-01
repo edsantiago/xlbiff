@@ -83,10 +83,6 @@ typedef union wait      waitType;
 #endif /* ! X_NOT_POSIX else */
 
 
-#ifdef	NEED_STRERROR
-char	*strerror();
-#endif
-
 /*
 ** if compiled with -DDEBUG *and* run with debugging on, this does lots
 ** of useless/useful printfs.
@@ -704,11 +700,7 @@ Shrink( Widget w, caddr_t data, XEvent *e, Boolean *b )
 	int    event_seen = 0;
 	Window win = e->xmap.window;
 
-#ifdef	USE_BCOPY
-	bcopy((char*)e,(char*)&lastEvent,sizeof(XEvent));
-#else
 	memcpy((char*)&lastEvent,(char*)e,sizeof(XEvent));
-#endif
 
 	XSync(XtDisplay(w),False);
 
@@ -1009,23 +1001,3 @@ ErrExit(Boolean errno_valid, char *s)
 
     exit(1);
 }
-
-
-#ifdef	NEED_STRERROR
-/**************\
-|*  strerror  *|  return descriptive message text for given errno
-\**************/
-char *
-strerror(int err)
-{
-    static char unknown[30];
-    extern int	sys_nerr;
-    extern char *sys_errlist[];
-
-    if (err >= 0 && err < sys_nerr)
-      return sys_errlist[err];
-
-    sprintf(unknown,"Unknown error %d", err);
-    return unknown;
-}
-#endif	/* NEED_STRERROR */
