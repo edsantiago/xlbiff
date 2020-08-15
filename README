@@ -7,7 +7,7 @@ WHAT IS IT?
   This is xlbiff, the X Literate Biff.
 
   Xlbiff lurks in the background, monitoring your mailbox file (normally
-  /var/spool/mail/<yourusername>).  When something shows up there, it
+  /var/mail/<yourusername>).  When something shows up there, it
   invokes the MH scan(1) command and displays the output in a window.
   If more mail comes in, it scans again and resizes accordingly.
 

@@ -2,19 +2,11 @@
 #
 # Makefile for xlbiff
 #
-# $Id: Makefile.std,v 1.14 2003/11/09 02:08:20 esm Exp $
-#
 
 #
 # Where your mail file is.
 #
-#	BSD systems should probably define it as /usr/spool/mail/%s
-#	SYSV systems will probably want /usr/mail/%s
-#	I'm sure someone else will have /%s/incoming-mail/temp/../geewhiz/.x
-#
-#MAILPATH=	/udir/%s/.maildrop
-#MAILPATH=	/usr/mail/%s
-MAILPATH=	/var/spool/mail/%s
+XLBIFF_MAILPATH=	/var/mail/%s
 
 #
 # Build with debugging enabled or disabled.  Note that you can build
@@ -56,7 +48,7 @@ EXTRALIBS=
 # DO NOT MODIFY ANYTHING UNDER HERE
 ###############################################################################
 CFLAGS=		$(DEBUG)  \
-		-DMAILPATH="\"$(MAILPATH)\""
+		-DXLBIFF_MAILPATH="\"$(XLBIFF_MAILPATH)\""
 
 EXE=	xlbiff
 OBJ=	xlbiff.o

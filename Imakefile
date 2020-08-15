@@ -2,13 +2,9 @@ XCOMM
 XCOMM  Choose whatever mail path is appropriate for your system
 XCOMM
 #ifdef XlbiffMailPath
-MAILPATH = XlbiffMailPath
+XLBIFF_MAILPATH = XlbiffMailPath
 #else
-#if	defined(SYSV) || defined(SVR4)
-MAILPATH = /usr/mail/%s
-#else
-MAILPATH = /var/spool/mail/%s
-#endif
+XLBIFF_MAILPATH = /var/mail/%s
 #endif
 
 XCOMM
@@ -23,7 +19,7 @@ MHLIBDIR = /usr/new/lib/mh
 
 XCOMM    CDEBUGFLAGS = -g -DDEBUG
 
-        DEFINES = -DMAILPATH=\"$(MAILPATH)\"
+        DEFINES = -DXLBIFF_MAILPATH=\"$(XLBIFF_MAILPATH)\"
         DEPLIBS = XawClientDepLibs
 LOCAL_LIBRARIES = XawClientLibs
 

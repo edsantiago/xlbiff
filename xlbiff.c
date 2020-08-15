@@ -97,8 +97,8 @@ typedef union wait      waitType;
 ** This defines the file we need to monitor.  If not defined explicitly
 ** on the command line, we pick this default.
 */
-#ifndef	MAILPATH
-#define	MAILPATH	"/usr/spool/mail/%s"
+#ifndef	XLBIFF_MAILPATH
+#define	XLBIFF_MAILPATH	"/var/mail/%s"
 #endif
 
 /*****************************************************************************\
@@ -300,11 +300,12 @@ main( int argc, char *argv[] )
 	    username = pwd->pw_name;
 	}
 
-	default_file = (char*)malloc(strlen(MAILPATH) + strlen(username));
+	default_file = (char*)malloc(strlen(XLBIFF_MAILPATH)
+				     + strlen(username));
 	if (default_file == NULL)
 	  ErrExit(True,"default_file malloc()");
 
-	sprintf(default_file,MAILPATH,username);
+	sprintf(default_file,XLBIFF_MAILPATH,username);
 	lbiff_data.file = default_file;
     }
     DP(("file= %s\n",lbiff_data.file));
