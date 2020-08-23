@@ -28,8 +28,6 @@
 |*
 \*/
 
-#include "patchlevel.h"
-
 /*
 ** glibc since 2.20 (2014) complains:
 ** "_BSD_SOURCE and _SVID_SOURCE are deprecated, use _DEFAULT_SOURCE"
@@ -263,14 +261,7 @@ main( int argc, char *argv[] )
     */
     if (argc > 1) {
 	if (!strncmp(argv[1],"-version",strlen(argv[1]))) {
-	    fprintf(stderr,
-#if	TESTLEVEL != 0
-		    "%s version %d.%d.%d\n",
-		    progname,  VERSION,PATCHLEVEL,TESTLEVEL);
-#else
-		    "%s version %d.%d\n",
-		    progname,  VERSION,PATCHLEVEL);
-#endif
+	    fprintf(stderr, "%s version %s\n", progname, VERSION);
 	    exit(0);
 	} else if (!strncmp(argv[1],"-help",strlen(argv[1]))) {
 	    Usage();
