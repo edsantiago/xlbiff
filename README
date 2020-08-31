@@ -31,29 +31,24 @@ ADVANTAGES (or, Why Yet Another Biff?)
 INSTALLING
 ==========
 
-  Xlbiff is old... it uses the X11 "imake" mechanism:
+      ./configure
+      make && make install
 
-      % xmkmf
-      % make
+  The configured default mail file template is /var/mail/%s.
+  If this is incorrect for your system, set CONFIG_MAILPATH when
+  running configure, e.g.:
 
-  You may want to look at the Imakefile to make sure you agree with
-  the default values in it, first.
+      ./configure CONFIG_MAILPATH=/somewhere/mail/%s
 
+  To see a list of the flags that control where "make install"
+  installs various files:
 
-===========================
-INSTALLING -- WITHOUT IMAKE
-===========================
+      ./configure --help
 
-  If you don't have imake, copy the file Makefile.std to 'Makefile'
-  and edit it to make sure everything looks good.
+  If you have a source distribution without "configure" and
+  "Makefile.in" files, you can create them with this command:
 
-  Type 'make' and cross your fingers.  If that all works, su and type
-  `make install' or install by hand -- you should be able to figure
-  it out.  And _please_ don't just su because I say so.  Take a look
-  at the sources and Makefile before you compromise your system.
-
-  If the make didn't work out that well, see PORTING below.
-
+      autoreconf -i
 
 ===========
 CUSTOMIZING
