@@ -12,4 +12,4 @@ CLEANFILES = $(appdefault_DATA)
 
 dist_man1_MANS = xlbiff.man
 
-EXTRA_DIST = README README.bulk TODO XLbiff.ad Bcheck Bscan
+EXTRA_DIST = README.bulk XLbiff.ad Bcheck Bscan
