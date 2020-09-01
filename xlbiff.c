@@ -28,16 +28,6 @@
 |*
 \*/
 
-/*
-** glibc since 2.20 (2014) complains:
-** "_BSD_SOURCE and _SVID_SOURCE are deprecated, use _DEFAULT_SOURCE"
-** This would be best updated in imake, but that is hard to test,
-** so we just work around it here.
-*/
-#if defined(_BSD_SOURCE) || defined(_SVID_SOURCE)
-#define _DEFAULT_SOURCE
-#endif
-
 #include <X11/Intrinsic.h>
 #include <X11/StringDefs.h>
 #include <X11/Shell.h>
