@@ -19,3 +19,8 @@ DISTCHECK_CONFIGURE_FLAGS = --with-appdefaultdir=\$${datadir}/X11/app-defaults
 dist_man1_MANS = xlbiff.man
 
 EXTRA_DIST = README.bulk XLbiff.ad Bcheck Bscan
+
+# aid for building Debian source package
+debian-orig-dist: dist
+	mv xlbiff-$(VERSION).tar.gz ../xlbiff_$(VERSION).orig.tar.gz
+.PHONY: debian-orig-dist
