@@ -6,7 +6,8 @@ AC_DEFINE_UNQUOTED(XLBIFF_MAILPATH,
     ["${CONFIG_MAILPATH:-/var/mail/%s}"])
 
 PKG_PROG_PKG_CONFIG
-# Look up X Toolkit app-resources directory for this system
+# Look up X Toolkit app-resources directory for this system.
+# Overridden in Makefile.am for "make distcheck".
 xt_appdefaultdir=$("$PKG_CONFIG" --variable=appdefaultdir xt 2> /dev/null)
 # but if that fails, use a reasonable default.
 xt_appdefaultdir=${xt_appdefaultdir:-${datadir}/X11/app-defaults}
