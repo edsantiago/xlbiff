@@ -1,5 +1,6 @@
 AC_INIT([xlbiff], [4.3], [ed@edsantiago.com])
 AM_INIT_AUTOMAKE(foreign)
+AM_MAINTAINER_MODE(enable)
 AC_PROG_CC
 
 AC_DEFINE_UNQUOTED(XLBIFF_MAILPATH,
