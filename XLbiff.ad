@@ -1,7 +1,7 @@
 !
 ! XLbiff  --  Literate Biff, displays incoming mail, etc
 !
-*font:	-*-clean-bold-r-normal--13-130-75-75-c-80-iso8859-1
+*font:	-*-clean-bold-r-normal--13-130-75-75-c-80-iso646.1991-*
 !
 ! set these if you have a colour monitor, or put in your .Xdefaults
 !

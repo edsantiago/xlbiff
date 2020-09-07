@@ -153,17 +153,18 @@ HISTORY
   Where applicable, changes are attributed to the people who submitted
   the ideas and, in many cases, patches and source code.
 
- * Version 4.3  (1 Sept 2020)
-	+ Removed "international: True" X resource.
-	  This was added in 4.2 and changed font resources incompatibly.
-	  Users for whom "international" was useful, or who had already updated
-	  their resources to handle it, can get the 4.2 behavior back by adding
-	  the following line to an X Resources file or -xrm argument:
-	  *international: true
-	+ Changed default mail path directory to /var/mail from /usr/spool/mail
+ * Version 4.3  (7 Sept 2020)
+        + Removed "international: True" X resource.
+          This was added in 4.2 and changed font resources incompatibly.
+          Users for whom "international" was useful, or who had already updated
+          their resources to handle it, can get the 4.2 behavior back by adding
+          the following line to an X Resources file or -xrm argument:
+          *international: true
+        + Update default font resource with the font's current name
+        + Changed default mail path directory to /var/mail from /usr/spool/mail
         + Changed manual page name to xlbiff.1 from xlbiff.1x
         + Install xlbiff.form to /usr/local/share/mh, not /usr/new/lib/mh
-	+ Developers: Build proceess changed from Imake to Autotools.
+        + Developers: Build proceess changed from Imake to Autotools.
         + Developers: Assume modern C library and compiler.
 
   * Version 4.2  (16 May 2017)
