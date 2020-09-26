@@ -1,0 +1,18 @@
+#! /usr/bin/make -f
+
+# usage: dpkg-buildpackage -b -uc
+
+# uncomment for verbose mode
+#export DH_VERBOSE=1
+
+%:
+	dh $@
+
+override_dh_installdocs:
+	dh_installdocs Bcheck Bscan README README.bulk TODO
+
+# Sept 2020: dput fails when uploading -dbgsym package to
+# mentors.debian.net, so don't create it.
+# Remove when mentors is fixed or I no longer upload to mentors.
+override_dh_strip:
+	dh_strip --no-automatic-dbgsym

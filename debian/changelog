@@ -1,0 +1,112 @@
+xlbiff (4.3-1) unstable; urgency=low
+
+  * new maintainer (closes: #485647)
+  * new upstream version:
+    - rename manual page from xlbiff.1x to xlbiff.1
+    - change default mail path directory from /var/spool/mail to /var/mail
+    - update default font resource (#743835)
+  * distribute example bulk support files: README.bulk, Bcheck, Bscan
+  * remove xlbiff.form from /usr/share/doc; it is already in /usr/share/mh
+
+ -- Stephen Gildea <stepheng+debian@gildea.com>  Wed, 09 Sep 2020 21:01:52 -0700
+
+xlbiff (4.1-7) unstable; urgency=low
+
+  * set maintainer to Debian QA Group <packages@qa.debian.org>
+    package is orphaned (#485647)
+
+ -- Christoph Martin <christoph.martin@uni-mainz.de>  Tue, 24 May 2011 21:02:01 +0200
+
+xlbiff (4.1-6) unstable; urgency=low
+
+  * correct maintainer email
+
+ -- Christoph Martin <Christoph.Martin@Uni-Mainz.DE>  Wed, 18 Jun 2008 10:56:41 +0200
+
+xlbiff (4.1-5) unstable; urgency=low
+
+  * fix lintian warnings
+  * change to debhelper version 5
+  * bump standards version (no changes)
+  * change build-depends to xutils-dev (closes: #485713)
+  * remove call to strip (closes: #438303)
+
+ -- Christoph Martin <Christoph.Martin@Uni-Mainz.DE>  Tue, 17 Jun 2008 18:44:21 +0200
+
+xlbiff (4.1-4) unstable; urgency=low
+
+  * change paths from /usr/X11R6/ to /usr (closes: #395927)
+
+ -- Christoph Martin <christoph.martin@uni-mainz.de>  Mon, 30 Oct 2006 12:30:07 +0100
+
+xlbiff (4.1-3) unstable; urgency=low
+
+  * rebuild because arm autobuilder failed to build it because of a
+    misconfiguration of the autobuilder at that time and nobody of the
+    autobuilder maintainers reacted to my mails to have it rebuild
+  * (from 4.1-2) fix build process to make it run with x.org (closes:
+    #347146, #370326)
+
+ -- Christoph Martin <christoph.martin@uni-mainz.de>  Mon, 11 Sep 2006 15:25:01 +0200
+
+xlbiff (4.1-2) unstable; urgency=low
+
+  * fix build process to make it run with x.org (closes: #347146, #370326)
+
+ -- Christoph Martin <christoph.martin@uni-mainz.de>  Mon, 12 Jun 2006 14:11:54 +0200
+
+xlbiff (4.1-1) unstable; urgency=low
+
+  * new upstream version
+    + add *mailerCommand resource and functionality
+  * updated copyright and control information
+
+ -- Christoph Martin <christoph.martin@uni-mainz.de>  Mon, 17 Nov 2003 13:52:19 +0100
+
+xlbiff (3.0-7) unstable; urgency=low
+
+  * change default scancommand to full path of /usr/bin/mh/scan as it is
+    not in the PATH (closes: #139725)
+  * corrected spelling errors in description (closes: #125548)
+
+ -- Christoph Martin <christoph.martin@uni-mainz.de>  Fri,  4 Oct 2002 17:43:19 +0200
+
+xlbiff (3.0-6) unstable; urgency=low
+
+  * added missing builddepends (closes: #119832)
+
+ -- Christoph Martin <christoph.martin@uni-mainz.de>  Sat, 10 Nov 2001 16:05:54 +0100
+
+xlbiff (3.0-5) unstable; urgency=low
+
+  * depend on nmh | mh (closes: #118685)
+  * don't include /usr/X11R6/lib/X11/app-defaults (closes: #91958)
+
+ -- Christoph Martin <christoph.martin@uni-mainz.de>  Thu,  8 Nov 2001 17:58:48 +0100
+
+xlbiff (3.0-4) unstable; urgency=high
+
+  * build for xfree86-4 (closes: #86311)
+  * introduce dephelpers
+
+ -- Christoph Martin <christoph.martin@uni-mainz.de>  Sat, 17 Feb 2001 15:36:02 +0100
+
+xlbiff (3.0-3) unstable; urgency=low
+
+  * Added copyright notice (Bug #21942), no changes in the code or install
+    scripts
+
+ -- Christoph Martin <christoph.martin@uni-mainz.de>  Fri, 19 Jun 1998 16:34:46 +0200
+
+xlbiff (3.0-2) frozen unstable; urgency=low
+
+  * Corrected synopsis line (bug #18034)
+  * Corrected some permissions lintian warns about
+
+ -- Christoph Martin <christoph.martin@uni-mainz.de>  Sat, 28 Mar 1998 13:40:52 +0100
+
+xlbiff (3.0-1) unstable; urgency=low
+
+  * Initial Release.
+
+ -- Christoph Martin <christoph.martin@uni-mainz.de>  Fri, 16 Jan 1998 21:48:57 +0100
