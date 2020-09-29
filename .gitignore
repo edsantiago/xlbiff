@@ -17,3 +17,8 @@ xlbiff.o
 xlbiff
 XLbiff
 xlbiff-*.tar.gz
+debian/.debhelper/
+debian/autoreconf.*
+debian/debhelper-build-stamp
+debian/files
+debian/xlbiff*

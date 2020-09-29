@@ -1,3 +1,11 @@
+xlbiff (4.3-2) unstable; urgency=low
+
+  * debian/watch file added
+  * Homepage field added to debian/control
+  * dh_strip --no-automatic-dbgsym removed from debian/rules
+
+ -- Stephen Gildea <stepheng+debian@gildea.com>  Sat, 26 Sep 2020 15:29:45 -0700
+
 xlbiff (4.3-1) unstable; urgency=low
 
   * new maintainer (closes: #485647)

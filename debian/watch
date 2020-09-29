@@ -1,0 +1,11 @@
+# Test with: uscan --no-download --verbose
+version=4
+# Older releases used "pl" (patchlevel) and "t" (tiny); change these into dots.
+# The matching-pattern intentionally excludes debian/ tags.
+opts=filenamemangle=s/.+\/([^\/]+)\/archive\/v?(\d\S+)\.tar\.gz/$1-$2.tar.gz/;\
+       s/(pl|t)(\d)/.$2/g;\
+       s/beta/~beta/,\
+     uversionmangle=\
+       s/(pl|t)(\d)/.$2/g;\
+       s/beta/~beta/ \
+  https://github.com/edsantiago/xlbiff/tags .+/archive/v?(\d\S+)\.tar\.gz
