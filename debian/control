@@ -1,0 +1,29 @@
+Source: xlbiff
+Section: mail
+Priority: optional
+Maintainer: Stephen Gildea <stepheng+debian@gildea.com>
+Rules-Requires-Root: no
+Standards-Version: 4.5.0
+Vcs-Git: https://github.com/edsantiago/xlbiff
+Vcs-Browser: https://github.com/edsantiago/xlbiff
+Homepage: http://www.edsantiago.com/xlbiff/
+Build-Depends:
+ debhelper (>= 10),
+ pkg-config,
+ libxaw7-dev,
+ libxt-dev,
+ libx11-dev
+
+Package: xlbiff
+Architecture: any
+Depends: ${misc:Depends}, ${shlibs:Depends}, nmh
+Description: Displays From and Subject lines of your new mail
+ Xlbiff lurks in the background, monitoring your mailbox file (normally
+ /var/mail/<yourusername>).  When something shows up there, it
+ invokes the MH scan(1) command and displays the output in a window.
+ If more mail comes in, it scans again and resizes accordingly.
+ .
+ Clicking the left mouse button anywhere in the window causes it to
+ vanish.  It will also vanish if you inc(1) and the mailbox becomes
+ empty.  Xlbiff is modeled after xconsole -- its job is to sit invisibly
+ and pop up only when something demands your attention.

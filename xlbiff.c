@@ -193,7 +193,7 @@ static XrmOptionDescRec	optionDescList[] = {
 };
 
 static char *fallback_resources[] = {
-    "*Font:		-*-clean-bold-r-normal--13-130-75-75-c-80-iso8859-1",
+    "*Font:		-*-clean-bold-r-normal--13-130-75-75-c-80-iso646.1991-*",
     "*Geometry:		+0-0",
     NULL
 };

@@ -1,0 +1,12 @@
+#! /usr/bin/make -f
+
+# usage: dpkg-buildpackage -b -uc
+
+# uncomment for verbose mode
+#export DH_VERBOSE=1
+
+%:
+	dh $@
+
+override_dh_installdocs:
+	dh_installdocs Bcheck Bscan README README.bulk TODO
