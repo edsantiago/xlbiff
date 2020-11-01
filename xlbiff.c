@@ -96,6 +96,7 @@ void	getDimensions(char*,Dimension*,Dimension*);
 void	toggle_key_led(int);
 void	ErrExit(Boolean,char*);
 Bool	CheckEvent(Display*,XEvent*,caddr_t);
+waitType popen_nmh(char *cmd, int bufsize, char **buf_out, size_t *size_out);
 
 /*****************************************************************************\
 **                                 globals				     **
@@ -143,7 +144,7 @@ static XtResource	xlbiff_resources[] = {
     { "checkCommand", "CheckCommand", XtRString, sizeof(String),
 	offset(checkCmd), XtRString, NULL},
     { "scanCommand", "ScanCommand", XtRString, sizeof(String),
-	offset(cmd), XtRString, "scan -file %s -width %d" },
+	offset(cmd), XtRString, "scan -file %s -width %d 2>&1" },
     { "mailerCommand", "MailerCommand", XtRString, sizeof(String),
 	offset(mailerCmd), XtRString, NULL },
     { "update", "Interval", XtRInt, sizeof(int),
@@ -417,9 +418,9 @@ checksize()
     ** time we called it.
     */
     if (lbiff_data.checkCmd != NULL && lbiff_data.checkCmd[0] != '\0') {
-	FILE        *p;
 	waitType     status;
-	char	     outbuf[80];
+	int          outbuf_size = 80;
+	static char *outbuf;
 	static char *cmd_buf;
 	static int   previous;
 
@@ -429,22 +430,18 @@ checksize()
 	    if (cmd_buf == NULL)
 	      ErrExit(True,"scan command buffer malloc()");
 	}
+	if (outbuf == NULL) {
+	    outbuf = (char*)malloc(outbuf_size);
+	    if (outbuf == NULL)
+	      ErrExit(True,"check output buffer malloc()");
+	}
 
 	sprintf(cmd_buf, lbiff_data.checkCmd, lbiff_data.file, previous);
 	DP(("++checkCommand= %s\n",cmd_buf));
 
-	if ((p= popen(cmd_buf,"r")) == NULL)
-	  ErrExit(True,"popen(checkCommand)");
-	if (fread(outbuf,1,sizeof outbuf,p) <= 0)
-	  ErrExit(True,"fread(checkCommand)");
+	status = popen_nmh(cmd_buf, outbuf_size, &outbuf, NULL);
 	previous = atol(outbuf);
 	DP(("checkCommand returns %d\n",previous));
-
-#ifdef	INTWAITTYPE
-	status = 	  pclose(p);
-#else
-	status.w_status = pclose(p);
-#endif
 	switch (waitCode(status)) {
 	case 0:					/* 0: new data */
 	    mailstat.st_size = mailsize + 1;
@@ -578,7 +575,6 @@ doScan()
     static char *buf = NULL;
     static int	bufsize;
     static char scan_fail_msg[] = "\n---->>>> scanCommand failed <<<<<----\n";
-    FILE 	*p;
     size_t	size;
     waitType	status;
 
@@ -609,24 +605,8 @@ doScan()
 
     /*
     ** Execute the command, read the results, then set the contents of window.
-    ** If there is data remaining in the pipe, read it in (and throw it away)
-    ** so our exit status is correct (eg, not "Broken pipe").
     */
-    if ((p= popen(cmd_buf,"r")) == NULL)
-      ErrExit(True,"popen");
-    if ((size= fread(buf,1,bufsize,p)) < 0)
-      ErrExit(True,"fread");
-    if (size == bufsize) {
-	char junkbuf[100];
-	while (fread(junkbuf, 1, 100, p) > 0)
-	  ;	/* Keep reading until no more left */
-    }
-
-#ifdef	INTWAITTYPE
-    status = 		pclose(p);
-#else
-    status.w_status =	pclose(p);
-#endif
+    status = popen_nmh(cmd_buf, bufsize, &buf, &size);
     if (waitCode(status) != 0) {
 	strcpy(buf+size, scan_fail_msg);
 	size += strlen(scan_fail_msg);
@@ -971,4 +951,109 @@ ErrExit(Boolean errno_valid, char *s)
     XCloseDisplay(XtDisplay(topLevel));
 
     exit(1);
+}
+
+waitType
+popen_simple(char *cmd, int bufsize, char **buf_out, size_t *size_out)
+{
+    FILE 	*p;
+    size_t      read_size;
+    waitType status;
+    /*
+    ** Execute the command and read the results.
+    ** If there is data remaining in the pipe, read it in (and throw it away)
+    ** so our exit status is correct (eg, not "Broken pipe").
+    */
+    if ((p= popen(cmd,"r")) == NULL)
+        ErrExit(True,"popen");
+    read_size= fread(*buf_out,1,bufsize,p);
+    if (read_size == bufsize) {
+	char junkbuf[100];
+	while (fread(junkbuf, 1, 100, p) > 0)
+	    ;	/* Keep reading until no more left */
+    }
+
+#ifdef	INTWAITTYPE
+    status = 		pclose(p);
+#else
+    status.w_status =	pclose(p);
+#endif
+
+    if (size_out) {
+        *size_out = read_size;
+    }
+    return status;
+}
+
+/***************\
+|*  popen_nmh  *|  invoke a command to check or scan
+|***************
+|*      Executes a command, returning its stdout.
+|*      Does nmh initialization if necessary, so nmh commands such as "scan"
+|*      work even if the user has not run install-mh.
+|*      Handling this case here means xlbiff works out of the box.
+\*/
+#define PROFILE_TEMPLATE "xlbiff-mh-profile-XXXXXX"
+waitType
+popen_nmh(char *cmd, int bufsize, char **buf_out, size_t *size_out)
+{
+    static Bool need_mh_profile = False;
+    waitType status;
+    char *profile_name;
+    char *tmpdir_name;
+    char slash_tmp[] = "/tmp";
+    int namelen;
+    int profile_fd;
+    FILE *profile_stream;
+
+    if (!need_mh_profile) {
+        status = popen_simple(cmd, bufsize, buf_out, size_out);
+        if (waitCode(status) == 0) {
+          return status;
+        }
+        /* If an MH profile file is missing, scan (and all other nmh programs)
+         * give the error "Doesn't look like nmh is installed.
+         * Run install-mh to do so."
+         * This misleadingly implies the nmh package is not installed
+         * on the system, but in fact means that the user does not have
+         * a ~/.mh_profile file created yet.
+         * We handle this case so that xlbiff works out of the box.
+         */
+        if (strstr(*buf_out, "Doesn't look like nmh is installed.") == NULL) {
+          /* failed for some other reason */
+          return status;
+        }
+    }
+    need_mh_profile = True;
+
+    /* Create a temporary MH profile file */
+
+    tmpdir_name = getenv("TMPDIR");
+    if (tmpdir_name == NULL || strlen(tmpdir_name) == 0)
+      tmpdir_name = slash_tmp;
+    namelen = strlen(tmpdir_name) + 1 + strlen(PROFILE_TEMPLATE) + 1;
+    profile_name = (char*)malloc(namelen);
+    if (profile_name == NULL)
+      ErrExit(True,"profile_name malloc()");
+    strcpy(profile_name, tmpdir_name);
+    strcat(profile_name, "/");
+    strcat(profile_name, PROFILE_TEMPLATE);
+
+    profile_fd = mkstemp(profile_name);
+    DP(("created profile_name = %s\n", profile_name));
+    profile_stream = fdopen(profile_fd, "w");
+    fprintf(profile_stream, "Path: %s\nWelcome: disable\n", tmpdir_name);
+    fclose(profile_stream);
+
+    setenv("MH", profile_name, /*overwrite=*/1);
+
+    /* try again to run the command */
+
+    status = popen_simple(cmd, bufsize, buf_out, size_out);
+
+    unsetenv("MH");
+    unlink(profile_name);
+    free(profile_name);
+
+    return status;
 }
