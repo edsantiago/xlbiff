@@ -1051,6 +1051,9 @@ popen_nmh(char *cmd, int bufsize, char **buf_out, size_t *size_out)
 
     status = popen_simple(cmd, bufsize, buf_out, size_out);
 
+    /* Remove our temporary profile so that if the user later runs install-mh,
+     * we will notice and use their profile.
+     */
     unsetenv("MH");
     unlink(profile_name);
     free(profile_name);
