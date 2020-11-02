@@ -1,0 +1,3 @@
+Test-Command: TMPDIR="$AUTOPKGTEST_TMP" ./test-scan-interface.sh --logdir "$AUTOPKGTEST_ARTIFACTS" /usr/bin/xlbiff
+Features: test-name=scantest
+Depends: @, xvfb, xauth
