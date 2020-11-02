@@ -16,7 +16,7 @@ Build-Depends:
 
 Package: xlbiff
 Architecture: any
-Depends: ${misc:Depends}, ${shlibs:Depends}, nmh
+Depends: ${misc:Depends}, ${shlibs:Depends}, xfonts-base, nmh
 Description: Displays From and Subject lines of your new mail
  Xlbiff lurks in the background, monitoring your mailbox file (normally
  /var/mail/<yourusername>).  When something shows up there, it
