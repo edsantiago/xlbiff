@@ -5,6 +5,10 @@
 # uncomment for verbose mode
 #export DH_VERBOSE=1
 
+# A hardened binary may start more slowly, but that is acceptable for
+# a long-running process such as this one.
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+
 %:
 	dh $@
 
