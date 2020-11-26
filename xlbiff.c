@@ -997,7 +997,6 @@ popen_simple(char *cmd, int bufsize, char **buf_out, size_t *size_out)
 waitType
 popen_nmh(char *cmd, int bufsize, char **buf_out, size_t *size_out)
 {
-    static Bool need_mh_profile = False;
     waitType status;
     char *profile_name;
     char *tmpdir_name;
@@ -1006,25 +1005,22 @@ popen_nmh(char *cmd, int bufsize, char **buf_out, size_t *size_out)
     int profile_fd;
     FILE *profile_stream;
 
-    if (!need_mh_profile) {
-        status = popen_simple(cmd, bufsize, buf_out, size_out);
-        if (waitCode(status) == 0) {
-          return status;
-        }
-        /* If an MH profile file is missing, scan (and all other nmh programs)
-         * give the error "Doesn't look like nmh is installed.
-         * Run install-mh to do so."
-         * This misleadingly implies the nmh package is not installed
-         * on the system, but in fact means that the user does not have
-         * a ~/.mh_profile file created yet.
-         * We handle this case so that xlbiff works out of the box.
-         */
-        if (strstr(*buf_out, "Doesn't look like nmh is installed.") == NULL) {
-          /* failed for some other reason */
-          return status;
-        }
+    status = popen_simple(cmd, bufsize, buf_out, size_out);
+    if (waitCode(status) == 0) {
+      return status;
     }
-    need_mh_profile = True;
+    /* If an MH profile file is missing, scan (and all other nmh programs)
+     * give the error "Doesn't look like nmh is installed.
+     * Run install-mh to do so."
+     * This misleadingly implies the nmh package is not installed
+     * on the system, but in fact means that the user does not have
+     * a ~/.mh_profile file created yet.
+     * We handle this case so that xlbiff works out of the box.
+     */
+    if (strstr(*buf_out, "Doesn't look like nmh is installed.") == NULL) {
+      /* failed for some other reason */
+      return status;
+    }
 
     /* Create a temporary MH profile file */
 
