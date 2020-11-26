@@ -132,65 +132,65 @@ typedef struct {
     Boolean	ledPopdown;		/* turn off LED on popdown?	*/
     char	*sound;			/* Sound file to use		*/
 } AppData, *AppDataPtr;
-AppData		lbiff_data;
+AppData lbiff_data;
 
-#define offset(field) XtOffset(AppDataPtr,field)
+#define offset(field) XtOffset(AppDataPtr, field)
 
 static XtResource xlbiff_resources[] = {
-    { "debug", "Debug", XtRBoolean, sizeof(Boolean),
+    {"debug", "Debug", XtRBoolean, sizeof(Boolean),
       offset(debug), XtRImmediate, False},
-    { "file", "File", XtRString, sizeof(String),
+    {"file", "File", XtRString, sizeof(String),
       offset(file), XtRString, NULL},
-    { "checkCommand", "CheckCommand", XtRString, sizeof(String),
+    {"checkCommand", "CheckCommand", XtRString, sizeof(String),
       offset(checkCmd), XtRString, NULL},
-    { "scanCommand", "ScanCommand", XtRString, sizeof(String),
-      offset(cmd), XtRString, "scan -file %s -width %d 2>&1" },
-    { "mailerCommand", "MailerCommand", XtRString, sizeof(String),
+    {"scanCommand", "ScanCommand", XtRString, sizeof(String),
+      offset(cmd), XtRString, "scan -file %s -width %d 2>&1"},
+    {"mailerCommand", "MailerCommand", XtRString, sizeof(String),
       offset(mailerCmd), XtRString, NULL },
-    { "update", "Interval", XtRInt, sizeof(int),
+    {"update", "Interval", XtRInt, sizeof(int),
       offset(update), XtRImmediate, (XtPointer)15},
-    { "fade", "Fade", XtRInt, sizeof(int),
+    {"fade", "Fade", XtRInt, sizeof(int),
       offset(fade), XtRImmediate, (XtPointer)0},
-    { "columns", "Columns", XtRInt, sizeof(int),
+    {"columns", "Columns", XtRInt, sizeof(int),
       offset(columns), XtRImmediate, (XtPointer)80},
-    { "rows", "Rows", XtRInt, sizeof(int),
+    {"rows", "Rows", XtRInt, sizeof(int),
       offset(rows), XtRImmediate, (XtPointer)20},
-    { "sound", "Sound", XtRString, sizeof(String),
-      offset(sound), XtRString, "" },
-    { "volume", "Volume", XtRInt, sizeof(int),
+    {"sound", "Sound", XtRString, sizeof(String),
+      offset(sound), XtRString, ""},
+    {"volume", "Volume", XtRInt, sizeof(int),
       offset(volume), XtRImmediate, (XtPointer)100},
-    { "bottom", "Bottom", XtRBoolean, sizeof(Boolean),
+    {"bottom", "Bottom", XtRBoolean, sizeof(Boolean),
       offset(bottom), XtRImmediate, False},
-    { "resetSaver", "ResetSaver", XtRBoolean, sizeof(Boolean),
+    {"resetSaver", "ResetSaver", XtRBoolean, sizeof(Boolean),
       offset(resetSaver), XtRImmediate, False},
-    { "refresh", "Refresh", XtRInt, sizeof(int),
+    {"refresh", "Refresh", XtRInt, sizeof(int),
       offset(refresh), XtRImmediate, (XtPointer)1800},
-    { "led", "Led", XtRInt, sizeof(int),
+    {"led", "Led", XtRInt, sizeof(int),
       offset(led), XtRImmediate, (XtPointer)0},
-    { "ledPopdown", "LedPopdown", XtRBoolean, sizeof(Boolean),
+    {"ledPopdown", "LedPopdown", XtRBoolean, sizeof(Boolean),
       offset(ledPopdown), XtRImmediate, False}
 };
 
 static XrmOptionDescRec optionDescList[] = {
-    { "-bottom",      ".bottom",      XrmoptionNoArg,	(caddr_t) "true"},
-    { "+bottom",      ".bottom",      XrmoptionNoArg,	(caddr_t) "false"},
-    { "-debug",       ".debug",	      XrmoptionNoArg,	(caddr_t) "true"},
-    { "-file",	      ".file",        XrmoptionSepArg,	(caddr_t) NULL},
-    { "-rows",        ".rows",	      XrmoptionSepArg,	(caddr_t) NULL},
-    { "-columns",     ".columns",     XrmoptionSepArg,	(caddr_t) NULL},
-    { "-update",      ".update",      XrmoptionSepArg,	(caddr_t) NULL},
-    { "-fade",	      ".fade",        XrmoptionSepArg,	(caddr_t) NULL},
-    { "-volume",      ".volume",      XrmoptionSepArg,	(caddr_t) NULL},
-    { "-resetSaver",  ".resetSaver",  XrmoptionNoArg,	(caddr_t) "true"},
-    { "+resetSaver",  ".resetSaver",  XrmoptionNoArg,	(caddr_t) "false"},
-    { "-refresh",     ".refresh",     XrmoptionSepArg,	(caddr_t) NULL},
-    { "-led",         ".led",         XrmoptionSepArg,	(caddr_t) NULL},
-    { "-ledPopdown",  ".ledPopdown",  XrmoptionNoArg,	(caddr_t) "true"},
-    { "+ledPopdown",  ".ledPopdown",  XrmoptionNoArg,	(caddr_t) "false"},
-    { "-sound",	      ".sound",       XrmoptionSepArg,  (caddr_t) NULL},
-    { "-scanCommand", ".scanCommand", XrmoptionSepArg,	(caddr_t) NULL},
-    { "-mailerCommand",".mailerCommand",XrmoptionSepArg,(caddr_t) NULL},
-    { "-checkCommand",".checkCommand",XrmoptionSepArg,  (caddr_t) NULL}
+    {"-bottom",      ".bottom",      XrmoptionNoArg,	(caddr_t) "true"},
+    {"+bottom",      ".bottom",      XrmoptionNoArg,	(caddr_t) "false"},
+    {"-debug",       ".debug",	      XrmoptionNoArg,	(caddr_t) "true"},
+    {"-file",	      ".file",        XrmoptionSepArg,	(caddr_t) NULL},
+    {"-rows",        ".rows",	      XrmoptionSepArg,	(caddr_t) NULL},
+    {"-columns",     ".columns",     XrmoptionSepArg,	(caddr_t) NULL},
+    {"-update",      ".update",      XrmoptionSepArg,	(caddr_t) NULL},
+    {"-fade",	      ".fade",        XrmoptionSepArg,	(caddr_t) NULL},
+    {"-volume",      ".volume",      XrmoptionSepArg,	(caddr_t) NULL},
+    {"-resetSaver",  ".resetSaver",  XrmoptionNoArg,	(caddr_t) "true"},
+    {"+resetSaver",  ".resetSaver",  XrmoptionNoArg,	(caddr_t) "false"},
+    {"-refresh",     ".refresh",     XrmoptionSepArg,	(caddr_t) NULL},
+    {"-led",         ".led",         XrmoptionSepArg,	(caddr_t) NULL},
+    {"-ledPopdown",  ".ledPopdown",  XrmoptionNoArg,	(caddr_t) "true"},
+    {"+ledPopdown",  ".ledPopdown",  XrmoptionNoArg,	(caddr_t) "false"},
+    {"-sound",	      ".sound",       XrmoptionSepArg,  (caddr_t) NULL},
+    {"-scanCommand", ".scanCommand", XrmoptionSepArg,	(caddr_t) NULL},
+    {"-mailerCommand",".mailerCommand",XrmoptionSepArg,(caddr_t) NULL},
+    {"-checkCommand",".checkCommand",XrmoptionSepArg,  (caddr_t) NULL}
 };
 
 static char *fallback_resources[] = {
@@ -233,24 +233,24 @@ main(int argc, char *argv[])
 
 #ifndef DEBUG
     if (lbiff_data.debug)
-        fprintf(stderr,"%s: DEBUG support not compiled in, sorry\n",progname);
+        fprintf(stderr, "%s: DEBUG support not compiled in, sorry\n", progname);
 #endif
 
     /*
     ** Check command line arguments
     */
     if (argc > 1) {
-        if (!strncmp(argv[1],"-version",strlen(argv[1]))) {
+        if (!strncmp(argv[1], "-version", strlen(argv[1]))) {
             fprintf(stderr, "%s version %s\n", progname, VERSION);
             exit(0);
-        } else if (!strncmp(argv[1],"-help",strlen(argv[1]))) {
+        } else if (!strncmp(argv[1], "-help", strlen(argv[1]))) {
             Usage();
         } else if (argv[1][0] != '-') {
             lbiff_data.file = argv[1];
         } else {
             fprintf(stderr,
                     "%s: no such option \"%s\", type '%s -help' for help\n",
-                    progname,argv[1],progname);
+                    progname, argv[1], progname);
             exit(1);
         }
     }
@@ -262,7 +262,7 @@ main(int argc, char *argv[])
         char *username = getlogin();
 
         if (username == NULL || username[0] == '\0') {
-            struct passwd  *pwd = getpwuid(getuid());
+            struct passwd *pwd = getpwuid(getuid());
 
             if (pwd == NULL) {
                 fprintf(stderr, "%s: cannot get username\n", progname);
@@ -271,15 +271,15 @@ main(int argc, char *argv[])
             username = pwd->pw_name;
         }
 
-        default_file = (char*)malloc(strlen(XLBIFF_MAILPATH)
-                                     + strlen(username));
+        default_file =
+            (char *)malloc(strlen(XLBIFF_MAILPATH) + strlen(username));
         if (default_file == NULL)
-            ErrExit(True,"default_file malloc()");
+            ErrExit(True, "default_file malloc()");
 
-        sprintf(default_file,XLBIFF_MAILPATH,username);
+        sprintf(default_file, XLBIFF_MAILPATH, username);
         lbiff_data.file = default_file;
     }
-    DP(("file= %s\n",lbiff_data.file));
+    DP(("file= %s\n", lbiff_data.file));
 
     if (lbiff_data.cmd == NULL || lbiff_data.cmd[0] == '\0') {
         fprintf(stderr, "%s: empty scanCommand will not work\n", progname);
@@ -290,8 +290,9 @@ main(int argc, char *argv[])
     ** Fix DISPLAY environment variable, might be needed by subprocesses
     */
     {
-        char *envstr = (char*)malloc(strlen("DISPLAY=") + 1
-                                     + strlen(XDisplayString(XtDisplay(topLevel))));
+        char *envstr =
+            (char *)malloc(strlen("DISPLAY=") + 1 +
+                           strlen(XDisplayString(XtDisplay(topLevel))));
 
         sprintf(envstr, "DISPLAY=%s", XDisplayString(XtDisplay(topLevel)));
         putenv(envstr);
@@ -307,11 +308,11 @@ main(int argc, char *argv[])
     XtAddEventHandler(topLevel, StructureNotifyMask, False,
                       (XtEventHandler)Shrink, (caddr_t)NULL);
 
-    XtOverrideTranslations(topLevel,
-                           XtParseTranslationTable ("<Message>WM_PROTOCOLS: exit()"));
+    XtOverrideTranslations(
+        topLevel, XtParseTranslationTable("<Message>WM_PROTOCOLS: exit()"));
 
-    wm_delete_window = XInternAtom (XtDisplay(topLevel), "WM_DELETE_WINDOW",
-                                    False);
+    wm_delete_window =
+        XInternAtom(XtDisplay(topLevel), "WM_DELETE_WINDOW", False);
 
     toggle_key_led(False);
 
@@ -319,7 +320,7 @@ main(int argc, char *argv[])
     ** check to see if there's something to do, pop up window if necessary,
     ** and set up alarm to wake us up again every so often.
     */
-    handler(NULL,NULL);
+    handler(NULL, NULL);
 
     /*
     ** main program loop  --  mostly just loops forever waiting for events
@@ -359,7 +360,7 @@ Usage()
     char **s;
 
     printf("usage:\t%s  [-options ...]  [file to watch]\n", progname);
-    for (s= help_message; *s; s++)
+    for (s = help_message; *s; s++)
         printf("%s\n", *s);
     printf("\n");
     exit(1);
@@ -377,7 +378,7 @@ Exit(Widget w, XEvent *event, String *params, Cardinal *num_params)
     if (event->type == ClientMessage) {
         if (event->xclient.data.l[0] != wm_delete_window) {
             DP(("received client message that was not delete_window\n"));
-            XBell (XtDisplay(w), 0);
+            XBell(XtDisplay(w), 0);
             return;
         } else
             DP(("exiting after receiving a wm_delete_window message\n"));
@@ -429,23 +430,23 @@ checksize()
         static int   previous;
 
         if (cmd_buf == NULL) {
-            cmd_buf = (char*)malloc(strlen(lbiff_data.checkCmd) +
-                                    strlen(lbiff_data.file) + 10);
+            cmd_buf = (char *)malloc(strlen(lbiff_data.checkCmd) +
+                                     strlen(lbiff_data.file) + 10);
             if (cmd_buf == NULL)
-                ErrExit(True,"scan command buffer malloc()");
+                ErrExit(True, "scan command buffer malloc()");
         }
         if (outbuf == NULL) {
-            outbuf = (char*)malloc(outbuf_size);
+            outbuf = (char *)malloc(outbuf_size);
             if (outbuf == NULL)
-                ErrExit(True,"check output buffer malloc()");
+                ErrExit(True, "check output buffer malloc()");
         }
 
         sprintf(cmd_buf, lbiff_data.checkCmd, lbiff_data.file, previous);
-        DP(("++checkCommand= %s\n",cmd_buf));
+        DP(("++checkCommand= %s\n", cmd_buf));
 
         status = popen_nmh(cmd_buf, outbuf_size, &outbuf, NULL);
         previous = atol(outbuf);
-        DP(("checkCommand returns %d\n",previous));
+        DP(("checkCommand returns %d\n", previous));
         switch (waitCode(status)) {
         case 0:					/* 0: new data */
             mailstat.st_size = mailsize + 1;
@@ -472,8 +473,8 @@ checksize()
         ** Doubtless there are errors we should complain about, but this
         ** would get too ugly.
         */
-        if (stat(lbiff_data.file,&mailstat) != 0) {
-            DP(("stat() failed, errno=%d.  Assuming filesize=0!\n",errno));
+        if (stat(lbiff_data.file, &mailstat) != 0) {
+            DP(("stat() failed, errno=%d.  Assuming filesize=0!\n", errno));
             mailstat.st_size = 0;
         }
     }
@@ -482,15 +483,15 @@ checksize()
     ** If it's changed size, take appropriate action.
     */
     if (mailstat.st_size != mailsize) {
-        DP(("changed size: %d -> %d\n",mailsize,(int)mailstat.st_size));
+        DP(("changed size: %d -> %d\n", mailsize, (int)mailstat.st_size));
         mailsize = mailstat.st_size;
         pop_window = True;
     } else if (!visible && lbiff_data.refresh && mailsize != 0) {
         /*
         ** If window has been popped down, check if it's time to refresh
         */
-        if (gettimeofday(&tp,&tzp) != 0) {
-            ErrExit(True,"gettimeofday() in checksize()");
+        if (gettimeofday(&tp, &tzp) != 0) {
+            ErrExit(True, "gettimeofday() in checksize()");
         } else {
             if ((tp.tv_sec - acknowledge_time) > lbiff_data.refresh) {
                 DP(("reposting window, repost time reached\n"));
@@ -503,13 +504,12 @@ checksize()
         ** if so, popdown window
         ** if fade is zero, do not pop down
         */
-        if (gettimeofday(&tp,&tzp) != 0) {
-            ErrExit(True,"gettimeofday() in checksize()");
+        if (gettimeofday(&tp, &tzp) != 0) {
+            ErrExit(True, "gettimeofday() in checksize()");
         } else if (lbiff_data.fade > 0) {
             if ((tp.tv_sec - popup_time) > lbiff_data.fade) lbiffUnrealize();
         }
     }
-
 
     if (pop_window) {
         if (mailsize == 0) {
@@ -562,7 +562,7 @@ void
 handler(XtPointer closure, XtIntervalId *id)
 {
     checksize();
-    XtAppAddTimeOut(app_context,lbiff_data.update * 1000, handler, NULL);
+    XtAppAddTimeOut(app_context, lbiff_data.update * 1000, handler, NULL);
 }
 
 
@@ -575,7 +575,7 @@ handler(XtPointer closure, XtIntervalId *id)
 char *
 doScan()
 {
-    static char	*cmd_buf;
+    static char *cmd_buf;
     static char *buf = NULL;
     static int	bufsize;
     static char scan_fail_msg[] = "\n---->>>> scanCommand failed <<<<<----\n";
@@ -592,19 +592,19 @@ doScan()
         /* +1 for the newline */
         bufsize = (lbiff_data.columns + 1) * lbiff_data.rows;
 
-        buf = (char*)malloc(bufsize + sizeof(scan_fail_msg) + 1);
+        buf = (char *)malloc(bufsize + sizeof(scan_fail_msg) + 1);
         if (buf == NULL)
-            ErrExit(True,"text buffer malloc()");
+            ErrExit(True, "text buffer malloc()");
 
         DP(("---size= %dx%d\n", lbiff_data.rows, lbiff_data.columns));
 
-        cmd_buf = (char*)malloc(strlen(lbiff_data.cmd) +
-                                strlen(lbiff_data.file) + 10);
+        cmd_buf = (char *)malloc(strlen(lbiff_data.cmd) +
+                                 strlen(lbiff_data.file) + 10);
         if (cmd_buf == NULL)
-            ErrExit(True,"command buffer malloc()");
+            ErrExit(True, "command buffer malloc()");
 
-        sprintf(cmd_buf,lbiff_data.cmd, lbiff_data.file, lbiff_data.columns);
-        DP(("---cmd= %s\n",cmd_buf));
+        sprintf(cmd_buf, lbiff_data.cmd, lbiff_data.file, lbiff_data.columns);
+        DP(("---cmd= %s\n", cmd_buf));
     }
 
     /*
@@ -612,13 +612,13 @@ doScan()
     */
     status = popen_nmh(cmd_buf, bufsize, &buf, &size);
     if (waitCode(status) != 0) {
-        strcpy(buf+size, scan_fail_msg);
+        strcpy(buf + size, scan_fail_msg);
         size += strlen(scan_fail_msg);
     }
 
     buf[size] = '\0';				/* null-terminate it! */
 
-    DP(("scanned:\n%s\n",buf));
+    DP(("scanned:\n%s\n", buf));
     return buf;
 }
 
@@ -652,12 +652,12 @@ Shrink(Widget w, caddr_t data, XEvent *e, Boolean *b)
 {
     DP(("++Shrink(event type %d)\n", e->type));
     if (e->type == MapNotify || e->type == UnmapNotify) {
-        int    event_seen = 0;
+        int event_seen = 0;
         Window win = e->xmap.window;
 
-        memcpy((char*)&lastEvent,(char*)e,sizeof(XEvent));
+        memcpy((char *)&lastEvent, (char *)e, sizeof(XEvent));
 
-        XSync(XtDisplay(w),False);
+        XSync(XtDisplay(w), False);
 
         while(XCheckIfEvent(XtDisplay(w),&lastEvent,CheckEvent,(caddr_t)win))
             event_seen = 1;
@@ -703,8 +703,8 @@ Popdown()
     /*
     ** Remember when we were popped down so we can refresh later
     */
-    if (gettimeofday(&tp,&tzp) != 0)
-        ErrExit(True,"gettimeofday() in lbiffUnrealize()");
+    if (gettimeofday(&tp, &tzp) != 0)
+        ErrExit(True, "gettimeofday() in lbiffUnrealize()");
 
     acknowledge_time = tp.tv_sec;
 
@@ -724,8 +724,8 @@ Popup()
     /*
     ** Remember when we were popped up so we can fade later
     */
-    if (gettimeofday(&tp,&tzp) != 0)
-        ErrExit(True,"gettimeofday() in Popup()");
+    if (gettimeofday(&tp, &tzp) != 0)
+        ErrExit(True, "gettimeofday() in Popup()");
     popup_time = tp.tv_sec;
 
     if (hasdata && !visible) {
@@ -758,9 +758,9 @@ lbiffUnrealize()
 void
 lbiffRealize(char *s)
 {
-    Arg		args[4];
-    int		n;
-    static int	first_time = 1;
+    Arg args[4];
+    int n;
+    static int first_time = 1;
 
     DP(("++lbiffRealize()\n"));
 
@@ -768,7 +768,7 @@ lbiffRealize(char *s)
     ** Set the contents of the window
     */
     n = 0;
-    XtSetArg(args[n],XtNlabel,s); n++;
+    XtSetArg(args[n], XtNlabel,s); n++;
     XtSetValues(textBox, args, n);
 
     /*
@@ -777,9 +777,9 @@ lbiffRealize(char *s)
     ** properly at the bottom of the screen.
     */
     if (lbiff_data.bottom) {
-        Dimension width,height;
+        Dimension width, height;
 
-        getDimensions(s,&width,&height);
+        getDimensions(s, &width, &height);
 
         n = 0;
         XtSetArg(args[n], XtNwidth, width); n++;
@@ -793,11 +793,10 @@ lbiffRealize(char *s)
 
     if (first_time) {
         /* first time through this code */
-        (void) XSetWMProtocols (XtDisplay(topLevel), XtWindow(topLevel),
-                                &wm_delete_window, 1);
+        (void)XSetWMProtocols(XtDisplay(topLevel), XtWindow(topLevel),
+                              &wm_delete_window, 1);
         first_time = 0;
     }
-
 
     if (lbiff_data.sound[0] == '\0') {
         /*
@@ -806,24 +805,23 @@ lbiffRealize(char *s)
         ** is called, even with volume zero.
         */
         if (lbiff_data.volume > 0) {
-            XBell(XtDisplay(topLevel),lbiff_data.volume - 100);
-            DP(("---sound= %s\n","XBell default"));
+            XBell(XtDisplay(topLevel), lbiff_data.volume - 100);
+            DP(("---sound= %s\n", "XBell default"));
         }
-    }
-    else {
-        static char	*sound_buf;
-        int		system_return;
+    } else {
+        static char *sound_buf;
+        int system_return;
 
         /*
         ** Initialise sound string
         */
         if (sound_buf == NULL) {
-            sound_buf = (char*)malloc(strlen(lbiff_data.sound) + 10);
+            sound_buf = (char *)malloc(strlen(lbiff_data.sound) + 10);
             if (sound_buf == NULL)
-                ErrExit(True,"sound_buf malloc()");
+                ErrExit(True, "sound_buf malloc()");
 
-            sprintf(sound_buf,lbiff_data.sound, lbiff_data.volume);
-            DP(("---sound= %s\n",sound_buf));
+            sprintf(sound_buf, lbiff_data.sound, lbiff_data.volume);
+            DP(("---sound= %s\n", sound_buf));
         }
         system_return = system(sound_buf);
         if (system_return != 0) {
@@ -845,21 +843,20 @@ lbiffRealize(char *s)
 void
 getDimensions(char *s, Dimension *width, Dimension *height)
 {
-    Dimension	tmp_width;
-    int		i,
-        len = strlen(s);
-    static int	fontWidth, fontHeight;
-    static int	borderWidth = -1;
+    Dimension tmp_width;
+    int i, len = strlen(s);
+    static int fontWidth, fontHeight;
+    static int borderWidth = -1;
 
     tmp_width = *width = *height = 1;
 
     if (borderWidth == -1)
-        initStaticData(&borderWidth,&fontHeight,&fontWidth);
+        initStaticData(&borderWidth, &fontHeight, &fontWidth);
 
     /*
     ** count rows and columns
     */
-    for (i=0; i < len-1; i++) {
+    for (i = 0; i < len - 1; i++) {
         if (s[i] == '\n') {			/* new line: clear width */
             ++*height;
             tmp_width = 0;
@@ -875,9 +872,9 @@ getDimensions(char *s, Dimension *width, Dimension *height)
     if (*width > lbiff_data.columns)
         *width = lbiff_data.columns;
 
-    DP(("geom= %dx%d chars (%dx%d pixels)\n",*width,*height,
-                                             *width*fontWidth,
-                                             *height*fontHeight));
+    DP(("geom= %dx%d chars (%dx%d pixels)\n",*width, *height,
+                                             *width * fontWidth,
+                                             *height * fontHeight));
 
     *width  *= fontWidth;  *width  += 6;	/* convert to pixels 	  */
     *height *= fontHeight; *height += 4;	/* and add a little fudge */
@@ -895,17 +892,17 @@ initStaticData(int *bw, int *fontH, int *fontW)
     int tmp;
 
     DP(("++initStaticData..."));
-    XtSetArg(args[0],XtNfont,&fs);
-    XtSetArg(args[1],XtNborderWidth,&tmp);
+    XtSetArg(args[0], XtNfont, &fs);
+    XtSetArg(args[1], XtNborderWidth, &tmp);
     XtGetValues(textBox, args, 2);
     if (fs == NULL)
-        ErrExit(False,"unknown font");
+        ErrExit(False, "unknown font");
 
     *bw = tmp;
     *fontW = fs->max_bounds.width;
     *fontH = fs->max_bounds.ascent + fs->max_bounds.descent;
 
-    DP(("font= %dx%d,  borderWidth= %d\n",*fontH,*fontW,*bw));
+    DP(("font= %dx%d,  borderWidth= %d\n", *fontH, *fontW, *bw));
 }
 
 
@@ -946,9 +943,9 @@ void
 ErrExit(Boolean errno_valid, char *s)
 {
     if (errno_valid)
-        fprintf(stderr,"%s: %s: %s\n", progname, s, strerror(errno));
+        fprintf(stderr, "%s: %s: %s\n", progname, s, strerror(errno));
     else
-        fprintf(stderr,"%s: %s\n", progname, s);
+        fprintf(stderr, "%s: %s\n", progname, s);
 
     toggle_key_led(False);
 
@@ -961,16 +958,16 @@ waitType
 popen_simple(char *cmd, int bufsize, char **buf_out, size_t *size_out)
 {
     FILE *p;
-    size_t      read_size;
+    size_t read_size;
     waitType status;
     /*
     ** Execute the command and read the results.
     ** If there is data remaining in the pipe, read it in (and throw it away)
     ** so our exit status is correct (eg, not "Broken pipe").
     */
-    if ((p= popen(cmd,"r")) == NULL)
-        ErrExit(True,"popen");
-    read_size= fread(*buf_out,1,bufsize,p);
+    if ((p = popen(cmd, "r")) == NULL)
+        ErrExit(True, "popen");
+    read_size = fread(*buf_out, 1, bufsize, p);
     if (read_size == bufsize) {
         char junkbuf[100];
         while (fread(junkbuf, 1, 100, p) > 0)
@@ -1032,9 +1029,9 @@ popen_nmh(char *cmd, int bufsize, char **buf_out, size_t *size_out)
     if (tmpdir_name == NULL || strlen(tmpdir_name) == 0)
         tmpdir_name = slash_tmp;
     namelen = strlen(tmpdir_name) + 1 + strlen(PROFILE_TEMPLATE) + 1;
-    profile_name = (char*)malloc(namelen);
+    profile_name = (char *)malloc(namelen);
     if (profile_name == NULL)
-        ErrExit(True,"profile_name malloc()");
+        ErrExit(True, "profile_name malloc()");
     strcpy(profile_name, tmpdir_name);
     strcat(profile_name, "/");
     strcat(profile_name, PROFILE_TEMPLATE);
