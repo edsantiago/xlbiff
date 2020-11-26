@@ -281,6 +281,10 @@ main( int argc, char *argv[] )
     }
     DP(("file= %s\n",lbiff_data.file));
 
+    if (lbiff_data.cmd == NULL || lbiff_data.cmd[0] == '\0') {
+        fprintf(stderr, "%s: empty scanCommand will not work\n", progname);
+        exit(1);
+    }
 
     /*
     ** Fix DISPLAY environment variable, might be needed by subprocesses
@@ -646,7 +650,7 @@ static XEvent lastEvent;
 void
 Shrink( Widget w, caddr_t data, XEvent *e, Boolean *b )
 {
-    DP(("++Shrink()\n"));
+    DP(("++Shrink(event type %d)\n", e->type));
     if (e->type == MapNotify || e->type == UnmapNotify) {
 	int    event_seen = 0;
 	Window win = e->xmap.window;
