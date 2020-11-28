@@ -138,37 +138,37 @@ AppData lbiff_data;
 
 static XtResource xlbiff_resources[] = {
     {"debug", "Debug", XtRBoolean, sizeof(Boolean),
-      offset(debug), XtRImmediate, False},
+     offset(debug), XtRImmediate, False},
     {"file", "File", XtRString, sizeof(String),
-      offset(file), XtRString, NULL},
+     offset(file), XtRString, NULL},
     {"checkCommand", "CheckCommand", XtRString, sizeof(String),
-      offset(checkCmd), XtRString, NULL},
+     offset(checkCmd), XtRString, NULL},
     {"scanCommand", "ScanCommand", XtRString, sizeof(String),
-      offset(cmd), XtRString, "scan -file %s -width %d 2>&1"},
+     offset(cmd), XtRString, "scan -file %s -width %d 2>&1"},
     {"mailerCommand", "MailerCommand", XtRString, sizeof(String),
-      offset(mailerCmd), XtRString, NULL },
+     offset(mailerCmd), XtRString, NULL },
     {"update", "Interval", XtRInt, sizeof(int),
-      offset(update), XtRImmediate, (XtPointer)15},
+     offset(update), XtRImmediate, (XtPointer)15},
     {"fade", "Fade", XtRInt, sizeof(int),
-      offset(fade), XtRImmediate, (XtPointer)0},
+     offset(fade), XtRImmediate, (XtPointer)0},
     {"columns", "Columns", XtRInt, sizeof(int),
-      offset(columns), XtRImmediate, (XtPointer)80},
+     offset(columns), XtRImmediate, (XtPointer)80},
     {"rows", "Rows", XtRInt, sizeof(int),
-      offset(rows), XtRImmediate, (XtPointer)20},
+     offset(rows), XtRImmediate, (XtPointer)20},
     {"sound", "Sound", XtRString, sizeof(String),
-      offset(sound), XtRString, ""},
+     offset(sound), XtRString, ""},
     {"volume", "Volume", XtRInt, sizeof(int),
-      offset(volume), XtRImmediate, (XtPointer)100},
+     offset(volume), XtRImmediate, (XtPointer)100},
     {"bottom", "Bottom", XtRBoolean, sizeof(Boolean),
-      offset(bottom), XtRImmediate, False},
+     offset(bottom), XtRImmediate, False},
     {"resetSaver", "ResetSaver", XtRBoolean, sizeof(Boolean),
-      offset(resetSaver), XtRImmediate, False},
+     offset(resetSaver), XtRImmediate, False},
     {"refresh", "Refresh", XtRInt, sizeof(int),
-      offset(refresh), XtRImmediate, (XtPointer)1800},
+     offset(refresh), XtRImmediate, (XtPointer)1800},
     {"led", "Led", XtRInt, sizeof(int),
-      offset(led), XtRImmediate, (XtPointer)0},
+     offset(led), XtRImmediate, (XtPointer)0},
     {"ledPopdown", "LedPopdown", XtRBoolean, sizeof(Boolean),
-      offset(ledPopdown), XtRImmediate, False}
+     offset(ledPopdown), XtRImmediate, False}
 };
 
 static XrmOptionDescRec optionDescList[] = {
@@ -872,9 +872,9 @@ getDimensions(char *s, Dimension *width, Dimension *height)
     if (*width > lbiff_data.columns)
         *width = lbiff_data.columns;
 
-    DP(("geom= %dx%d chars (%dx%d pixels)\n",*width, *height,
-                                             *width * fontWidth,
-                                             *height * fontHeight));
+    DP(("geom= %dx%d chars (%dx%d pixels)\n", *width, *height,
+                                              *width * fontWidth,
+                                              *height * fontHeight));
 
     *width  *= fontWidth;  *width  += 6;	/* convert to pixels 	  */
     *height *= fontHeight; *height += 4;	/* and add a little fudge */
