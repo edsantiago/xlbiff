@@ -22,6 +22,7 @@
 #include <X11/Shell.h>
 #include <X11/Xaw/Command.h>
 #include <X11/Xos.h>
+#include <X11/extensions/Xrandr.h>
 
 #include <unistd.h>
 #include <stdlib.h>
@@ -94,6 +95,7 @@ void	Mailer(Widget, XEvent*, String*, Cardinal*);
 void	lbiffUnrealize(), lbiffRealize(char*);
 void	getDimensions(char*,Dimension*,Dimension*);
 void	toggle_key_led(int);
+void	init_randr();
 void	ErrExit(Boolean,char*);
 Bool	CheckEvent(Display*,XEvent*,caddr_t);
 waitType popen_nmh(char *cmd, int bufsize, char **buf_out, size_t *size_out);
@@ -528,7 +530,7 @@ checksize()
             }
         }
     } else {
-        DP(("no change\n"));
+        DP(("no change (still %d)\n", mailsize));
     }
 }
 
@@ -795,6 +797,7 @@ lbiffRealize(char *s)
         /* first time through this code */
         (void)XSetWMProtocols(XtDisplay(topLevel), XtWindow(topLevel),
                               &wm_delete_window, 1);
+        init_randr();
         first_time = 0;
     }
 
@@ -1056,4 +1059,63 @@ popen_nmh(char *cmd, int bufsize, char **buf_out, size_t *size_out)
     free(profile_name);
 
     return status;
+}
+
+/*
+ * For -bottom option, we need to know if the height of the screen changes,
+ * because we may be positioned relative to the bottom of the screen.
+ * Use the RANDR extension to learn about screen size changes.
+ */
+
+/* helper function to handle RANDR screen change events */
+void
+handle_screen_change(Widget w, XtPointer client_data, XEvent* event,
+                     Boolean* continue_to_dispatch)
+{
+    DP(("++screen_change\n"));
+    int old_screen_width = WidthOfScreen(XtScreen(w));
+    int old_screen_height = HeightOfScreen(XtScreen(w));
+    // Pass the event back to Xlib, where it can update
+    // the Display structure with the new screen dimensions.
+    XRRUpdateConfiguration(event);
+    int new_screen_width = WidthOfScreen(XtScreen(w));
+    int new_screen_height = HeightOfScreen(XtScreen(w));
+    if (old_screen_height != new_screen_height ||
+        old_screen_width != new_screen_width) {
+        DP(("screen dimensions changed: %dx%d -> %dx%d\n", old_screen_width,
+            old_screen_height, new_screen_width, new_screen_height));
+        // reinterpret our geometry
+        XtUnrealizeWidget(w);
+        XtRealizeWidget(w);
+    }
+}
+
+/* helper function to tell Xt where to dispatch RANDR screen change events */
+Boolean
+dispatch_screen_change(XEvent *event)
+{
+    return XtDispatchEventToWidget(topLevel, event);
+}
+
+/*
+ * Initialize RANDR extension to track when the bottom of the screen changes.
+ */
+void
+init_randr()
+{
+    int event1, error1;
+    if (!XRRQueryExtension(XtDisplay(topLevel), &event1, &error1)) {
+        DP(("XRRQueryExtension returned False\n"));
+        return;
+    }
+    // provide a handler for RANDR screen change events
+    XtInsertEventTypeHandler(topLevel, event1 + RRScreenChangeNotify,
+                             /*select_data=*/NULL, handle_screen_change,
+                             /*client_data=*/NULL, XtListTail);
+    // register a function to tell Xt dispatcher which widget has the handler
+    XtSetEventDispatcher(XtDisplay(topLevel), event1 + RRScreenChangeNotify,
+                         dispatch_screen_change);
+    // tell RANDR we want to receive screen configuration events
+    XRRSelectInput(XtDisplay(topLevel), XRootWindowOfScreen(XtScreen(topLevel)),
+                   RRScreenChangeNotifyMask);
 }

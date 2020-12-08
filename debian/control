@@ -12,6 +12,7 @@ Build-Depends:
  pkg-config,
  libxaw7-dev,
  libxt-dev,
+ libxrandr-dev,
  libx11-dev
 
 Package: xlbiff

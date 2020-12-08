@@ -25,6 +25,7 @@ AC_ARG_WITH(xmhformdir,
 AC_SUBST(xmhformdir)
 
 AC_SEARCH_LIBS([XCloseDisplay], [X11])
+AC_SEARCH_LIBS([XRRSelectInput], [Xrandr])
 AC_SEARCH_LIBS([XtAppMainLoop], [Xt])
 AC_SEARCH_LIBS([commandWidgetClass], [Xaw])
 AC_SUBST(NAME,[xlbiff])
