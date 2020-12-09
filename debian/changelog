@@ -1,3 +1,10 @@
+xlbiff (4.5-1) unstable; urgency=low
+
+  * handle screen size changes so "xlbiff -bottom" stays at screen bottom
+  * standards version 4.5.1 (no changes)
+
+ -- Stephen Gildea <stepheng+debian@gildea.com>  Mon, 07 Dec 2020 21:49:05 -0800
+
 xlbiff (4.4-1) unstable; urgency=low
 
   * scanCommand works even if user has not run mh-install (closes: #743835)

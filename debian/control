@@ -3,7 +3,7 @@ Section: mail
 Priority: optional
 Maintainer: Stephen Gildea <stepheng+debian@gildea.com>
 Rules-Requires-Root: no
-Standards-Version: 4.5.0
+Standards-Version: 4.5.1
 Vcs-Git: https://github.com/edsantiago/xlbiff
 Vcs-Browser: https://github.com/edsantiago/xlbiff
 Homepage: http://www.edsantiago.com/xlbiff/
