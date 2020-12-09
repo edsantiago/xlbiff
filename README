@@ -153,6 +153,10 @@ HISTORY
   Where applicable, changes are attributed to the people who submitted
   the ideas and, in many cases, patches and source code.
 
+ * Version 4.5  (7 Dec 2020)
+        + handle screen size changes with RANDR, so "xlbiff -bottom"
+          stays at screen bottom
+
  * Version 4.4  (1 Nov 2020)
         + scanCommand works even if user has not run mh-install
 
