@@ -13,4 +13,4 @@ export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 	dh $@
 
 override_dh_installdocs:
-	dh_installdocs Bcheck Bscan README README.bulk TODO
+	dh_installdocs Bcheck Bscan README.md README.bulk TODO
