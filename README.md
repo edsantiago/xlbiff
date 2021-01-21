@@ -1,19 +1,23 @@
-WHAT IS IT?
-===========
+WHAT IS XLBIFF
+==============
 
-  Is xbiff just not quite enough for you?
+  Is "you have mail" not quite enough detail?  Is a per-message
+  notification too much?  Welcome to xlbiff, the X Literate Biff.
 
-  This is xlbiff, the X Literate Biff.
+  Xlbiff presents enough information to let you decide, Do I want to
+  read this new mail now?  And it stops distracting you once you decide.
 
-  Xlbiff lurks in the background, monitoring your mailbox file (normally
-  /var/mail/_yourusername_).  When something shows up there, it
-  invokes the MH scan(1) command and displays the output in a window.
-  If more mail comes in, it scans again and resizes accordingly.
+  Xlbiff waits in the background, monitoring your mailbox file (or
+  running your custom check-mail script).  When a new message arrives,
+  it invokes the MH scan(1) command (or your custom mail-scanning
+  script) and pops up a window with the output (typically the From and
+  Subject line of each new message).  If more mail arrives, xlbiff
+  scans again and resizes its preview window accordingly.
 
   Clicking the left mouse button anywhere in the window causes it to
-  vanish.  It will also vanish if you inc(1) and the mailbox becomes
-  empty.  Xlbiff is modeled after xconsole -- its job is to sit invisibly
-  and pop up only when something demands your attention.
+  vanish.  It will also vanish if the mailbox becomes empty.  Xlbiff
+  stays out of your way when there is no new mail and pops up only
+  when something requests your attention.
 
 
 ADVANTAGES (or, Why Yet Another Biff?)
@@ -21,8 +25,11 @@ ADVANTAGES (or, Why Yet Another Biff?)
 
   Xlbiff:
    + occupies no screen real estate until mail comes in
-   + lets you preview new mail to decide if you want to read it immediately
-   + is easy to make go away
+   + supports scripts for checking mail
+   + has configurable screen location, color, and font
+   + can notify by bell and/or keyboard LED
+   + shows all new messages in one, easy-to-dismiss window
+   + lets you click anywhere on it; no trying to select a tiny "X"
 
 
 INSTALLING
@@ -71,57 +78,6 @@ CUSTOMIZING
   There are also two sample scripts, Bcheck and Bscan, intended to be
   used in conjunction.  These are for checking mail in "bulk" maildrops.
   See README.bulk for more info.
-
-
-THINGS TO BE AWARE OF
-=====================
-
-  Xlbiff invokes `scan -file xxx` by default, and thus requires MH 6.7
-  or above.  If your MH isn't at this level, you can find the latest
-  version on ftp.ics.uci.edu:/pub/mh.  If you don't feel like upgrading,
-  there's a really, really ugly kludge you can do with inc:
-
-	inc -notruncate -silent -file %s -form xlbiff.form          	\
-                -width %d -audit /tmp/xlbiff.$$ +.null >/dev/null 2>&1; \
-                cat /tmp/xlbiff.$$;                                     \
-                rm /tmp/xlbiff.$$ >/dev/null 2>&1;                      \
-                rmf +.null >/dev/null 2>&1
-
-  Note that this is truly bletcherous and will give you lots of headaches
-  when new mail comes in and your MH context gets screwed up.
-
-  If you're a Berkeley mail person, you can set scanCommand to:
-
-	echo x | mail | grep "^.[NU]"
-
-  but it sure does look ugly.  Perhaps there are .mailrc settings
-  to make it look more decent?
-
-  If you use Elm you may want to use `frm` as your scanCommand.  Some
-  people seem to be very satisfied with the `fromwho` package, posted
-  by jearls@blackbird.csc.calpoly.edu to comp.sources.unix volume 25,
-  available on gatekeeper.dec.com or ftp.uu.net or other places Archie
-  surely knows about.
-
-  Also be aware that problems have been detected with xlbiff reading a
-  mail file on an NFS-mounted directory.  Xlbiff is not guaranteed to
-  work under these conditions.
-
-
-PORTING (or, if INSTALLING didn't work)
-=======================================
-
-  Xlbiff should be pretty portable.  It was developed in 1991 on a
-  DECstation 5000/200 running Ultrix 4.2 using cc and gcc; it has
-  been known to run on Linux, Solaris, and others.
-
-  Xlbiff requires X11R5 or beyond and works best with MH 6.7 and up,
-  or nmh 1.1.
-
-  I *think* most portability bugs have been ironed out, but of course
-  there are always a few left.  If fixes are required, or if you add
-  any whizzy features (see TODO for a partial list), please mail them
-  to me, <ed@edsantiago.com>, and I will wrap them up for future releases.
 
 
 AUTHOR

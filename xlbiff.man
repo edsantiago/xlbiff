@@ -1,18 +1,54 @@
-.TH XLBIFF 1 "2 June 1994"
+.TH XLBIFF 1 "19 Jan 2021"
 .SH NAME
-xlbiff \- mailbox message previewer for X
+xlbiff \- mail notification pop-up with configurable message scans
 .SH SYNOPSIS
 .B xlbiff
 [ \fI\-option\fP ... ]
 .SH DESCRIPTION
-The
-.I xlbiff
-program lurks in the background, watching your mailbox file, waiting for
-new mail.  When mail arrives, it invokes the MH \fIscan\fP(1)
-command and pops up a window with the results.  Clicking the left mouse
-button anywhere in this window makes it go away.  The window will also
-disappear if iconified or if the mailbox size drops to zero.
+Is \*(lqyou have mail\*(rq not quite enough detail?  Is a per-message
+notification too much?  Welcome to
+.IR xlbiff ,
+the X Literate Biff.
 .PP
+.I Xlbiff
+presents enough information to let you decide, Do I want to
+read this new mail now?  And it stops distracting you once you decide.
+.PP
+.I Xlbiff
+waits in the background, monitoring your mailbox file (or
+running your custom check-mail script).  When a new message arrives,
+it invokes the MH
+.IR scan (1)
+command (or your custom mail-scanning
+script) and pops up a window with the output (typically the
+.I From
+and
+.I Subject
+line of each new message).  If more mail arrives,
+.I xlbiff
+scans again and resizes its preview window accordingly.
+.PP
+Clicking the left mouse button anywhere in the window causes it to
+vanish.  It will also vanish if the mailbox becomes empty.
+.I Xlbiff
+stays out of your way when there is no new mail and pops up only
+when something requests your attention.
+.PP
+Features:
+.PD 0
+.IP "" 2
+\(bu occupies no screen real estate until mail comes in
+.IP "" 2
+\(bu supports scripts for checking mail
+.IP "" 2
+\(bu has configurable screen location, color, and font
+.IP "" 2
+\(bu can notify by bell and/or keyboard LED
+.IP "" 2
+\(bu shows all new messages in one, easy-to-dismiss window
+.IP "" 2
+\(bu lets you click anywhere on it; no trying to select a tiny \*(lqX\*(rq
+.PD
 .SH OPTIONS
 .I Xlbiff
 accepts all of the standard X Toolkit command line options along with the
