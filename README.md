@@ -1,4 +1,4 @@
-WHAT IS XLBIFF
+What is xlbiff
 ==============
 
   Is "you have mail" not quite enough detail?  Is a per-message
@@ -20,7 +20,7 @@ WHAT IS XLBIFF
   when something requests your attention.
 
 
-ADVANTAGES (or, Why Yet Another Biff?)
+Advantages (or, why yet another biff?)
 ==========
 
   Xlbiff:
@@ -29,10 +29,10 @@ ADVANTAGES (or, Why Yet Another Biff?)
    + has configurable screen location, color, and font
    + can notify by bell and/or keyboard LED
    + shows all new messages in one, easy-to-dismiss window
-   + lets you click anywhere on it; no trying to select a tiny "X"
+   + lets you click anywhere on it; no trying to select a tiny "x"
 
 
-INSTALLING
+Installing
 ==========
 
       ./configure
@@ -54,7 +54,7 @@ INSTALLING
 
       autoreconf -i
 
-CUSTOMIZING
+Customizing
 ===========
 
   You may want to tweak some values in the app-defaults file and/or add
@@ -80,7 +80,7 @@ CUSTOMIZING
   See README.bulk for more info.
 
 
-AUTHOR
+Author
 ======
 
   Ed Santiago <ed@edsantiago.com>
