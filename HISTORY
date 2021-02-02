@@ -19,6 +19,14 @@ HISTORY
   Where applicable, changes are attributed to the people who submitted
   the ideas and, in many cases, patches and source code.
 
+ * Version 4.5.1  (19 Jan 2021)
+   + Documentation updates:
+   + HISTORY moved to separate file from README
+   + README reformatted as Markdown and renamed README.md
+   + description rewritten in README and man page
+   + remove old "porting" section
+   + remove old "things to be aware of" section
+
  * Version 4.5  (7 Dec 2020)
    + handle screen size changes with RANDR, so "xlbiff -bottom"
      stays at screen bottom
