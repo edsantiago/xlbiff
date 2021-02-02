@@ -1,3 +1,13 @@
+xlbiff (4.5.1-1) unstable; urgency=low
+
+  * Description in manual, README, and debian/control updated
+  * recommend xfonts-base instead of depending on it; lintian says
+    packages must not depend on an X font package
+  * Vcs-Git path should end with ".git/", according to lintian
+  * README.md is new name for README file, now in Markdown format
+
+ -- Stephen Gildea <stepheng+debian@gildea.com>  Mon, 01 Feb 2021 22:42:04 -0800
+
 xlbiff (4.5-1) unstable; urgency=low
 
   * handle screen size changes so "xlbiff -bottom" stays at screen bottom
