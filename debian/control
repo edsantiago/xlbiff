@@ -4,7 +4,7 @@ Priority: optional
 Maintainer: Stephen Gildea <stepheng+debian@gildea.com>
 Rules-Requires-Root: no
 Standards-Version: 4.5.1
-Vcs-Git: https://github.com/edsantiago/xlbiff
+Vcs-Git: https://github.com/edsantiago/xlbiff.git/
 Vcs-Browser: https://github.com/edsantiago/xlbiff
 Homepage: http://www.edsantiago.com/xlbiff/
 Build-Depends:
@@ -17,7 +17,8 @@ Build-Depends:
 
 Package: xlbiff
 Architecture: any
-Depends: ${misc:Depends}, ${shlibs:Depends}, xfonts-base, nmh
+Depends: ${misc:Depends}, ${shlibs:Depends}, nmh
+Recommends: xfonts-base
 Description: mail notification pop-up with configurable message scans
  Xlbiff presents enough information to let you decide, Do I want to
  read this new mail now?  And it stops distracting you once you decide.
