@@ -1,3 +1,10 @@
+xlbiff (4.5.1-2) unstable; urgency=low
+
+  * watch file updated for new GitHub URLs, which are now of the form
+    href="/edsantiago/xlbiff/archive/refs/tags/debian/4.5.1-2.tar.gz"
+
+ -- Stephen Gildea <stepheng+debian@gildea.com>  Mon, 22 Mar 2021 22:16:25 -0700
+
 xlbiff (4.5.1-1) unstable; urgency=low
 
   * Description in manual, README, and debian/control updated
