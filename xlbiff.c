@@ -1085,8 +1085,11 @@ handle_screen_change(Widget w, XtPointer client_data, XEvent* event,
         DP(("screen dimensions changed: %dx%d -> %dx%d\n", old_screen_width,
             old_screen_height, new_screen_width, new_screen_height));
         // reinterpret our geometry
-        XtUnrealizeWidget(w);
-        XtRealizeWidget(w);
+        if (visible) {
+            DP(("screen_change: widget is visible, so letting it move\n"));
+            XtUnrealizeWidget(w);
+            XtRealizeWidget(w);
+        }
     }
 }
 
