@@ -1,3 +1,16 @@
+xlbiff (4.5.2-1) unstable; urgency=low
+
+  * Popup problem fixed where a screen size change would move the
+    xlbiff widget as needed but then realize it even if it was
+    supposed to be popped down.  Bug introduced in version 4.5.
+  * Documentation improvements:
+    - "Customizing" section moved from README.md to man page.
+    - README.md removed from package; it is all about installing now.
+    - TODO file removed from package; TODO is for developers, not users.
+    - Reword package description to not use "I", which sets off lintian.
+
+ -- Stephen Gildea <stepheng+debian@gildea.com>  Mon, 12 Apr 2021 22:25:39 -0700
+
 xlbiff (4.5.1-2) unstable; urgency=low
 
   * watch file updated for new GitHub URLs, which are now of the form
