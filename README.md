@@ -54,31 +54,6 @@ Installing
 
       autoreconf -i
 
-Customizing
-===========
-
-  You may want to tweak some values in the app-defaults file and/or add
-  some resources to your .Xdefaults.  You also probably want to tell your
-  window manager not to put borders or titlebars or whatever around the
-  xlbiff window.  Finally, don't forget to add an "l" to that xbiff
-  invocation in your .Xlogin!
-
-  Note that an MH format file, xlbiff.form, is included.  This form:
-
-   - omits message number, which is meaningless in this context
-   - omits message size, since `scan -file` can't figure it out
-   - puts a "*" next to the message if your name is on the To: list
-     (before you say "no duh", think about mailing lists and cc's)
-   - displays the date in a friendly format
-   - packs as much subject & body into one line as possible.
-
-  Xlbiff.form was stolen & hacked from Jerry Peek's excellent Nutshell
-  book on MH & xmh.
-
-  There are also two sample scripts, Bcheck and Bscan, intended to be
-  used in conjunction.  These are for checking mail in "bulk" maildrops.
-  See README.bulk for more info.
-
 
 Author
 ======

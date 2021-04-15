@@ -47,7 +47,7 @@ Features:
 .IP "" 2
 \(bu shows all new messages in one, easy-to-dismiss window
 .IP "" 2
-\(bu lets you click anywhere on it; no trying to select a tiny \*(lqX\*(rq
+\(bu lets you click anywhere on it; no trying to select a tiny \*(lqx\*(rq
 .PD
 .SH OPTIONS
 .I Xlbiff
@@ -318,6 +318,45 @@ The default translations are
         <Button3Press>:  exit()
 .fi
 .sp
+
+.SH CUSTOMIZING
+.PP
+You may want to tweak some values in the app-defaults file and/or add
+some resources to your .Xdefaults file.  You also probably want to tell your
+window manager not to put borders or titlebars or whatever around the
+.I xlbiff
+window.
+.PP
+Note that an MH format file,
+.IR xlbiff.form ,
+is included.  This form:
+.PD 0
+.IP "" 2
+\(bu omits message number, which is meaningless in this context
+.IP "" 2
+\(bu omits message size, since \*(lqscan -file\*(rq can't figure it out
+.IP "" 2
+\(bu puts a \*(lq*\*(rq next to the message if your name is on the To: list
+   (to distinguish from mailing lists and cc's)
+.IP "" 2
+\(bu displays the date in a friendly format
+.IP "" 2
+\(bu packs as much subject & body into one line as possible.
+.PD
+.PP
+The xlbiff.form file was copied and hacked from Jerry Peek's
+excellent Nutshell book
+.IR "MH & xmh: Email for Users & Programmers" .
+.PP
+There are also two sample scripts,
+.I Bcheck
+and
+.IR Bscan ,
+intended to be
+used in conjunction.  These are for checking mail in \*(lqbulk\*(rq maildrops.
+See
+.I README.bulk
+for more info.
 .SH ENVIRONMENT
 .PP
 .TP 8
