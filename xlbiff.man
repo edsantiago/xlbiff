@@ -11,8 +11,8 @@ notification too much?  Welcome to
 the X Literate Biff.
 .PP
 .I Xlbiff
-presents enough information to let you decide, Do I want to
-read this new mail now?  And it stops distracting you once you decide.
+presents enough information to tell you: Is this new mail worth
+reading right now?  And it stops distracting you once you decide.
 .PP
 .I Xlbiff
 waits in the background, monitoring your mailbox file (or

@@ -4,8 +4,8 @@ What is xlbiff
   Is "you have mail" not quite enough detail?  Is a per-message
   notification too much?  Welcome to xlbiff, the X Literate Biff.
 
-  Xlbiff presents enough information to let you decide, Do I want to
-  read this new mail now?  And it stops distracting you once you decide.
+  Xlbiff presents enough information to tell you: Is this new mail worth
+  reading right now?  And it stops distracting you once you decide.
 
   Xlbiff waits in the background, monitoring your mailbox file (or
   running your custom check-mail script).  When a new message arrives,
