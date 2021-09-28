@@ -83,21 +83,21 @@ typedef union wait      waitType;
 **                                prototypes                                 **
 \*****************************************************************************/
 char		*doScan();
-void		Popdown(),Popup();
+void		Popdown(), Popup();
 void		Usage();
 extern char	*getlogin();
 
 void	Shrink(Widget, caddr_t, XEvent*, Boolean*);
-void	handler(XtPointer,XtIntervalId*);
-void	initStaticData(int*,int*,int*);
+void	handler(XtPointer, XtIntervalId*);
+void	initStaticData(int*, int*, int*);
 void	Exit(Widget, XEvent*, String*, Cardinal*);
 void	Mailer(Widget, XEvent*, String*, Cardinal*);
 void	lbiffUnrealize(), lbiffRealize(char*);
-void	getDimensions(char*,Dimension*,Dimension*);
+void	getDimensions(char*, Dimension*, Dimension*);
 void	toggle_key_led(int);
 void	init_randr();
-void	ErrExit(Boolean,char*);
-Bool	CheckEvent(Display*,XEvent*,caddr_t);
+void	ErrExit(Boolean, char*);
+Bool	CheckEvent(Display*, XEvent*, caddr_t);
 waitType popen_nmh(char *cmd, int bufsize, char **buf_out, size_t *size_out);
 
 /*****************************************************************************\
@@ -105,7 +105,7 @@ waitType popen_nmh(char *cmd, int bufsize, char **buf_out, size_t *size_out);
 \*****************************************************************************/
 extern int errno;
 
-Widget	topLevel,textBox;		/* my widgets			*/
+Widget	topLevel, textBox;		/* my widgets			*/
 XtAppContext app_context;		/* application context		*/
 Boolean	visible;			/* is window visible?		*/
 Boolean hasdata;			/* Something is to be displayed */
@@ -202,9 +202,9 @@ static char *fallback_resources[] = {
 };
 
 static XtActionsRec lbiff_actions[] = {
-    {"exit",Exit},
-    {"mailer",Mailer},
-    {"popdown",Popdown}
+    {"exit", Exit},
+    {"mailer", Mailer},
+    {"popdown", Popdown}
 };
 
 
@@ -215,12 +215,10 @@ static XtActionsRec lbiff_actions[] = {
 /**********\
 |*  main  *|
 \**********/
-int
-main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
     progname = argv[0];
 
-    XtSetLanguageProc (NULL, NULL, NULL);
+    XtSetLanguageProc(NULL, NULL, NULL);
     topLevel = XtVaAppInitialize(&app_context,
                                  "XLbiff",
                                  optionDescList, XtNumber(optionDescList),
@@ -231,7 +229,7 @@ main(int argc, char *argv[])
 
     XtGetApplicationResources(topLevel, &lbiff_data,
                               xlbiff_resources, XtNumber(xlbiff_resources),
-                              (ArgList)NULL,0);
+                              (ArgList)NULL, 0);
 
 #ifndef DEBUG
     if (lbiff_data.debug)
@@ -274,8 +272,8 @@ main(int argc, char *argv[])
         }
 
         // -2 for the "%s" removed by formatting, +1 for the NUL.
-        size_t mailpath_file_size = strlen(XLBIFF_MAILPATH) - 2
-          + strlen(username) + 1;
+        size_t mailpath_file_size =
+            strlen(XLBIFF_MAILPATH) - 2 + strlen(username) + 1;
         default_file = (char *)malloc(mailpath_file_size);
         if (default_file == NULL)
             ErrExit(True, "default_file malloc()");
@@ -339,9 +337,7 @@ main(int argc, char *argv[])
 /***********\
 |*  Usage  *|  displays usage message
 \***********/
-void
-Usage()
-{
+void Usage() {
     static char *help_message[] = {
         "where options include:",
         "    -version                   display xlbiff version number",
@@ -375,9 +371,7 @@ Usage()
 /**********\
 |*  Exit  *|  called via callback, exits the program
 \**********/
-void
-Exit(Widget w, XEvent *event, String *params, Cardinal *num_params)
-{
+void Exit(Widget w, XEvent *event, String *params, Cardinal *num_params) {
     DP(("++Exit()\n"));
 
     if (event->type == ClientMessage) {
@@ -407,9 +401,7 @@ Exit(Widget w, XEvent *event, String *params, Cardinal *num_params)
 |*	it pops up a window showing it (note that users of Berkeley
 |*	mail may have non-empty mail files with all old mail).
 \*/
-void
-checksize()
-{
+void checksize() {
     static int mailsize = 0;
     struct stat mailstat;
     int pop_window = False;
@@ -541,9 +533,7 @@ checksize()
 /************\
 |*  Mailer  *|  called via callback, starts a mailer
 \************/
-void
-Mailer(Widget w, XEvent *event, String *params, Cardinal *num_params)
-{
+void Mailer(Widget w, XEvent *event, String *params, Cardinal *num_params) {
     int system_return;
     DP(("++Mailer()\n"));
 
@@ -563,9 +553,7 @@ Mailer(Widget w, XEvent *event, String *params, Cardinal *num_params)
 /*************\
 |*  handler  *|  Checks mail file and reschedules itself to do so again
 \*************/
-void
-handler(XtPointer closure, XtIntervalId *id)
-{
+void handler(XtPointer closure, XtIntervalId *id) {
     checksize();
     XtAppAddTimeOut(app_context, lbiff_data.update * 1000, handler, NULL);
 }
@@ -577,15 +565,13 @@ handler(XtPointer closure, XtIntervalId *id)
 |* This routine looks at the mail file and parses the contents. It
 |* does this by invoking scan(1) or some other user-defined function.
 \*/
-char *
-doScan()
-{
+char *doScan() {
     static char *cmd_buf;
     static char *buf = NULL;
-    static int	bufsize;
-    static char scan_fail_msg[] = "\n---->>>> scanCommand failed <<<<<----\n";
-    size_t	size;
-    waitType	status;
+    static int   bufsize;
+    static char  scan_fail_msg[] = "\n---->>>> scanCommand failed <<<<<----\n";
+    size_t       size;
+    waitType     status;
 
     DP(("++doScan()\n"));
 
@@ -631,9 +617,7 @@ doScan()
 /****************\
 |*  CheckEvent  *|
 \****************/
-Bool
-CheckEvent(Display *d, XEvent *e, caddr_t arg)
-{
+Bool CheckEvent(Display *d, XEvent *e, caddr_t arg) {
     if (e->type == MapNotify || e->type == UnmapNotify)
         if (e->xmap.window == (Window)arg)
             return True;
@@ -652,9 +636,7 @@ static XEvent lastEvent;
 /************\
 |*  Shrink  *|  get StructureNotify events, popdown if iconified
 \************/
-void
-Shrink(Widget w, caddr_t data, XEvent *e, Boolean *b)
-{
+void Shrink(Widget w, caddr_t data, XEvent *e, Boolean *b) {
     DP(("++Shrink(event type %d)\n", e->type));
     if (e->type == MapNotify || e->type == UnmapNotify) {
         int event_seen = 0;
@@ -664,7 +646,8 @@ Shrink(Widget w, caddr_t data, XEvent *e, Boolean *b)
 
         XSync(XtDisplay(w), False);
 
-        while(XCheckIfEvent(XtDisplay(w),&lastEvent,CheckEvent,(caddr_t)win))
+        while (XCheckIfEvent(XtDisplay(w), &lastEvent, CheckEvent,
+                             (caddr_t)win))
             event_seen = 1;
 
         if (!event_seen)
@@ -691,9 +674,7 @@ Shrink(Widget w, caddr_t data, XEvent *e, Boolean *b)
 /*************\
 |*  Popdown  *|  kill window
 \*************/
-void
-Popdown()
-{
+void Popdown() {
     struct timeval tp;
     struct timezone tzp;
 
@@ -718,9 +699,7 @@ Popdown()
 }
 
 
-void
-Popup()
-{
+void Popup() {
     struct timeval tp;
     struct timezone tzp;
 
@@ -744,9 +723,7 @@ Popup()
 /********************\
 |*  lbiffUnrealize  *|  kill window
 \********************/
-void
-lbiffUnrealize()
-{
+void lbiffUnrealize() {
     DP(("++lbiffUnrealize()\n"));
     if (lbiff_data.bottom)
         XtUnrealizeWidget(topLevel);
@@ -760,9 +737,7 @@ lbiffUnrealize()
 /******************\
 |*  lbiffRealize  *|  reformat window, set the text and bring window up
 \******************/
-void
-lbiffRealize(char *s)
-{
+void lbiffRealize(char *s) {
     Arg args[4];
     int n;
     static int first_time = 1;
@@ -773,7 +748,7 @@ lbiffRealize(char *s)
     ** Set the contents of the window
     */
     n = 0;
-    XtSetArg(args[n], XtNlabel,s); n++;
+    XtSetArg(args[n], XtNlabel, s); n++;
     XtSetValues(textBox, args, n);
 
     /*
@@ -846,9 +821,7 @@ lbiffRealize(char *s)
 /*******************\
 |*  getDimensions  *|  get width x height of text string
 \*******************/
-void
-getDimensions(char *s, Dimension *width, Dimension *height)
-{
+void getDimensions(char *s, Dimension *width, Dimension *height) {
     Dimension tmp_width;
     int i, len = strlen(s);
     static int fontWidth, fontHeight;
@@ -890,9 +863,7 @@ getDimensions(char *s, Dimension *width, Dimension *height)
 /********************\
 |*  initStaticData  *|  initializes font size & borderWidth
 \********************/
-void
-initStaticData(int *bw, int *fontH, int *fontW)
-{
+void initStaticData(int *bw, int *fontH, int *fontW) {
     Arg args[2];
     XFontStruct *fs = NULL;
     int tmp = 0;
@@ -915,9 +886,7 @@ initStaticData(int *bw, int *fontH, int *fontW)
 /********************\
 |*  toggle_key_led  *|  toggle a keyboard LED on and off
 \********************/
-void
-toggle_key_led(int flag)
-{
+void toggle_key_led(int flag) {
     XKeyboardControl keyboard;
 
     if (lbiff_data.led == 0)		/* return if no led action desired */
@@ -945,9 +914,7 @@ toggle_key_led(int flag)
 |*
 |* It is the intention that someday this will bring up a popup window.
  */
-void
-ErrExit(Boolean errno_valid, char *s)
-{
+void ErrExit(Boolean errno_valid, char *s) {
     if (errno_valid)
         fprintf(stderr, "%s: %s: %s\n", progname, s, strerror(errno));
     else
@@ -960,9 +927,8 @@ ErrExit(Boolean errno_valid, char *s)
     exit(1);
 }
 
-waitType
-popen_simple(char *cmd, int bufsize, char **buf_out, size_t *size_out)
-{
+waitType popen_simple(char *cmd, int bufsize, char **buf_out,
+                      size_t *size_out) {
     FILE *p;
     size_t read_size;
     waitType status;
@@ -1003,9 +969,7 @@ popen_simple(char *cmd, int bufsize, char **buf_out, size_t *size_out)
 |*      Handling this case here means xlbiff works out of the box.
  */
 #define PROFILE_TEMPLATE "xlbiff-mh-profile-XXXXXX"
-waitType
-popen_nmh(char *cmd, int bufsize, char **buf_out, size_t *size_out)
-{
+waitType popen_nmh(char *cmd, int bufsize, char **buf_out, size_t *size_out) {
     waitType status;
     char *profile_name;
     char *tmpdir_name;
@@ -1077,10 +1041,8 @@ popen_nmh(char *cmd, int bufsize, char **buf_out, size_t *size_out)
  */
 
 /* helper function to handle RANDR screen change events */
-void
-handle_screen_change(Widget w, XtPointer client_data, XEvent* event,
-                     Boolean* continue_to_dispatch)
-{
+void handle_screen_change(Widget w, XtPointer client_data, XEvent *event,
+                          Boolean *continue_to_dispatch) {
     DP(("++screen_change\n"));
     int old_screen_width = WidthOfScreen(XtScreen(w));
     int old_screen_height = HeightOfScreen(XtScreen(w));
@@ -1103,18 +1065,14 @@ handle_screen_change(Widget w, XtPointer client_data, XEvent* event,
 }
 
 /* helper function to tell Xt where to dispatch RANDR screen change events */
-Boolean
-dispatch_screen_change(XEvent *event)
-{
+Boolean dispatch_screen_change(XEvent *event) {
     return XtDispatchEventToWidget(topLevel, event);
 }
 
 /*
  * Initialize RANDR extension to track when the bottom of the screen changes.
  */
-void
-init_randr()
-{
+void init_randr() {
     int event1, error1;
     if (!XRRQueryExtension(XtDisplay(topLevel), &event1, &error1)) {
         DP(("XRRQueryExtension returned False\n"));
