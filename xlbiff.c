@@ -273,12 +273,15 @@ main(int argc, char *argv[])
             username = pwd->pw_name;
         }
 
-        default_file =
-            (char *)malloc(strlen(XLBIFF_MAILPATH) + strlen(username));
+        // -2 for the "%s" removed by formatting, +1 for the NUL.
+        size_t mailpath_file_size = strlen(XLBIFF_MAILPATH) - 2
+          + strlen(username) + 1;
+        default_file = (char *)malloc(mailpath_file_size);
         if (default_file == NULL)
             ErrExit(True, "default_file malloc()");
 
-        sprintf(default_file, XLBIFF_MAILPATH, username);
+        snprintf(default_file, mailpath_file_size, XLBIFF_MAILPATH, username);
+        default_file[mailpath_file_size - 1] = '\0';
         lbiff_data.file = default_file;
     }
     DP(("file= %s\n", lbiff_data.file));
@@ -891,8 +894,8 @@ void
 initStaticData(int *bw, int *fontH, int *fontW)
 {
     Arg args[2];
-    XFontStruct *fs;
-    int tmp;
+    XFontStruct *fs = NULL;
+    int tmp = 0;
 
     DP(("++initStaticData..."));
     XtSetArg(args[0], XtNfont, &fs);
@@ -941,7 +944,7 @@ toggle_key_led(int flag)
 |* indicated error.  It then clears the LEDs and exits.
 |*
 |* It is the intention that someday this will bring up a popup window.
-\*/
+ */
 void
 ErrExit(Boolean errno_valid, char *s)
 {
@@ -972,10 +975,12 @@ popen_simple(char *cmd, int bufsize, char **buf_out, size_t *size_out)
         ErrExit(True, "popen");
     read_size = fread(*buf_out, 1, bufsize, p);
     if (read_size == bufsize) {
+        --read_size;              // leave room for NUL we add later
         char junkbuf[100];
         while (fread(junkbuf, 1, 100, p) > 0)
             ;	/* Keep reading until no more left */
     }
+    (*buf_out)[read_size] = '\0';
 
 #ifdef INTWAITTYPE
     status = pclose(p);
@@ -996,7 +1001,7 @@ popen_simple(char *cmd, int bufsize, char **buf_out, size_t *size_out)
 |*      Does nmh initialization if necessary, so nmh commands such as "scan"
 |*      work even if the user has not run install-mh.
 |*      Handling this case here means xlbiff works out of the box.
-\*/
+ */
 #define PROFILE_TEMPLATE "xlbiff-mh-profile-XXXXXX"
 waitType
 popen_nmh(char *cmd, int bufsize, char **buf_out, size_t *size_out)
@@ -1039,7 +1044,11 @@ popen_nmh(char *cmd, int bufsize, char **buf_out, size_t *size_out)
     strcat(profile_name, "/");
     strcat(profile_name, PROFILE_TEMPLATE);
 
+    mode_t old_mask = umask(077);
     profile_fd = mkstemp(profile_name);
+    if (profile_fd < 0)
+        ErrExit(True, "profile_name mkstemp()");
+    umask(old_mask);
     DP(("created profile_name = %s\n", profile_name));
     profile_stream = fdopen(profile_fd, "w");
     fprintf(profile_stream, "Path: %s\nWelcome: disable\n", tmpdir_name);
