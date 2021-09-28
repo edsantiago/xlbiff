@@ -49,8 +49,10 @@ Installing
 
       ./configure --help
 
-  If you have a source distribution without "configure" and
-  "Makefile.in" files, you can create them with this command:
+  If you are building from a source repository, without "configure"
+  and "Makefile.in" files, you will need the GNU Autotools: autoconf
+  and automake.  With those packages installed, you can create the
+  needed files with this command:
 
       autoreconf -i
 

@@ -22,7 +22,7 @@ HISTORY
  * Version 4.5.2  (12 Apr 2021)
   + Popup problem fixed where a screen size change would move the
     xlbiff widget as needed but then realize it even if it was
-    supposed to be popped down.  Bug introduced in version 4.5.
+    supposed to be unrealized.  Bug introduced in version 4.5.
   + Doc: "Customizing" section moved from README.md to xlbiff.man
 
  * Version 4.5.1  (19 Jan 2021)
