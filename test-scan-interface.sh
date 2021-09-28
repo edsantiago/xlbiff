@@ -55,7 +55,7 @@ if [[ -d "$TEST_TMPDIR" ]]; then
     atexit_tmpdir=':'
 else
     test_tmpdir=$(mktemp -d -t xlbiff-test-si-XXXXXXXXX)
-    atexit_tmpdir='rm -rf "$test_tmpdir"'
+    atexit_tmpdir='rm -rf -- "$test_tmpdir"'
 fi
 trap "$atexit_tmpdir" EXIT
 if [[ ! "$logdir" ]]; then
@@ -78,7 +78,7 @@ if [ "\$status" -eq 0 ]; then
 fi 
 exit "\$status"
 EOF
-chmod 755 "$test_tmpdir"/scan
+chmod -- 755 "$test_tmpdir"/scan
 
 # Change the "scan" program used in the installed X resources
 # file to point to our wrapper instead.
@@ -117,7 +117,7 @@ PATH=$test_tmpdir:$PATH
 # warn that its stderr is not a tty, so we capture stderr lest spurious
 # output fail the test.
 # Note that this assumes xvfb-run is implemented as a shell script.
-bash -m "$xvfb_run_script" -n 20 --auto-servernum \
+bash -m -- "$xvfb_run_script" -n 20 --auto-servernum -- \
      "$xlbiff_to_test" -file "$test_tmpdir"/mailbox -xrm "$xrm_scan" \
      2> "$logdir/xvfb-run.stderr" &
 xvfb_pid=$!

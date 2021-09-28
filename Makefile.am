@@ -8,7 +8,7 @@ appdefaultdir = @appdefaultdir@
 appdefault_DATA = XLbiff
 CLEANFILES = $(appdefault_DATA)
 %: %.ad
-	cp -- "$<" "$@"
+	cp -- $< $@
 
 # "configure" normally sets appdefaultdir for each system with "pkg-config",
 # which returns an absolute pathname.  "make distcheck" doesn't use DESTDIR
@@ -20,6 +20,14 @@ dist_man1_MANS = xlbiff.man
 
 EXTRA_DIST = README.md README.bulk HISTORY XLbiff.ad \
     Bcheck Bscan test-scan-interface.sh
+
+# Rule modified from automake 1.16.1 to write a more reproducible dist file.
+dist-gzip: distdir
+	chmod -R -- go-w $(distdir)
+	GZIP= tar --owner=0 --group=0 --numeric-owner \
+	    -chozf $(distdir).tar.gz -- \
+	    $$(find $(distdir) ! -type d | LANG= sort)
+	$(am__post_remove_distdir)
 
 # aid for building Debian source package
 debian-orig-dist: dist
