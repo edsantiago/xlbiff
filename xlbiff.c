@@ -87,7 +87,7 @@ void		Popdown(), Popup();
 void		Usage();
 extern char	*getlogin();
 
-void	Shrink(Widget, caddr_t, XEvent*, Boolean*);
+void	Shrink(Widget, XtPointer, XEvent*, Boolean*);
 void	handler(XtPointer, XtIntervalId*);
 void	initStaticData(int*, int*, int*);
 void	Exit(Widget, XEvent*, String*, Cardinal*);
@@ -97,7 +97,7 @@ void	getDimensions(char*, Dimension*, Dimension*);
 void	toggle_key_led(int);
 void	init_randr();
 void	ErrExit(Boolean, char*);
-Bool	CheckEvent(Display*, XEvent*, caddr_t);
+Bool	CheckEvent(Display*, XEvent*, XPointer);
 waitType popen_nmh(char *cmd, int bufsize, char **buf_out, size_t *size_out);
 
 /*****************************************************************************\
@@ -174,25 +174,25 @@ static XtResource xlbiff_resources[] = {
 };
 
 static XrmOptionDescRec optionDescList[] = {
-    {"-bottom",      ".bottom",      XrmoptionNoArg,	(caddr_t) "true"},
-    {"+bottom",      ".bottom",      XrmoptionNoArg,	(caddr_t) "false"},
-    {"-debug",       ".debug",	      XrmoptionNoArg,	(caddr_t) "true"},
-    {"-file",	      ".file",        XrmoptionSepArg,	(caddr_t) NULL},
-    {"-rows",        ".rows",	      XrmoptionSepArg,	(caddr_t) NULL},
-    {"-columns",     ".columns",     XrmoptionSepArg,	(caddr_t) NULL},
-    {"-update",      ".update",      XrmoptionSepArg,	(caddr_t) NULL},
-    {"-fade",	      ".fade",        XrmoptionSepArg,	(caddr_t) NULL},
-    {"-volume",      ".volume",      XrmoptionSepArg,	(caddr_t) NULL},
-    {"-resetSaver",  ".resetSaver",  XrmoptionNoArg,	(caddr_t) "true"},
-    {"+resetSaver",  ".resetSaver",  XrmoptionNoArg,	(caddr_t) "false"},
-    {"-refresh",     ".refresh",     XrmoptionSepArg,	(caddr_t) NULL},
-    {"-led",         ".led",         XrmoptionSepArg,	(caddr_t) NULL},
-    {"-ledPopdown",  ".ledPopdown",  XrmoptionNoArg,	(caddr_t) "true"},
-    {"+ledPopdown",  ".ledPopdown",  XrmoptionNoArg,	(caddr_t) "false"},
-    {"-sound",	      ".sound",       XrmoptionSepArg,  (caddr_t) NULL},
-    {"-scanCommand", ".scanCommand", XrmoptionSepArg,	(caddr_t) NULL},
-    {"-mailerCommand",".mailerCommand",XrmoptionSepArg,(caddr_t) NULL},
-    {"-checkCommand",".checkCommand",XrmoptionSepArg,  (caddr_t) NULL}
+    {"-bottom",      ".bottom",      XrmoptionNoArg,	(XtPointer) "true"},
+    {"+bottom",      ".bottom",      XrmoptionNoArg,	(XtPointer) "false"},
+    {"-debug",       ".debug",	      XrmoptionNoArg,	(XtPointer) "true"},
+    {"-file",	      ".file",        XrmoptionSepArg,	(XtPointer) NULL},
+    {"-rows",        ".rows",	      XrmoptionSepArg,	(XtPointer) NULL},
+    {"-columns",     ".columns",     XrmoptionSepArg,	(XtPointer) NULL},
+    {"-update",      ".update",      XrmoptionSepArg,	(XtPointer) NULL},
+    {"-fade",	      ".fade",        XrmoptionSepArg,	(XtPointer) NULL},
+    {"-volume",      ".volume",      XrmoptionSepArg,	(XtPointer) NULL},
+    {"-resetSaver",  ".resetSaver",  XrmoptionNoArg,	(XtPointer) "true"},
+    {"+resetSaver",  ".resetSaver",  XrmoptionNoArg,	(XtPointer) "false"},
+    {"-refresh",     ".refresh",     XrmoptionSepArg,	(XtPointer) NULL},
+    {"-led",         ".led",         XrmoptionSepArg,	(XtPointer) NULL},
+    {"-ledPopdown",  ".ledPopdown",  XrmoptionNoArg,	(XtPointer) "true"},
+    {"+ledPopdown",  ".ledPopdown",  XrmoptionNoArg,	(XtPointer) "false"},
+    {"-sound",	      ".sound",       XrmoptionSepArg,  (XtPointer) NULL},
+    {"-scanCommand", ".scanCommand", XrmoptionSepArg,	(XtPointer) NULL},
+    {"-mailerCommand",".mailerCommand",XrmoptionSepArg,(XtPointer) NULL},
+    {"-checkCommand",".checkCommand",XrmoptionSepArg,  (XtPointer) NULL}
 };
 
 static char *fallback_resources[] = {
@@ -309,7 +309,7 @@ int main(int argc, char *argv[]) {
     XtAddCallback(textBox, XtNcallback, Popdown, textBox);
     XtAppAddActions(app_context, lbiff_actions, XtNumber(lbiff_actions));
     XtAddEventHandler(topLevel, StructureNotifyMask, False,
-                      (XtEventHandler)Shrink, (caddr_t)NULL);
+                      (XtEventHandler)Shrink, (XtPointer)NULL);
 
     XtOverrideTranslations(
         topLevel, XtParseTranslationTable("<Message>WM_PROTOCOLS: exit()"));
@@ -617,7 +617,7 @@ char *doScan() {
 /****************\
 |*  CheckEvent  *|
 \****************/
-Bool CheckEvent(Display *d, XEvent *e, caddr_t arg) {
+Bool CheckEvent(Display *d, XEvent *e, XPointer arg) {
     if (e->type == MapNotify || e->type == UnmapNotify)
         if (e->xmap.window == (Window)arg)
             return True;
@@ -636,7 +636,7 @@ static XEvent lastEvent;
 /************\
 |*  Shrink  *|  get StructureNotify events, popdown if iconified
 \************/
-void Shrink(Widget w, caddr_t data, XEvent *e, Boolean *b) {
+void Shrink(Widget w, XtPointer data, XEvent *e, Boolean *b) {
     DP(("++Shrink(event type %d)\n", e->type));
     if (e->type == MapNotify || e->type == UnmapNotify) {
         int event_seen = 0;
@@ -647,7 +647,7 @@ void Shrink(Widget w, caddr_t data, XEvent *e, Boolean *b) {
         XSync(XtDisplay(w), False);
 
         while (XCheckIfEvent(XtDisplay(w), &lastEvent, CheckEvent,
-                             (caddr_t)win))
+                             (XPointer)win))
             event_seen = 1;
 
         if (!event_seen)
