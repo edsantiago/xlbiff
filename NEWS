@@ -1,4 +1,4 @@
-BACKGROUND
+Background
 ==========
 
   I wrote xlbiff because I don't always want to read my mail.  Regular
@@ -12,12 +12,16 @@ BACKGROUND
   but I had always wanted to do it right.
 
 
-HISTORY
+History
 =======
 
   The following describes changes made to xlbiff throughout its history.
   Where applicable, changes are attributed to the people who submitted
   the ideas and, in many cases, patches and source code.
+
+ * Version 4.5.3
+   + Null-terminate message scan output (error found by Coverity Scan)
+   + HISTORY file renamed to NEWS
 
  * Version 4.5.2  (12 Apr 2021)
   + Popup problem fixed where a screen size change would move the
