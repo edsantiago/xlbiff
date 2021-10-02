@@ -1,4 +1,4 @@
-.TH XLBIFF 1 "19 Jan 2021"
+.TH XLBIFF 1 "29 Sept 2021"
 .SH NAME
 xlbiff \- mail notification pop-up with configurable message scans
 .SH SYNOPSIS
@@ -126,14 +126,26 @@ mail window after you acknowledge it, and it still contains the same mail.
 The default is 0 (no refresh).  A useful value for this is 1800 (30 minutes).
 .TP 8
 .B \-mailerCommand \fIcommand\fP
-Specifies the command to invoke when the the mailer() action is activated,
-eg, "xterm -e elm" or "inc".  By default this is bound to the second
-mouse button.
+Specifies the command to invoke when the the mailer() action is activated.
+By default this is bound to the second mouse button.
 Invoking this action will pop down the main window.  When the command exits,
 it will pop up again.  Due to mailbox consistency considerations, the
 mailerCommand should not exit before it is finished with the mailbox, i.e.
 it should not be run in the background.
-.sp
+.IP
+Example
+.B mailerCommand
+values:
+.IP
+.RS 12
+.EX
+.nf
+xterm -e alpine
+emacsclient --eval '(mh-rmail)' --suppress-output
+.fi
+.EE
+.RE
+.IP
 There is no default
 .BR mailerCommand .
 .TP 8

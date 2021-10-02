@@ -1,9 +1,9 @@
 !
-! XLbiff  --  Literate Biff, displays incoming mail, etc
+! XLbiff  --  Literate Biff, new mail notification pop-up
 !
 *font:	-*-clean-bold-r-normal--13-130-75-75-c-80-iso646.1991-*
 !
-! set these if you have a colour monitor, or put in your .Xdefaults
+! Message text and background colors
 !
 !*foreground:		purple
 !*background:		green
@@ -17,10 +17,11 @@
 !
 ! Command to use for invoking mailreader (default is none)
 !
-!*mailerCommand:	xterm -e elm
-!*mailerCommand:	xterm -e plum
+!*mailerCommand:	xterm -e mutt
+!*mailerCommand:	xterm -e alpine
 !*mailerCommand:	xterm -e mailx
-!*mailerCommand:	xmh
+!*mailerCommand:	exmh
+!*mailerCommand:	emacsclient --eval '(mh-rmail)' --suppress-output
 !
 ! Dimensions of the display window
 !
