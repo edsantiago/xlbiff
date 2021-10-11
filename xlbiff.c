@@ -15,7 +15,7 @@
 |*
 |*    Copyright 1994, 2017 Eduardo Santiago
 |*    SPDX-License-Identifier: MIT
-\*/
+ */
 
 #include <X11/Intrinsic.h>
 #include <X11/StringDefs.h>
@@ -400,7 +400,7 @@ void Exit(Widget w, XEvent *event, String *params, Cardinal *num_params) {
 |*	to execute the scanCommand.  If the result of this is non-null,
 |*	it pops up a window showing it (note that users of Berkeley
 |*	mail may have non-empty mail files with all old mail).
-\*/
+ */
 void checksize() {
     static int mailsize = 0;
     struct stat mailstat;
@@ -537,16 +537,16 @@ void Mailer(Widget w, XEvent *event, String *params, Cardinal *num_params) {
     int system_return;
     DP(("++Mailer()\n"));
 
+    Popdown();
     if (lbiff_data.mailerCmd != NULL && lbiff_data.mailerCmd[0] != '\0') {
-        Popdown();
         system_return = system(lbiff_data.mailerCmd);
         if (system_return != 0) {
             fprintf(stderr, "mailer command \"%s\" returned %d (%#x)\n",
                     lbiff_data.mailerCmd, system_return, system_return);
         }
-        Popup();
-        checksize();
     }
+    checksize();
+    Popup();
 }
 
 
@@ -564,7 +564,7 @@ void handler(XtPointer closure, XtIntervalId *id) {
 |************
 |* This routine looks at the mail file and parses the contents. It
 |* does this by invoking scan(1) or some other user-defined function.
-\*/
+ */
 char *doScan() {
     static char *cmd_buf;
     static char *buf = NULL;

@@ -126,12 +126,11 @@ mail window after you acknowledge it, and it still contains the same mail.
 The default is 0 (no refresh).  A useful value for this is 1800 (30 minutes).
 .TP 8
 .B \-mailerCommand \fIcommand\fP
-Specifies the command to invoke when the the mailer() action is activated.
-By default this is bound to the second mouse button.
-Invoking this action will pop down the main window.  When the command exits,
-it will pop up again.  Due to mailbox consistency considerations, the
-mailerCommand should not exit before it is finished with the mailbox, i.e.
-it should not be run in the background.
+Specifies the command to invoke when the mailer() action,
+described below, is activated.
+Due to mailbox consistency considerations, the
+mailerCommand should not exit before it is finished with the mailbox, i.e.,
+it should not run its command in the background.
 .IP
 Example
 .B mailerCommand
@@ -318,6 +317,15 @@ provides the following actions for use in event translations:
 .B popdown()
 This action causes the window to vanish.
 .TP 8
+.B mailer()
+This action causes 
+.I xlbiff
+to pop down the main window and run the defined
+.B mailerCommand
+(if any), waiting for it to exit.  Then
+.I xlbiff
+will check for new mail, and if necessary pop up again.
+.TP 8
 .B exit()
 This action causes 
 .I xlbiff
@@ -327,6 +335,7 @@ The default translations are
 .sp
 .nf
         <Button1Press>:  popdown()
+        <Button2Press>:  mailer()
         <Button3Press>:  exit()
 .fi
 .sp
@@ -387,7 +396,7 @@ specifying dimensions in \-geometry causes badness.
 The \fBled\fP option does not work on Suns before SunOS 4.1/X11R5.
 .SH AUTHOR
 Ed Santiago <ed@edsantiago.com>
-.SH ACKNOWLEDGEMENTS
+.SH ACKNOWLEDGMENTS
 .I Xlbiff
 took shape around the \fBxgoodbye\fP sample program
 in the O'Reilly \fIX Toolkit Intrinsics Programming Manual\fP.  A lot of

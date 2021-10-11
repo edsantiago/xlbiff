@@ -6,6 +6,7 @@ History
   the ideas and, in many cases, patches and source code.
 
  * Version 4.5.3
+   + mailer() action always re-checks for mail, even with no mailerCommand
    + Null-terminate message scan output (error found by Coverity Scan)
    + HISTORY file renamed to NEWS
 
@@ -41,7 +42,7 @@ History
    + Changed default mail path directory to /var/mail from /usr/spool/mail
    + Changed manual page name to xlbiff.1 from xlbiff.1x
    + Install xlbiff.form to /usr/local/share/mh, not /usr/new/lib/mh
-   + Developers: Build proceess changed from Imake to Autotools.
+   + Developers: Build process changed from Imake to Autotools.
    + Developers: Assume modern C library and compiler.
 
  * Version 4.2  (16 May 2017)
