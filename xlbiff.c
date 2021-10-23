@@ -654,28 +654,29 @@ void Shrink(Widget w, XtPointer data, XEvent *e, Boolean *b) {
     }
     DP(("++Shrink(%s %d)\n", type_str, e->type));
 #endif
-    if (e->type == MapNotify || e->type == UnmapNotify) {
-        int event_seen = 0;
-        Window win = e->xmap.window;
+    if (e->type != MapNotify && e->type != UnmapNotify) {
+        return;
+    }
+    int event_seen = 0;
+    Window win = e->xmap.window;
 
-        memcpy((char *)&lastEvent, (char *)e, sizeof(XEvent));
+    memcpy((char *)&lastEvent, (char *)e, sizeof(XEvent));
 
-        XSync(XtDisplay(w), False);
+    XSync(XtDisplay(w), False);
 
-        while (XCheckIfEvent(XtDisplay(w), &lastEvent, CheckEvent,
-                             (XPointer)win)) {
-            event_seen = 1;
-        }
+    while (XCheckIfEvent(XtDisplay(w), &lastEvent, CheckEvent,
+                         (XPointer)win)) {
+        event_seen = 1;
+    }
 
-        if (!event_seen) {
-            return;
-        }
+    if (!event_seen) {
+        return;
+    }
 
-        if (lastEvent.type == UnmapNotify && visible) {
-            Popdown();
-        } else if (lastEvent.type == MapNotify && hasdata) {
-            Popup();
-        }
+    if (lastEvent.type == UnmapNotify && visible) {
+        Popdown();
+    } else if (lastEvent.type == MapNotify && hasdata) {
+        Popup();
     }
 }
 
