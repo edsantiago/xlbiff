@@ -19,7 +19,7 @@ DISTCHECK_CONFIGURE_FLAGS = --with-appdefaultdir=\$${datadir}/X11/app-defaults
 dist_man1_MANS = xlbiff.man
 
 EXTRA_DIST = README.md README.bulk XLbiff.ad \
-    Bcheck Bscan test-scan-interface.sh
+    Bcheck Bscan tests/test-scan-interface.sh
 
 # Rule modified from automake 1.16.1 to write a more reproducible dist file.
 dist-gzip: distdir
