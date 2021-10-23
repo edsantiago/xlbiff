@@ -504,7 +504,10 @@ void checksize() {
         if (gettimeofday(&tp, &tzp) != 0) {
             ErrExit(True, "gettimeofday() in checksize()");
         } else if (lbiff_data.fade > 0) {
-            if ((tp.tv_sec - popup_time) > lbiff_data.fade) lbiffUnrealize();
+            if ((tp.tv_sec - popup_time) > lbiff_data.fade) {
+                DP(("fade time (%d) reached\n", lbiff_data.fade));
+                lbiffUnrealize();
+            }
         }
     }
 
@@ -539,8 +542,11 @@ void Mailer(Widget w, XEvent *event, String *params, Cardinal *num_params) {
 
     Popdown();
     if (lbiff_data.mailerCmd != NULL && lbiff_data.mailerCmd[0] != '\0') {
+        DP(("---mailerCmd = %s\n", lbiff_data.mailerCmd));
         system_return = system(lbiff_data.mailerCmd);
-        if (system_return != 0) {
+        if (system_return == 0) {
+            DP(("---mailerCmd completed successfully\n"));
+        } else {
             fprintf(stderr, "mailer command \"%s\" returned %d (%#x)\n",
                     lbiff_data.mailerCmd, system_return, system_return);
         }
@@ -637,7 +643,17 @@ static XEvent lastEvent;
 |*  Shrink  *|  get StructureNotify events, popdown if iconified
 \************/
 void Shrink(Widget w, XtPointer data, XEvent *e, Boolean *b) {
-    DP(("++Shrink(event type %d)\n", e->type));
+#ifdef DEBUG
+    char *type_str;
+    switch (e->type) {
+    case UnmapNotify: type_str = "UnmapNotify"; break;
+    case MapNotify: type_str = "MapNotify"; break;
+    case ReparentNotify: type_str = "ReparentNotify"; break;
+    case ConfigureNotify: type_str = "ConfigureNotify"; break;
+    default: type_str = "event type";
+    }
+    DP(("++Shrink(%s %d)\n", type_str, e->type));
+#endif
     if (e->type == MapNotify || e->type == UnmapNotify) {
         int event_seen = 0;
         Window win = e->xmap.window;
@@ -647,16 +663,19 @@ void Shrink(Widget w, XtPointer data, XEvent *e, Boolean *b) {
         XSync(XtDisplay(w), False);
 
         while (XCheckIfEvent(XtDisplay(w), &lastEvent, CheckEvent,
-                             (XPointer)win))
+                             (XPointer)win)) {
             event_seen = 1;
+        }
 
-        if (!event_seen)
+        if (!event_seen) {
             return;
+        }
 
-        if (lastEvent.type == UnmapNotify && visible)
+        if (lastEvent.type == UnmapNotify && visible) {
             Popdown();
-        else if (lastEvent.type == MapNotify && hasdata)
+        } else if (lastEvent.type == MapNotify && hasdata) {
             Popup();
+        }
     }
 }
 
