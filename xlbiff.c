@@ -111,8 +111,8 @@ Boolean	visible;			/* is window visible?		*/
 Boolean hasdata;			/* Something is to be displayed */
 char	*default_file;			/* default filename		*/
 char	*progname;			/* my program name		*/
-long	acknowledge_time = 0;		/* time window was acknowledged	*/
-long	popup_time = 0;			/* time window was popped up	*/
+struct timeval acknowledge_time = {0};	/* time window was acknowledged	*/
+struct timeval popup_time = {0};	/* time window was popped up	*/
 
 static Atom wm_delete_window;		/* for handling WM_DELETE	*/
 
@@ -122,14 +122,14 @@ typedef struct {
     char	*checkCmd;		/* command to run for check     */
     char	*cmd;			/* command to run for output	*/
     char	*mailerCmd;		/* command to read mail		*/
-    int		update;			/* update interval, in seconds	*/
-    int		fade;			/* popdown interval, in seconds */
+    float	update;			/* update interval, in seconds	*/
+    float	fade;			/* popdown interval, in seconds */
     int		columns;		/* number of columns across	*/
     int		rows;			/* max# of lines in display	*/
     int		volume;			/* bell volume, 0-100 percent	*/
     Boolean	bottom;			/* Put window at window bottom  */
     Boolean	resetSaver;		/* reset screensaver on popup   */
-    long	refresh;		/* seconds before reposting msg	*/
+    float	refresh;		/* seconds before reposting msg	*/
     int		led;			/* led number to light up	*/
     Boolean	ledPopdown;		/* turn off LED on popdown?	*/
     char	*sound;			/* Sound file to use		*/
@@ -137,6 +137,10 @@ typedef struct {
 AppData lbiff_data;
 
 #define offset(field) XtOffset(AppDataPtr, field)
+
+float default_update_secs = 15.0f;
+float default_fade_secs = 0.0f;
+float default_refresh_secs = 1800.0f;
 
 static XtResource xlbiff_resources[] = {
     {"debug", "Debug", XtRBoolean, sizeof(Boolean),
@@ -149,10 +153,10 @@ static XtResource xlbiff_resources[] = {
      offset(cmd), XtRString, "scan -file %s -width %d 2>&1"},
     {"mailerCommand", "MailerCommand", XtRString, sizeof(String),
      offset(mailerCmd), XtRString, NULL },
-    {"update", "Interval", XtRInt, sizeof(int),
-     offset(update), XtRImmediate, (XtPointer)15},
-    {"fade", "Fade", XtRInt, sizeof(int),
-     offset(fade), XtRImmediate, (XtPointer)0},
+    {"update", "Interval", XtRFloat, sizeof(float),
+     offset(update), XtRFloat, &default_update_secs},
+    {"fade", "Fade", XtRFloat, sizeof(float),
+     offset(fade), XtRFloat, &default_fade_secs},
     {"columns", "Columns", XtRInt, sizeof(int),
      offset(columns), XtRImmediate, (XtPointer)80},
     {"rows", "Rows", XtRInt, sizeof(int),
@@ -165,8 +169,8 @@ static XtResource xlbiff_resources[] = {
      offset(bottom), XtRImmediate, False},
     {"resetSaver", "ResetSaver", XtRBoolean, sizeof(Boolean),
      offset(resetSaver), XtRImmediate, False},
-    {"refresh", "Refresh", XtRInt, sizeof(int),
-     offset(refresh), XtRImmediate, (XtPointer)1800},
+    {"refresh", "Refresh", XtRFloat, sizeof(float),
+     offset(refresh), XtRFloat, &default_refresh_secs},
     {"led", "Led", XtRInt, sizeof(int),
      offset(led), XtRImmediate, (XtPointer)0},
     {"ledPopdown", "LedPopdown", XtRBoolean, sizeof(Boolean),
@@ -367,6 +371,14 @@ void Usage() {
     exit(1);
 }
 
+// Returns true if the difference between newtime and oldtime is
+// greater than interval_seconds.
+int time_passed(struct timeval *newtime, struct timeval *oldtime,
+                float interval_seconds) {
+    float timediff_secs = newtime->tv_sec - oldtime->tv_sec +
+                          (newtime->tv_usec - oldtime->tv_usec) * 1e-6;
+    return timediff_secs > interval_seconds;
+}
 
 /**********\
 |*  Exit  *|  called via callback, exits the program
@@ -406,7 +418,6 @@ void checksize() {
     struct stat mailstat;
     int pop_window = False;
     struct timeval tp;
-    struct timezone tzp;
 
     DP(("++checksize()..."));
 
@@ -487,10 +498,10 @@ void checksize() {
         /*
         ** If window has been popped down, check if it's time to refresh
         */
-        if (gettimeofday(&tp, &tzp) != 0) {
+        if (gettimeofday(&tp, NULL) != 0) {
             ErrExit(True, "gettimeofday() in checksize()");
         } else {
-            if ((tp.tv_sec - acknowledge_time) > lbiff_data.refresh) {
+            if (time_passed(&tp, &acknowledge_time, lbiff_data.refresh)) {
                 DP(("reposting window, repost time reached\n"));
                 pop_window = True;
             }
@@ -501,11 +512,11 @@ void checksize() {
         ** if so, popdown window
         ** if fade is zero, do not pop down
         */
-        if (gettimeofday(&tp, &tzp) != 0) {
+        if (gettimeofday(&tp, NULL) != 0) {
             ErrExit(True, "gettimeofday() in checksize()");
         } else if (lbiff_data.fade > 0) {
-            if ((tp.tv_sec - popup_time) > lbiff_data.fade) {
-                DP(("fade time (%d) reached\n", lbiff_data.fade));
+            if (time_passed(&tp, &popup_time, lbiff_data.fade)) {
+                DP(("fade time (%f) reached\n", lbiff_data.fade));
                 lbiffUnrealize();
             }
         }
@@ -561,7 +572,8 @@ void Mailer(Widget w, XEvent *event, String *params, Cardinal *num_params) {
 \*************/
 void handler(XtPointer closure, XtIntervalId *id) {
     checksize();
-    XtAppAddTimeOut(app_context, lbiff_data.update * 1000, handler, NULL);
+    long int update_msecs = lbiff_data.update * 1000.0f + 0.5f;
+    XtAppAddTimeOut(app_context, update_msecs, handler, NULL);
 }
 
 
@@ -696,7 +708,6 @@ void Shrink(Widget w, XtPointer data, XEvent *e, Boolean *b) {
 \*************/
 void Popdown() {
     struct timeval tp;
-    struct timezone tzp;
 
     DP(("++Popdown()\n"));
 
@@ -709,10 +720,10 @@ void Popdown() {
     /*
     ** Remember when we were popped down so we can refresh later
     */
-    if (gettimeofday(&tp, &tzp) != 0)
+    if (gettimeofday(&tp, NULL) != 0)
         ErrExit(True, "gettimeofday() in lbiffUnrealize()");
 
-    acknowledge_time = tp.tv_sec;
+    acknowledge_time = tp;
 
     if (lbiff_data.ledPopdown)		/* Turn off LED if so requested */
         toggle_key_led(False);
@@ -721,16 +732,15 @@ void Popdown() {
 
 void Popup() {
     struct timeval tp;
-    struct timezone tzp;
 
     DP(("++Popup()\n"));
 
     /*
     ** Remember when we were popped up so we can fade later
     */
-    if (gettimeofday(&tp, &tzp) != 0)
+    if (gettimeofday(&tp, NULL) != 0)
         ErrExit(True, "gettimeofday() in Popup()");
-    popup_time = tp.tv_sec;
+    popup_time = tp;
 
     if (hasdata && !visible) {
         XtPopup(topLevel, XtGrabNone);
