@@ -707,34 +707,18 @@ void Shrink(Widget w, XtPointer data, XEvent *e, Boolean *b) {
 |*  Popdown  *|  kill window
 \*************/
 void Popdown() {
-    struct timeval tp;
-
     DP(("++Popdown()\n"));
-
-    if (visible) {
-        XtPopdown(topLevel);
-        XSync(XtDisplay(topLevel), False);
-    }
-    visible = False;
-
-    /*
-    ** Remember when we were popped down so we can refresh later
-    */
-    if (gettimeofday(&tp, NULL) != 0)
-        ErrExit(True, "gettimeofday() in lbiffUnrealize()");
-
-    acknowledge_time = tp;
-
-    if (lbiff_data.ledPopdown)		/* Turn off LED if so requested */
-        toggle_key_led(False);
+    lbiffUnrealize();
 }
 
 
 void Popup() {
     struct timeval tp;
 
-    DP(("++Popup()\n"));
-
+    DP(("++Popup() hasdata=%d visible=%d\n", hasdata, visible));
+    if (!hasdata || visible) {
+      return;
+    }
     /*
     ** Remember when we were popped up so we can fade later
     */
@@ -742,10 +726,15 @@ void Popup() {
         ErrExit(True, "gettimeofday() in Popup()");
     popup_time = tp;
 
-    if (hasdata && !visible) {
-        XtPopup(topLevel, XtGrabNone);
-        XSync(XtDisplay(topLevel), False);
+    if (lbiff_data.bottom) {
+        Arg args[1];
+        int n = 0;
+        XtSetArg(args[n], XtNy, -1); n++;
+        XtSetValues(topLevel, args, n);
     }
+    XtRealizeWidget(topLevel);
+    XtPopup(topLevel, XtGrabNone);
+    XSync(XtDisplay(topLevel), False);
     visible = True;
 }
 
@@ -755,10 +744,24 @@ void Popup() {
 \********************/
 void lbiffUnrealize() {
     DP(("++lbiffUnrealize()\n"));
-    if (lbiff_data.bottom)
+
+    /*
+    ** Remember when we were popped down so we can refresh later
+    */
+    struct timeval tp;
+    if (gettimeofday(&tp, NULL) != 0)
+        ErrExit(True, "gettimeofday() in lbiffUnrealize()");
+
+    acknowledge_time = tp;
+
+    if (visible) {
+        DP(("calling XtUnrealizeWidget\n"));
         XtUnrealizeWidget(topLevel);
-    else
-        Popdown();
+        XSync(XtDisplay(topLevel), False);
+    }
+
+    if (lbiff_data.ledPopdown)		/* Turn off LED if so requested */
+        toggle_key_led(False);
 
     visible = False;
 }
@@ -786,19 +789,15 @@ void lbiffRealize(char *s) {
     ** is before realize()ing it.  This is so the WM can position it
     ** properly at the bottom of the screen.
     */
-    if (lbiff_data.bottom) {
-        Dimension width, height;
+    Dimension width, height;
 
-        getDimensions(s, &width, &height);
+    getDimensions(s, &width, &height);
 
-        n = 0;
-        XtSetArg(args[n], XtNwidth, width); n++;
-        XtSetArg(args[n], XtNheight, height); n++;
-        XtSetArg(args[n], XtNy, -1); n++;
+    n = 0;
+    XtSetArg(args[n], XtNwidth, width); n++;
+    XtSetArg(args[n], XtNheight, height); n++;
+    XtSetValues(topLevel, args, n);
 
-        XtSetValues(topLevel, args, n);
-        XtRealizeWidget(topLevel);
-    }
     Popup();
 
     if (first_time) {
@@ -843,8 +842,6 @@ void lbiffRealize(char *s) {
 
     if (lbiff_data.resetSaver)
         XResetScreenSaver(XtDisplay(topLevel));
-
-    visible = True;
 }
 
 

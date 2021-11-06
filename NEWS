@@ -6,7 +6,11 @@ History
   the ideas and, in many cases, patches and source code.
 
  * Version 4.5.3
+   + Window no longer moves with -bottom and a window manager running
+     when mailerCommand does not change the mailbox
+   + Refresh time is now honored and -ledPopdown works with -bottom
    + mailer() action always re-checks for mail, even with no mailerCommand
+   + Intervals can be floating point: -update, -fade, and -refresh
    + Null-terminate message scan output (error found by Coverity Scan)
    + HISTORY file renamed to NEWS
 
