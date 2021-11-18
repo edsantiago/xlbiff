@@ -1,3 +1,9 @@
+xlbiff (4.5.4-2) unstable; urgency=low
+
+  * procps package is needed by "windowing" test for "ps"
+
+ -- Stephen Gildea <stepheng+debian@gildea.com>  Thu, 18 Nov 2021 07:10:00 -0800
+
 xlbiff (4.5.4-1) unstable; urgency=low
 
   * Test the window behavior of Popup and Popdown
