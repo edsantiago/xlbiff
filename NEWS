@@ -5,6 +5,9 @@ History
   Where applicable, changes are attributed to the people who submitted
   the ideas and, in many cases, patches and source code.
 
+ * Version 4.5.4  (17 Nov 2021)
+   + Developers: Add tests of the window behavior of Popup and Popdown
+
  * Version 4.5.3  (8 Nov 2021)
    + Window no longer moves with -bottom and a window manager running
      when mailerCommand does not change the mailbox
