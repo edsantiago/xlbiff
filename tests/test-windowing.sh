@@ -32,7 +32,7 @@ is_xlbiff_invisible() {
 }
 
 is_xlbiff_running() {
-    ps ax | grep "$xlbiff_name" | egrep -v -q 'bash|xvfb|grep'
+    util_is_process_running "$xlbiff_name"
 }
 
 is_xlbiff_not_running() {
@@ -261,19 +261,18 @@ test_sequence_exit_action() {
     send_key x
     loop_for 5 is_xlbiff_not_running
     xlbiff_pid=
-    # This may have killed xvfb, too
-    [[ -z "$USE_WM" ]] && xvfb_pid=
     end_test_with_status pass
 }
 run_test_variations exit_action test_sequence_exit_action
 
 test_sequence_fade() {
-    loop_for 30 is_xlbiff_invisible
+    loop_for 40 is_xlbiff_invisible
     send_new_mail
     loop_for 10 is_xlbiff_visible
     end_test_with_status pass
 }
-run_test_variations fade test_sequence_fade -fade 0.2
+# -fade 0.2 is too fast and makes the test flaky
+run_test_variations fade test_sequence_fade -fade 0.3
 
 test_sequence_refresh() {
     window_corners_1="$(get_window_corners)"

@@ -84,15 +84,11 @@ start_xlbiff_under_xvfb() {
         echo "$0: (not required for build, only for this test)" >&2
         exit 2
     fi
-    # Some tests are stricter with a window manager.
-    local -a xvfb_client_cmd
-    if [[ -n "$USE_WM" ]]; then
-        # We need a dummy client that won't write to stderr.
-        # We will start the WM later, with stderr redirected.
-        xvfb_client_cmd=(xmessage dummy)
-    else
-        xvfb_client_cmd=("$xlbiff_to_test" "$@")
-    fi
+    # We need a long-running client to prevent the X server from exiting.
+    # We can't use the WM, because some of them write to stderr.
+    # We can't use xlbiff, because one of the tests is of its exit action.
+    xmessage_name=xmessage-$RANDOM
+    local -a xvfb_client_cmd=(xmessage initial client "$xmessage_name")
     export XAUTHORITY="$test_tmpdir/Xauthority"
     echo -n > "$XAUTHORITY"
     # The xvfb-run script needs job control (-m) so that it will catch the
@@ -104,17 +100,17 @@ start_xlbiff_under_xvfb() {
          "${xvfb_client_cmd[@]}" 2> "$logdir/xvfb-run.stderr.log" &
     xvfb_pid=$!
     loop_for 50 util_get_display
+    loop_for 20 util_x_first_client_is_running
+    # Some tests are stricter with a window manager.
     if [[ -n "$USE_WM" ]]; then
         # Choice of WM is arbitrary; metacity is simple to run
         TEST_WM="${TEST_WM:-metacity}"
         [[ -n "$VERBOSE" ]] && echo "$0: starting window manager $TEST_WM"
         "$TEST_WM" 2> "$logdir/xvfb-run.stderr.log" &
         loop_for 20 util_window_manager_has_connected
-        "$xlbiff_to_test" "$@" &
-        xlbiff_pid=$!
-    else
-        xlbiff_pid=
     fi
+    "$xlbiff_to_test" "$@" &
+    xlbiff_pid=$!
 }
 
 # exports DISPLAY
@@ -124,6 +120,15 @@ util_get_display() {
     DISPLAY="$(xauth -q -i -n list | sed -E -n '$s/^[^ ]*(:[0-9]*) .*/\1/p')"
     export DISPLAY
     [[ -n "$DISPLAY" ]] && xwininfo -root >/dev/null 2>&1
+}
+
+util_is_process_running() {
+    local ps_match="$1"
+    ps ax | grep "$ps_match" | egrep -v -q 'bash|xvfb|grep'
+}
+
+util_x_first_client_is_running() {
+    util_is_process_running "$xmessage_name"
 }
 
 # returns true if a window has been created on the X server
