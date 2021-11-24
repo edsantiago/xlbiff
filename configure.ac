@@ -1,4 +1,4 @@
-AC_INIT([xlbiff], [4.5.4], [ed@edsantiago.com])
+AC_INIT([xlbiff], [4.5.5], [ed@edsantiago.com])
 AM_INIT_AUTOMAKE(foreign)
 AM_MAINTAINER_MODE(enable)
 AC_PROG_CC
