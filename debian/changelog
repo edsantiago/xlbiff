@@ -1,3 +1,10 @@
+xlbiff (4.5.6-1) unstable; urgency=low
+
+  * Tests use Xvfb directly, eliminating xvfb-run script
+  * debian/watch does not need filenamemangle option, as noted by lintian
+
+ -- Stephen Gildea <stepheng+debian@gildea.com>  Sun, 28 Nov 2021 21:26:36 -0800
+
 xlbiff (4.5.5-1) unstable; urgency=low
 
   * Decode RFC 2047 (MIME-encoded) "From" and "Subject" headers in xlbiff.form

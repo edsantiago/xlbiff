@@ -5,6 +5,9 @@ History
   Where applicable, changes are attributed to the people who submitted
   the ideas and, in many cases, patches and source code.
 
+ * Version 4.5.6  (28 Nov 2021)
+   + Developers: Tests use Xvfb directly, eliminating xvfb-run script.
+
  * Version 4.5.5  (21 Nov 2021)
    + xlbiff.form decodes RFC 2047 (MIME-encoded) "From" and "Subject" headers
    + Developers: Fix three timing races in windowing test.
