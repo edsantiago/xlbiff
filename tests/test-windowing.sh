@@ -1,9 +1,9 @@
 #! /bin/bash
 # Tests of xlbiff window behavior.
 
-# Depends: xvfb, xauth, xwininfo (in x11-utils), xdotool, metacity
-# In Debian, xvfb merely recommends xauth, so we must include xauth dependency.
-# In Ubuntu, xvfb depends on xauth.
+# programs used:
+# xdotool (packgae xdotool)
+# ps (package procps)
 
 # Usage:
 # test-windowing.sh [--logdir dirname] [--binary path_to_xlbiff]
@@ -32,7 +32,7 @@ is_xlbiff_invisible() {
 }
 
 is_xlbiff_running() {
-    util_is_process_running "$xlbiff_name"
+    ps ax | grep "$xlbiff_name" | egrep -v -q 'bash|xvfb|grep'
 }
 
 is_xlbiff_not_running() {
@@ -70,9 +70,21 @@ send_key() {
 
 # Echoes the corner positions
 get_window_corners() {
-    # perhaps WM moves the window when it first maps
-    [[ -n "$USE_WM" ]] && sleep 0.1
-    xwininfo -name "$xlbiff_name" | grep Corners:
+    local corners i
+    for ((i=0; i<10; ++i)); do
+        corners=$(xwininfo -name "$xlbiff_name" | grep Corners:)
+        [[ -z "$USE_WM" ]] && break
+        # Upper left corner, with WM, should be +0+37 or +0+1007 (for bottom)
+        [[ ! "$corners" =~ [+]0[+]0 ]] &&
+            [[ ! "$corners" =~ [+]0[+]1005 ]] &&
+            break
+        # WM moves the window after it first maps; wait for it
+        if [[ -n "$VERBOSE" ]]; then
+            printf '%s: waiting with %s\n' "$0" "$corners" >&2
+        fi
+        sleep 0.1
+    done
+    echo "$corners"
 }
 
 pass_test_if_window_unmoved() {
@@ -134,7 +146,7 @@ run_1_variation() {
     if [[ "$SKIP_BOTTOM" = "$bottom" ]] || [[ "$SKIP_WM" = "$wm" ]]; then
         return
     fi
-    start_test "$test_name($wm,$bottom)"
+    start_test "$test_name-$wm-$bottom"
 
     local xlbiff_common_args=(
         ${XLBIFF_DEBUG:+-debug}
@@ -156,7 +168,7 @@ run_1_variation() {
     USE_WM=$wm start_xlbiff_under_xvfb \
         "${xlbiff_common_args[@]}" "${xlbiff_bottom_args[@]}" "$@"
     send_new_mail
-    loop_for 10 is_xlbiff_visible run_test_variations
+    loop_for 20 is_xlbiff_visible run_test_variations
 
     # run the test-specific commands
     USE_WM=$wm BOTTOM=$bottom "$test_commands"

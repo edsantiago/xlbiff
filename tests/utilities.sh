@@ -1,6 +1,13 @@
 # /bin/bash
 # Functions used by test scripts.
 
+# programs used:
+# Xvfb (package xvfb)
+# xauth (package xauth)
+# mcookie (package util-linux)
+# xwininfo, xmessage (package x11-utils)
+# metacity (package metacity) if $USE_WM is set
+
 # Side effect: sets variables logdir and xlbiff_to_test
 parse_command_line() {
     cd $(dirname "$0")/.. || exit 1
@@ -67,7 +74,7 @@ start_xlbiff_under_xvfb() {
     XFILESEARCHPATH=
     XUSERFILESEARCHPATH=
     XAPPLRESDIR=
-    # xvfb-run uses $TMPDIR for .Xauthority file
+    # we use $TMPDIR for .Xauthority file
     export TMPDIR="$test_tmpdir"
     PATH=$test_tmpdir:$PATH
 
@@ -77,63 +84,72 @@ start_xlbiff_under_xvfb() {
         return
     fi
 
-    local xvfb_run_script=/usr/bin/xvfb-run
-    if [[ ! -x "$xvfb_run_script" ]]; then
-        echo "$0: script not available: $xvfb_run_script" >&2
+    local xvfb_binary=/usr/bin/Xvfb
+    if [[ ! -x "$xvfb_binary" ]]; then
+        echo "$0: program not available: $xvfb_binary" >&2
         echo "$0: package xvfb is probably not installed" >&2
         echo "$0: (not required for build, only for this test)" >&2
         exit 2
     fi
-    # We need a long-running client to prevent the X server from exiting.
-    # We can't use the WM, because some of them write to stderr.
-    # We can't use xlbiff, because one of the tests is of its exit action.
-    xmessage_name=xmessage-$RANDOM
-    local -a xvfb_client_cmd=(xmessage initial client "$xmessage_name")
-    export XAUTHORITY="$test_tmpdir/Xauthority"
-    echo -n > "$XAUTHORITY"
-    # The xvfb-run script needs job control (-m) so that it will catch the
-    # "kill" below and kill its Xvfb subprocess.  But this causes it to
-    # warn that its stderr is not a tty, so we capture stderr lest spurious
-    # output fail the test.
-    # Note that this assumes xvfb-run is implemented as a shell script.
-    timeout 60 bash -m -- "$xvfb_run_script" -n 20 -a -f "$XAUTHORITY" -- \
-         "${xvfb_client_cmd[@]}" 2> "$logdir/xvfb-run.stderr.log" &
-    xvfb_pid=$!
-    loop_for 50 util_get_display
-    loop_for 20 util_x_first_client_is_running
-    # Some tests are stricter with a window manager.
-    if [[ -n "$USE_WM" ]]; then
-        # Choice of WM is arbitrary; metacity is simple to run
-        TEST_WM="${TEST_WM:-metacity}"
-        [[ -n "$VERBOSE" ]] && echo "$0: starting window manager $TEST_WM"
-        "$TEST_WM" 2> "$logdir/xvfb-run.stderr.log" &
-        loop_for 20 util_window_manager_has_connected
-    fi
-    "$xlbiff_to_test" "$@" &
-    xlbiff_pid=$!
+    local -i display_num=19
+    # loop looking for an available display number
+    while ((++display_num < 64)); do
+        kill_xvfb
+        local xauth_cookie=$(mcookie)
+        export XAUTHORITY="$test_tmpdir/Xauthority"
+        echo -n > "$XAUTHORITY"
+        export DISPLAY=":$display_num"
+        xauth add "$DISPLAY" MIT-MAGIC-COOKIE-1 "$xauth_cookie"
+
+        # Xvfb will send us SIGUSR1 when and if ready;
+        # we don't want it to kill us.
+        trap : USR1
+        # Pass SIGUSR1 as ignored, so Xvfb will signal its parent when ready.
+        # See xserver(1).
+        (trap '' USR1; exec "$xvfb_binary" "$DISPLAY" -auth "$XAUTHORITY" \
+                 2> "$logdir/xvfb.$current_test_name.log") &
+        xvfb_pid=$!
+
+        # Wait for Xvfb to to either signal us (if ready) or die (if
+        # it cannot use the this display number).
+        wait
+        if ! kill -0 "$xvfb_pid" 2> /dev/null; then
+            # Xvfb died, probably because this display number is unavailable
+            xvfb_pid=
+            continue
+        fi
+
+        # Start the first client
+        if [[ -n "$USE_WM" ]]; then
+            # Choice of WM is arbitrary; metacity is simple to run
+            TEST_WM="${TEST_WM:-metacity}"
+            [[ -n "$VERBOSE" ]] && echo "$0: starting window manager $TEST_WM"
+            "$TEST_WM" 2>> "$logdir/xvfb.$current_test_name.log" &
+            util_wait_for_client_has_connected "Sawfish|Metacity|$TEST_WM" \
+                || continue
+        else
+            # We need an initial client that will start by creating a window,
+            # to check that the X server is actually usable.
+            xmessage dummy 2>> "$logdir/xvfb.$current_test_name.log" &
+            util_wait_for_client_has_connected "xmessage" || continue
+        fi
+
+        # everything started up successfully
+        "$xlbiff_to_test" "$@" &
+        xlbiff_pid=$!
+        return
+    done
 }
 
-# exports DISPLAY
-util_get_display() {
-    # we want the last line in the Xauthority file, in case xvfb-run
-    # had to loop through several server numbers
-    DISPLAY="$(xauth -q -i -n list | sed -E -n '$s/^[^ ]*(:[0-9]*) .*/\1/p')"
-    export DISPLAY
-    [[ -n "$DISPLAY" ]] && xwininfo -root >/dev/null 2>&1
+# Returns on failure
+util_wait_for_client_has_connected() {
+    # global variable
+    util_window_name_pattern="$1"
+    loop_for_or_return 50 util_client_has_connected initial_client
 }
 
-util_is_process_running() {
-    local ps_match="$1"
-    ps ax | grep "$ps_match" | egrep -v -q 'bash|xvfb|grep'
-}
-
-util_x_first_client_is_running() {
-    util_is_process_running "$xmessage_name"
-}
-
-# returns true if a window has been created on the X server
-util_window_manager_has_connected() {
-    xwininfo -root -children 2>&1 | egrep -q -i "Sawfish|Metacity|$TEST_WM"
+util_client_has_connected() {
+    xwininfo -root -children 2>&1 | egrep -q -i "$util_window_name_pattern"
 }
 
 # Returns success if test with this name should be run.
@@ -175,11 +191,17 @@ end_test_with_status() {
     current_test_name=
 }
 
+# loops until success, or returns non-0 on timeout
+loop_for_or_return() {
+    loop_for "$1" "$2" "$3" return_on_failure
+}
+
 # loops until success or timeout
 loop_for() {
     local loop_count="$1"
     local success_function="$2"
     local context_msg="$3"
+    local return_on_failure="$4"
 
     local child_alive=1
     while sleep 0.1; do
@@ -189,6 +211,7 @@ loop_for() {
             xauth -v -i -n list >&2
             xwininfo -root -tree >&2
             kill_xvfb
+            [[ -n "$return_on_failure" ]] && return 1
             exit 1
         fi
         if [[ -z "$(jobs -r -p)" ]]; then
@@ -201,6 +224,7 @@ loop_for() {
         if [[ "$child_alive" = 0 ]]; then
             echo "$0: child process has died waiting for $success_function" \
                  "in test $current_test_name $context_msg" >&2
+            [[ -n "$return_on_failure" ]] && return 1
             exit 1
         fi
         [[ -n "$VERBOSE" ]] && echo "$0: $success_function false"
@@ -212,12 +236,14 @@ kill_xvfb() {
     if [[ -n "$xlbiff_pid" ]]; then
         # kill xlbiff so that it doesn't output "X connection broken"
         kill -TERM "$xlbiff_pid"
+        xlbiff_pid=
     fi
     if [[ -n "$xvfb_pid" ]]; then
-        # Killing xvfb-run causes it to kill Xvfb, which kills any X clients,
+        # Kill Xvfb, which kills any X clients,
         # and all subprocesses are thus cleaned up.
         kill -TERM "$xvfb_pid"
         wait
+        xvfb_pid=
     fi
     return 0
 }

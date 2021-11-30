@@ -7,10 +7,6 @@
 # This is a run-time requirement for xlbiff, but not
 # a build-time requirement (except for this test).
 
-# Depends: xvfb, xauth
-# In Debian, xvfb merely recommends xauth, so we must include xauth dependency.
-# In Ubuntu, xvfb depends on xauth.
-
 # Usage: test-scan-interface.sh [--logdir dirname] [--binary path_to_xlbiff]
 
 . $(dirname "$0")/utilities.sh
@@ -59,8 +55,8 @@ Date: Sat, 26 Sep 2020 21:10:55 -0700
 The scan program should be called on this message.
 EOF
 
-start_xlbiff_under_xvfb -file "$test_tmpdir/mailbox" -xrm "$xrm_scan"
 start_test scan
+start_xlbiff_under_xvfb -file "$test_tmpdir/mailbox" -xrm "$xrm_scan"
 
 scan_success_file_exists() {
     [[ -f "$test_tmpdir"/scan.success ]]
