@@ -151,21 +151,21 @@ There is no default
 .B \-scanCommand \fIcommand\fP
 Specifies a shell command to be executed to list the contents of mailbox
 \fBfile\fP.  The specified string value is used as the
-argument to a \fIsystem\fP(3) call and may therefore contain i/o redirection.
+argument to a \fIsystem\fP(3) call and may therefore contain I/O redirection.
 The command's stdout is used to generate the window.  
 Internally, the command is generated as
 .sp
 .nf
-              sprintf(buf, scanCommand, file, columns)
+              sprintf(buf, scanCommand, file, columns, rows)
 .fi
 .sp
-so a %s and %d respectively in \fBscanCommand\fP will generate the values
-of \fBfile\fP and \fBcolumns\fP.  The default 
+so a %s, %d and %d respectively in \fBscanCommand\fP will generate the values
+of \fBfile\fP, \fBcolumns\fP, and \fBrows\fP.  The default 
 .B scanCommand
 is
 .sp
 .nf
-		scan \-file %s \-width %d
+		scan \-file %s \-width %d 2>&1
 .fi
 .sp
 .TP 8

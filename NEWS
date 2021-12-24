@@ -5,6 +5,10 @@ History
   Where applicable, changes are attributed to the people who submitted
   the ideas and, in many cases, patches and source code.
 
+ * Version 4.6
+   + scanCommand accepts a "rows" parameter with additional %d
+   + Developers: -debug output is line-buffered, not fully buffered
+
  * Version 4.5.6  (28 Nov 2021)
    + Developers: Tests use Xvfb directly, eliminating xvfb-run script.
 

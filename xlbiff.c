@@ -235,10 +235,13 @@ int main(int argc, char *argv[]) {
                               xlbiff_resources, XtNumber(xlbiff_resources),
                               (ArgList)NULL, 0);
 
-#ifndef DEBUG
-    if (lbiff_data.debug)
+    if (lbiff_data.debug) {
+#ifdef DEBUG
+        setvbuf(stdout, NULL, _IOLBF, 0); /* line buffer debug messages */
+#else
         fprintf(stderr, "%s: DEBUG support not compiled in, sorry\n", progname);
 #endif
+    }
 
     /*
     ** Check command line arguments
@@ -612,7 +615,8 @@ char *doScan() {
         if (cmd_buf == NULL)
             ErrExit(True, "command buffer malloc()");
 
-        sprintf(cmd_buf, lbiff_data.cmd, lbiff_data.file, lbiff_data.columns);
+        sprintf(cmd_buf, lbiff_data.cmd,
+                lbiff_data.file, lbiff_data.columns, lbiff_data.rows);
         DP(("---cmd= %s\n", cmd_buf));
     }
 
