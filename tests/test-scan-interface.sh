@@ -2,10 +2,6 @@
 # Test that xlbiff can run "scan" from nmh.
 # The "scan" program needs some setup; this tests that
 # xlbiff does it if needed.
-#
-# This test needs the nmh package to be installed.
-# This is a run-time requirement for xlbiff, but not
-# a build-time requirement (except for this test).
 
 # Usage: test-scan-interface.sh [--logdir dirname] [--binary path_to_xlbiff]
 
@@ -15,10 +11,7 @@ parse_command_line "$@"
 
 scan_binary=/usr/bin/mh/scan
 
-if [[ ! -x "$scan_binary" ]]; then
-    echo "$0: $scan_binary not found; is the nmh package installed?" >&2
-    exit 2
-fi
+util_check_dependencies "$scan_binary" nmh
 
 create_test_tmpdir
 

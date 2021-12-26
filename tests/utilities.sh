@@ -1,13 +1,6 @@
 # /bin/bash
 # Functions used by test scripts.
 
-# programs used:
-# Xvfb (package xvfb)
-# xauth (package xauth)
-# mcookie (package util-linux)
-# xwininfo, xmessage (package x11-utils)
-# metacity (package metacity) if $USE_WM is set
-
 # Side effect: sets variables logdir and xlbiff_to_test
 parse_command_line() {
     cd $(dirname "$0")/.. || exit 1
@@ -43,6 +36,43 @@ parse_command_line() {
         shift
     done
 }
+
+# programs used:
+
+# if $NO_XVFB is not set
+xvfb_dependencies=(
+    Xvfb xvfb
+    xauth xauth
+    mcookie util-linux
+    xwininfo x11-utils
+    xmessage x11-utils
+)
+
+# if $USE_WM is set
+# Choice of WM is arbitrary; metacity is simple to run
+wm_dependency=(
+    metacity metacity
+)
+
+util_check_dependencies() {
+    # arguments are alternating binary and package
+    local binary package
+    while (($# > 0)); do
+        binary=$1
+        package=$2
+        shift; shift
+        if [[ "$binary" != /* ]]; then
+            binary=/usr/bin/$binary
+        fi
+        if [[ ! -x "$binary" ]]; then
+            echo "$0: program not available: $binary" >&2
+            echo "$0: package \"$package\" is probably not installed" >&2
+            echo "$0: (not required for build, only for this test)" >&2
+            exit 2
+        fi
+    done
+}
+
 
 # Creates a temp directory and sets an exit trap to remove it.
 # Side effects:
@@ -84,13 +114,7 @@ start_xlbiff_under_xvfb() {
         return
     fi
 
-    local xvfb_binary=/usr/bin/Xvfb
-    if [[ ! -x "$xvfb_binary" ]]; then
-        echo "$0: program not available: $xvfb_binary" >&2
-        echo "$0: package xvfb is probably not installed" >&2
-        echo "$0: (not required for build, only for this test)" >&2
-        exit 2
-    fi
+    util_check_dependencies "${xvfb_dependencies[@]}"
     local -i display_num=19
     # loop looking for an available display number
     while ((++display_num < 64)); do
@@ -106,7 +130,7 @@ start_xlbiff_under_xvfb() {
         trap : USR1
         # Pass SIGUSR1 as ignored, so Xvfb will signal its parent when ready.
         # See xserver(1).
-        (trap '' USR1; exec "$xvfb_binary" "$DISPLAY" -auth "$XAUTHORITY" \
+        (trap '' USR1; exec Xvfb "$DISPLAY" -auth "$XAUTHORITY" \
                  2> "$logdir/xvfb.$current_test_name.log") &
         xvfb_pid=$!
 
@@ -121,8 +145,13 @@ start_xlbiff_under_xvfb() {
 
         # Start the first client
         if [[ -n "$USE_WM" ]]; then
-            # Choice of WM is arbitrary; metacity is simple to run
-            TEST_WM="${TEST_WM:-metacity}"
+            if [[ -n "$TEST_WM" ]]; then
+                local probable_wm_pkg_name="$(basename "$TEST_WM")"
+                util_check_dependencies "$TEST_WM" "$probable_wm_pkg_name"
+            else
+                util_check_dependencies "${wm_dependency[@]}"
+                TEST_WM="${wm_dependency[0]}"
+            fi
             [[ -n "$VERBOSE" ]] && echo "$0: starting window manager $TEST_WM"
             "$TEST_WM" 2>> "$logdir/xvfb.$current_test_name.log" &
             util_wait_for_client_has_connected "Sawfish|Metacity|$TEST_WM" \

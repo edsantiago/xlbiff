@@ -1,14 +1,17 @@
 #! /bin/bash
 # Tests of xlbiff window behavior.
 
-# programs used:
-# xdotool (packgae xdotool)
-# ps (package procps)
-
 # Usage:
 # test-windowing.sh [--logdir dirname] [--binary path_to_xlbiff]
 
 . $(dirname "$0")/utilities.sh
+
+windowing_dependencies=(
+    xdotool xdotool
+    ps procps
+)
+
+util_check_dependencies "${windowing_dependencies[@]}"
 
 parse_command_line "$@"
 
