@@ -5,7 +5,7 @@
 
 # Usage: test-scan-interface.sh [--logdir dirname] [--binary path_to_xlbiff]
 
-. $(dirname "$0")/utilities.sh
+. "$(dirname "$0")"/utilities.sh
 
 parse_command_line "$@"
 
@@ -49,7 +49,8 @@ The scan program should be called on this message.
 EOF
 
 start_test scan
-start_xlbiff_under_xvfb -file "$test_tmpdir/mailbox" -xrm "$xrm_scan"
+start_xlbiff_under_xvfb ${XLBIFF_DEBUG:+-debug} \
+                        -file "$test_tmpdir/mailbox" -xrm "$xrm_scan"
 
 scan_success_file_exists() {
     [[ -f "$test_tmpdir"/scan.success ]]

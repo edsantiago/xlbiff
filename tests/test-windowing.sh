@@ -4,7 +4,7 @@
 # Usage:
 # test-windowing.sh [--logdir dirname] [--binary path_to_xlbiff]
 
-. $(dirname "$0")/utilities.sh
+. "$(dirname "$0")"/utilities.sh
 
 windowing_dependencies=(
     xdotool xdotool
@@ -35,7 +35,7 @@ is_xlbiff_invisible() {
 }
 
 is_xlbiff_running() {
-    ps ax | grep "$xlbiff_name" | egrep -v -q 'bash|xvfb|grep'
+    ps ax | grep "$xlbiff_name" | grep -E -v -q 'bash|xvfb|grep'
 }
 
 is_xlbiff_not_running() {
@@ -52,9 +52,7 @@ does_mailer_action_file_exist() {
 
 send_key() {
     local key="$1"
-    if [[ -n "$VERBOSE" ]]; then
-        printf '%s: sending key %s to %s\n' "$0" "$key" "$xlbiff_name"
-    fi
+    util_verb "sending key $key to $xlbiff_name"
     # also send keyup in case client thinks key is still down from
     # a previous half-delivered key
     msg=$(xdotool search --name "$xlbiff_name" \
@@ -63,10 +61,7 @@ send_key() {
     # If the keydown causes the window to unmap, this keyup will fail benignly.
     xdotool search --name "$xlbiff_name" keyup "$key" 2>/dev/null
     if [[ "$keydown_status" != 0 ]]; then
-        if [[ -n "$VERBOSE" ]]; then
-            printf '%s: send %s to %s status %s\n' "$0" \
-                   "$key" "$xlbiff_name" "$keydown_status" "$(echo $msg)"
-        fi
+        util_logv "send $key to $xlbiff_name status $keydown_status $msg"
         return 1
     fi
 }
@@ -74,17 +69,16 @@ send_key() {
 # Echoes the corner positions
 get_window_corners() {
     local corners i
-    for ((i=0; i<10; ++i)); do
+    for ((i=1; i<=10; ++i)); do
         corners=$(xwininfo -name "$xlbiff_name" | grep Corners:)
         [[ -z "$USE_WM" ]] && break
-        # Upper left corner, with WM, should be +0+37 or +0+1007 (for bottom)
+        # Upper left corner, with metacity,
+        # should be +0+37 or +0+1007 (for bottom).
         [[ ! "$corners" =~ [+]0[+]0 ]] &&
             [[ ! "$corners" =~ [+]0[+]1005 ]] &&
             break
         # WM moves the window after it first maps; wait for it
-        if [[ -n "$VERBOSE" ]]; then
-            printf '%s: waiting with %s\n' "$0" "$corners" >&2
-        fi
+        util_logv "waiting $i/10 with $corners"
         sleep 0.1
     done
     echo "$corners"
@@ -109,8 +103,8 @@ check_some_corners() {
     local window_corners_1="$2"
     local window_corners_2="$3"
     local corners ul1 ur1 lr1 ll1 ul2 ur2 lr2 ll2
-    read corners ul1 ur1 lr1 ll1 <<<"$window_corners_1"
-    read corners ul2 ur2 lr2 ll2 <<<"$window_corners_2"
+    read -r corners ul1 ur1 lr1 ll1 <<<"$window_corners_1"
+    read -r corners ul2 ur2 lr2 ll2 <<<"$window_corners_2"
     local compare1 compare2
     case $top_bottom_all in
         top) compare1="$ul1" ; compare2="$ul2" ;;
@@ -216,7 +210,8 @@ test_sequence_incmail() {
 run_test_variations incmail test_sequence_incmail
 
 test_sequence_moremail() {
-    local window_corners_1="$(get_window_corners)"
+    local window_corners_1
+    window_corners_1="$(get_window_corners)"
     send_key "d"
     loop_for 5 is_xlbiff_invisible
     send_new_mail
@@ -236,12 +231,13 @@ test_sequence_moremail() {
 run_test_variations moremail test_sequence_moremail
 
 test_sequence_mailer_noinc() {
-    local window_corners_1="$(get_window_corners)"
+    local window_corners_1 window_corners_2
+    window_corners_1="$(get_window_corners)"
 
     send_key "m"
     loop_for 5 does_mailer_action_file_exist msg1
     loop_for 5 is_xlbiff_visible msg1
-    local window_corners_2="$(get_window_corners)"
+    window_corners_2="$(get_window_corners)"
     check_some_corners all "$window_corners_1" "$window_corners_2"
     local test_result_1="$?"
 

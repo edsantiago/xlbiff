@@ -1,4 +1,4 @@
-# /bin/bash
+#! /bin/bash
 # Functions used by test scripts.
 
 # Side effect: sets variables logdir and xlbiff_to_test
@@ -109,6 +109,7 @@ start_xlbiff_under_xvfb() {
     PATH=$test_tmpdir:$PATH
 
     if [[ -n "$NO_XVFB" ]]; then
+        echo "$xlbiff_to_test" "$@" >> "$logdir/xvfb.$current_test_name.log"
         timeout 60 "$xlbiff_to_test" "$@" &
         xvfb_pid=$!
         return
@@ -119,7 +120,8 @@ start_xlbiff_under_xvfb() {
     # loop looking for an available display number
     while ((++display_num < 64)); do
         kill_xvfb
-        local xauth_cookie=$(mcookie)
+        local xauth_cookie
+        xauth_cookie=$(mcookie)
         export XAUTHORITY="$test_tmpdir/Xauthority"
         echo -n > "$XAUTHORITY"
         export DISPLAY=":$display_num"
@@ -152,7 +154,7 @@ start_xlbiff_under_xvfb() {
                 util_check_dependencies "${wm_dependency[@]}"
                 TEST_WM="${wm_dependency[0]}"
             fi
-            [[ -n "$VERBOSE" ]] && echo "$0: starting window manager $TEST_WM"
+            util_verb "starting window manager $TEST_WM"
             "$TEST_WM" 2>> "$logdir/xvfb.$current_test_name.log" &
             util_wait_for_client_has_connected "Sawfish|Metacity|$TEST_WM" \
                 || continue
@@ -164,7 +166,8 @@ start_xlbiff_under_xvfb() {
         fi
 
         # everything started up successfully
-        "$xlbiff_to_test" "$@" &
+        echo "$xlbiff_to_test" "$@" >> "$logdir/xvfb.$current_test_name.log"
+        "$xlbiff_to_test" "$@" >> "$logdir/xvfb.$current_test_name.log" 2>&1 &
         xlbiff_pid=$!
         return
     done
@@ -178,7 +181,28 @@ util_wait_for_client_has_connected() {
 }
 
 util_client_has_connected() {
-    xwininfo -root -children 2>&1 | egrep -q -i "$util_window_name_pattern"
+    xwininfo -root -children 2>&1 | grep -E -q -i "$util_window_name_pattern"
+}
+
+# append to the log, and if verbose to stdout.
+# prepend the messages with program name and time.
+util_logv() {
+    local prefix
+    prefix="$0 $(date +'%H:%M:%S.%3N')"
+    echo "$prefix" "$@" >> "$logdir/xvfb.$current_test_name.log"
+    if [[ -n "$VERBOSE" ]]; then
+        echo "$prefix" "$@"
+    fi
+}
+
+# if verbose, write to stdout.
+# prepend the messages with program name and time.
+util_verb() {
+    if [[ -n "$VERBOSE" ]]; then
+        local prefix
+        prefix="$0 $(date +'%H:%M:%S.%3N')"
+        echo "$prefix" "$@"
+    fi
 }
 
 # Returns success if test with this name should be run.
@@ -201,7 +225,7 @@ start_test() {
     fi
     current_test_name=$test_name
     ((num_tests_run++))
-    [[ -n "$VERBOSE" ]] && echo "$0: starting test $current_test_name"
+    util_verb "starting test $current_test_name"
     return 0
 }
 
@@ -233,9 +257,11 @@ loop_for() {
     local return_on_failure="$4"
 
     local child_alive=1
+    local -i loops_done=0
     while sleep 0.1; do
-        if ((--loop_count <= 0)); then
-            echo "$0: timed out waiting for $success_function" \
+        if ((++loops_done > loop_count)); then
+            echo "$0 $(date +'%H:%M:%S.%3N') timed out" \
+                 "after $loop_count tries waiting for $success_function" \
                  "in test $current_test_name $context_msg" >&2
             xauth -v -i -n list >&2
             xwininfo -root -tree >&2
@@ -247,16 +273,17 @@ loop_for() {
             child_alive=0
         fi
         if $success_function; then
-            [[ -n "$VERBOSE" ]] && echo "$0: $success_function true"
+            util_logv "try $loops_done/$loop_count: $success_function true"
             break
         fi
         if [[ "$child_alive" = 0 ]]; then
-            echo "$0: child process has died waiting for $success_function" \
+            echo "$0: child process has died on try $loops_done/$loop_count" \
+                 "waiting for $success_function" \
                  "in test $current_test_name $context_msg" >&2
             [[ -n "$return_on_failure" ]] && return 1
             exit 1
         fi
-        [[ -n "$VERBOSE" ]] && echo "$0: $success_function false"
+        util_verb "try $loops_done/$loop_count: $success_function false"
     done
 }
 
