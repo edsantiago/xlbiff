@@ -71,12 +71,14 @@ get_window_corners() {
     local corners i
     for ((i=1; i<=10; ++i)); do
         corners=$(xwininfo -name "$xlbiff_name" | grep Corners:)
-        [[ -z "$USE_WM" ]] && break
-        # Upper left corner, with metacity,
-        # should be +0+37 or +0+1007 (for bottom).
-        [[ ! "$corners" =~ [+]0[+]0 ]] &&
-            [[ ! "$corners" =~ [+]0[+]1005 ]] &&
-            break
+        if [[ -n "$corners" ]]; then
+            [[ -z "$USE_WM" ]] && break
+            # Upper left corner, with metacity,
+            # should be +0+37 or +0+1007 (for bottom).
+            [[ ! "$corners" =~ [+]0[+]0 ]] &&
+                [[ ! "$corners" =~ [+]0[+]1005 ]] &&
+                break
+        fi
         # WM moves the window after it first maps; wait for it
         util_logv "waiting $i/10 with $corners"
         sleep 0.1
