@@ -7,6 +7,8 @@ History
 
  * Version 4.6
    + scanCommand accepts a "rows" parameter with additional %d
+   + xlbiff.form used by default
+   + xlbiff.form moved to nmh's config directory, so "scan" can find it
    + Developers: Test logging improved
    + Developers: -debug output is line-buffered, not fully buffered
 

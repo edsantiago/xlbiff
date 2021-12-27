@@ -21,7 +21,7 @@ AC_SUBST(appdefaultdir)
 AC_ARG_WITH(xmhformdir,
 	AS_HELP_STRING([--with-xmhformdir=<pathname>],
 	  [specify install directory for xlbiff.form file]),
-	[xmhformdir="$withval"], [xmhformdir="${datadir}/mh"])
+	[xmhformdir="$withval"], [xmhformdir="${sysconfdir}/nmh"])
 AC_SUBST(xmhformdir)
 
 AC_SEARCH_LIBS([XCloseDisplay], [X11])

@@ -5,13 +5,13 @@
 !
 ! Message text and background colors
 !
-!*foreground:		purple
-!*background:		green
+! #440088 is very dark purple.  #ccffcc is very pale green
+*foreground:		#440088
+*background:		#ccffcc
 !
 ! command to use for reading new mail info
 !
-*scanCommand:		/usr/bin/mh/scan -file %s -width %d 2>&1
-!*scanCommand:		scan -file %s -width %d -form xlbiff.form 2>&1
+*scanCommand:		/usr/bin/mh/scan -file %s -width %d -form xlbiff.form 2>&1
 !*scanCommand:		echo 'x' | mail | grep '^.[UN]'
 !*scanCommand:		frm
 !
@@ -30,6 +30,7 @@
 !
 ! miscellaneous
 !
+*geometry:		-0+0
 *bottom:		False
 *led:			0
 *ledPopdown:		False
