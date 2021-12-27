@@ -1,9 +1,10 @@
-.TH XLBIFF 1 "29 Sept 2021"
+.TH XLBIFF 1 "29 Nov 2021"
 .SH NAME
 xlbiff \- mail notification pop-up with configurable message scans
 .SH SYNOPSIS
 .B xlbiff
 [ \fI\-option\fP ... ]
+[ \fImail_file_or_imap_server\fP ]
 .SH DESCRIPTION
 Is \*(lqyou have mail\*(rq not quite enough detail?  Is a per-message
 notification too much?  Welcome to
@@ -15,7 +16,7 @@ presents enough information to tell you: Is this new mail worth
 reading right now?  And it stops distracting you once you decide.
 .PP
 .I Xlbiff
-waits in the background, monitoring your mailbox file (or
+waits in the background, monitoring your mailbox file or IMAP server (or
 running your custom check-mail script).  When a new message arrives,
 it invokes the MH
 .IR scan (1)
@@ -76,6 +77,15 @@ Opposite of \-bottom.
 This option specifies the name of the file which should be monitored.  By
 default, it watches /var/mail/\fIusername\fP, where \fIusername\fP
 is your login name.
+.IP
+The \*(lqfilename\*(rq can also be the name of an IMAP server, in
+which case
+.IR xlbiff ,
+assisted by its default
+.I checkCommand/scanCommand
+script
+.IR mailbox-preview (1),
+will peek at your new messages on this server.
 .TP 8
 .B \-rows \fIheight\fP
 This option specifies the maximum height, in lines of text, of the
@@ -154,20 +164,29 @@ Specifies a shell command to be executed to list the contents of mailbox
 argument to a \fIsystem\fP(3) call and may therefore contain I/O redirection.
 The command's stdout is used to generate the window.  
 Internally, the command is generated as
-.sp
+.IP
+.RS 12
+.EX
 .nf
-              sprintf(buf, scanCommand, file, columns, rows)
+sprintf(buf, scanCommand, file, columns, rows)
 .fi
-.sp
+.EE
+.RE
+.IP
 so a %s, %d and %d respectively in \fBscanCommand\fP will generate the values
 of \fBfile\fP, \fBcolumns\fP, and \fBrows\fP.  The default 
-.B scanCommand
-is
-.sp
+.BR scanCommand ,
+specified by the
+.I XLbiff
+application resources file, is
+.IP
+.RS 12
+.EX
 .nf
-		scan \-file %s \-width %d 2>&1
+mailbox\-preview %s \-\-width %d \-\-max\-messages %d 2>&1
 .fi
-.sp
+.EE
+.RE
 .TP 8
 .B \-checkCommand \fIcommand\fP
 Specifies a shell command to be executed to check for new mail (or some
@@ -179,46 +198,64 @@ an exit status of 0 indicates that a change in condition demands a new
 evaluation of scanCommand and subsequent popup, 1 indicates no change 
 in status, and 2 indicates that the condition has been cleared and the
 .I xlbiff
-window should pop down.  By default, no shell command is provided.
-.sp
-This option may be useful to monitor logins (by checking update times
-of /etc/utmp), when using POP or other custom maildrop mechanisms, and
-so forth.
-.sp
-Similarly to scanCommand, the checkCommand is generated internally as
-.sp
+window should pop down.  The default, specified by the
+.I XLbiff
+application resources file, is
+.IP
+.RS 12
+.EX
 .nf
-             sprintf(buf, checkCommand, file, previous)
+mailbox\-preview %s \-\-check %d
 .fi
-.sp
+.EE
+.RE
+.IP
+Similarly to scanCommand, the checkCommand is generated internally as
+.IP
+.RS 12
+.EX
+.nf
+sprintf(buf, checkCommand, file, previous)
+.fi
+.EE
+.RE
+.IP
 .B previous
 is the numeric value output by the last time checkCommand was run, or
 zero the first time.  This is useful for allowing the checkCommand to
 maintain state in a primitive fashion.  For instance, a checkCommand 
 such as
-.sp
+.IP
+.RS 12
+.EX
 .nf
-           compare_size %s %d
+compare_size %s %d
 .fi
-.sp
+.EE
+.RE
+.IP
 would "do the right thing" if 
 .B compare_size
 were a script such as:
-.sp
+.IP
+.RS 12
+.EX
 .nf
-         #!/bin/sh
-         NEWSIZE=`wc -c <$1`
-         echo $NEWSIZE
-         if [ $NEWSIZE -ne $2 ]; then
-             if [ $NEWSIZE -eq 0 ]; then
-                 exit 2
-             else
-                 exit 0
-             fi
-         fi
-         exit 1
+#!/bin/sh
+NEWSIZE=`wc -c <$1`
+echo $NEWSIZE
+if [ $NEWSIZE -ne $2 ]; then
+    if [ $NEWSIZE -eq 0 ]; then
+        exit 2
+    else
+        exit 0
+    fi
+fi
+exit 1
 .fi
-.sp
+.EE
+.RE
+.IP
 The author of
 .I xlbiff
 uses this facility to keep track of several maildrops with one command.
@@ -332,14 +369,16 @@ This action causes
 to exit.
 .PP
 The default translations are 
-.sp
+.PP
+.RS 4
+.EX
 .nf
-        <Button1Press>:  popdown()
-        <Button2Press>:  mailer()
-        <Button3Press>:  exit()
+<Button1Press>:  popdown()
+<Button2Press>:  mailer()
+<Button3Press>:  exit()
 .fi
-.sp
-
+.EE
+.RE
 .SH CUSTOMIZING
 .PP
 You may want to tweak some values in an app-defaults file and/or add
@@ -397,6 +436,7 @@ or
 .I ~/.Xresources
 file.
 .SH "SEE ALSO"
+.IR mailbox-preview (1),
 .IR X (1),
 .IR scan (1)
 .SH BUGS

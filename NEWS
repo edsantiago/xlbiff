@@ -6,6 +6,7 @@ History
   the ideas and, in many cases, patches and source code.
 
  * Version 4.6
+   + IMAP support added with new script mailbox-preview
    + scanCommand accepts a "rows" parameter with additional %d
    + xlbiff.form used by default
    + xlbiff.form moved to nmh's config directory, so "scan" can find it

@@ -9,9 +9,14 @@
 *foreground:		#440088
 *background:		#ccffcc
 !
+! command to check whether there is new mail
+!
+*checkCommand:		mailbox-preview %s --check %d
+!
 ! command to use for reading new mail info
 !
-*scanCommand:		/usr/bin/mh/scan -file %s -width %d -form xlbiff.form 2>&1
+*scanCommand:		mailbox-preview %s --width %d --max-messages %d 2>&1
+!*scanCommand:		/usr/bin/mh/scan -file %s -width %d -form xlbiff.form 2>&1
 !*scanCommand:		echo 'x' | mail | grep '^.[UN]'
 !*scanCommand:		frm
 !

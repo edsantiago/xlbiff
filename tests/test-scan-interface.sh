@@ -36,8 +36,8 @@ chmod -- 755 "$test_tmpdir"/scan
 # Change the "scan" program used in the installed X resources
 # file to point to our wrapper instead.
 
-xrm_scan=$(sed -n "/^[^:]*scanCommand:/s|$scan_binary|$test_tmpdir/scan|p" \
-               "$resource_file")
+printf -v xrm_sed_sub 's|mailbox-preview|& --scanproc %q/scan|p' "$test_tmpdir"
+xrm_scan=$(sed -n "/^[^:!]*scanCommand:/$xrm_sed_sub" "$resource_file")
 
 # Create the mail file
 cat > "$test_tmpdir"/mailbox <<EOF
