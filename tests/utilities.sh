@@ -3,9 +3,7 @@
 
 # Side effect: sets variables logdir and xlbiff_to_test
 parse_command_line() {
-    cd $(dirname "$0")/.. || exit 1
     logdir=
-    xlbiff_to_test=./xlbiff
     while [[ $# -gt 0 ]]; do
         case $1 in
             --logdir)
@@ -16,13 +14,8 @@ parse_command_line() {
                 logdir=$2
                 shift
                 ;;
-            --binary)
-                if [[ $# -lt 2 ]]; then
-                    echo "$0: --binary requires an argument" >&2
-                    exit 1
-                fi
-                xlbiff_to_test=$2
-                shift
+            --as-installed)
+                as_installed=1
                 ;;
             -*)
                 echo "$0: unknown option: $1" >&2
@@ -35,6 +28,19 @@ parse_command_line() {
         esac
         shift
     done
+    if [[ -n "$as_installed" ]]; then
+        # change out of the source package root, so we don't accidentally
+        # use resource and form files there when we think we are using
+        # installed versions.
+        cd "$(dirname "$0")" || exit 1
+        xlbiff_to_test=/usr/bin/xlbiff        
+        resource_file=/etc/X11/app-defaults/XLbiff
+    else
+        # as built
+        xlbiff_to_test=./xlbiff
+        resource_file=./XLbiff
+        PATH=.:/usr/bin
+    fi
 }
 
 # programs used:

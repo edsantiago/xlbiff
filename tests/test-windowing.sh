@@ -2,7 +2,7 @@
 # Tests of xlbiff window behavior.
 
 # Usage:
-# test-windowing.sh [--logdir dirname] [--binary path_to_xlbiff]
+# test-windowing.sh [--logdir dirname] [--as-installed]
 
 . "$(dirname "$0")"/utilities.sh
 

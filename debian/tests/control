@@ -1,12 +1,11 @@
 # -*- conf -*-
 Test-Command: TMPDIR="$AUTOPKGTEST_TMP" ./tests/test-scan-interface.sh
-  --logdir "$AUTOPKGTEST_ARTIFACTS" --binary /usr/bin/xlbiff
+  --logdir "$AUTOPKGTEST_ARTIFACTS" --as-installed
 Features: test-name=scantest
 Depends: @, xvfb, xauth, util-linux, xfonts-base, x11-utils
 
 Test-Command: TMPDIR="$AUTOPKGTEST_TMP" ./tests/test-windowing.sh
-  --logdir "$AUTOPKGTEST_ARTIFACTS" --binary /usr/bin/xlbiff
+  --logdir "$AUTOPKGTEST_ARTIFACTS" --as-installed
 Features: test-name=windowing
 Depends: @, xvfb, xauth, util-linux, xfonts-base, x11-utils, procps,
   xdotool, metacity
-

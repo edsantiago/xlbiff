@@ -3,7 +3,7 @@
 # The "scan" program needs some setup; this tests that
 # xlbiff does it if needed.
 
-# Usage: test-scan-interface.sh [--logdir dirname] [--binary path_to_xlbiff]
+# Usage: test-scan-interface.sh [--logdir dirname] [--as-installed]
 
 . "$(dirname "$0")"/utilities.sh
 
@@ -37,7 +37,7 @@ chmod -- 755 "$test_tmpdir"/scan
 # file to point to our wrapper instead.
 
 xrm_scan=$(sed -n "/^[^:]*scanCommand:/s|$scan_binary|$test_tmpdir/scan|p" \
-               ./XLbiff.ad)
+               "$resource_file")
 
 # Create the mail file
 cat > "$test_tmpdir"/mailbox <<EOF
