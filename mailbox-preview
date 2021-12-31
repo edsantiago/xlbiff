@@ -73,15 +73,15 @@ def main():
         '--check', dest='old_size', type=int, default=-1,
         help='check for mailbox change instead of scanning; see xlbiff(1)')
     argparser.add_argument(
+        '--width', type=int, default=os.getenv("COLUMNS", "80"),
+        help='width in characters to pass to "scan"; default is $COLUMNS')
+    argparser.add_argument(
         '--max-messages', metavar='N', type=int, default=20,
         help='display only the last N (default 20) messages; 0 to display all')
     argparser.add_argument(
         '--form', default='xlbiff.form',
         help='format file for "scan" in place '
         "of xlbiff's default form; see mh-format(5). Default is xlbiff.form")
-    argparser.add_argument(
-        '--width', type=int, default=os.getenv("COLUMNS", "80"),
-        help='width in characters to pass to "scan"; default is $COLUMNS')
     argparser.add_argument(
         '--scanproc', default='/usr/bin/mh/scan',
         help='file name of the "scan" program to pipe the messages through; '
@@ -99,7 +99,8 @@ def main():
     # This treatment of a local filename matches what xlbiff would do without
     # any checkCommand/scanCommand specified.  We support it here so that the
     # user can switch between IMAP and local by merely changing the file.
-    possible_local_file = re.match(r'(?P<topdir>/[^/]+)/.+$', args.server_mailbox)
+    possible_local_file = re.match(r'(?P<topdir>/[^/]+)/.+$',
+                                   args.server_mailbox)
     if possible_local_file:
         from pathlib import Path
         if Path(possible_local_file.group('topdir')).is_dir():
@@ -164,15 +165,12 @@ def main():
     if args.max_messages > 0 and unseen_msg_count > args.max_messages:
         start_msg_index += unseen_msg_count - args.max_messages
     for msg_index in range(start_msg_index, unseen_msg_count):
-
-        # server_preview_available = False # TESTING DO NOT COMMIT
-
         cur_msg = unseen_list[msg_index]
         if server_preview_available:
             body_part = 'PREVIEW'
             encoding = 'utf-8'  # per RFC 8970
         else:
-            # The summary displayed by xlbiff will be more interesting if
+            # The summary will be more interesting if
             # we can find message content and not just multipart MIME headers.
             _ok, structure_data = imapc.fetch(cur_msg, b'BODY')
             part_to_request, encoding = get_displayable_part(structure_data)
@@ -242,10 +240,12 @@ def connect_to_imap(imap_server_name, debug_flag, progname):
               file=sys.stderr)
         if netrc_auth:
             print(f'{progname}: '
-                  f'Used entry in ~/.netrc for machine {imap_server_name!r}')
+                  f'Used entry in ~/.netrc for machine {imap_server_name!r}',
+                  file=sys.stderr)
         else:
             print(f'{progname}: '
-                  f'~/.netrc is missing entry for machine {imap_server_name!r}')
+                  f'~/.netrc is missing entry for machine {imap_server_name!r}',
+                  file=sys.stderr)
         sys.exit(2)
     return imapc
 
