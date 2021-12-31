@@ -25,19 +25,24 @@ mailbox-preview \- list new email messages in an IMAP mailbox
 .ad
 .SH DESCRIPTION
 The
-.I mailbox-preview
+.B mailbox-preview
 program reads an IMAP mailbox and uses
-.IR scan (1)
+.BR scan (1)
 to display a summary, one line per new message.
 It can be used stand-alone on the command line or as the back-end
 of a graphical, literate new-mail notification program such as
-.IR xlbiff (1).
+.BR xlbiff (1).
 .PP
 The optional first argument is an optional name of an IMAP server
-(default "imap"), optionally followed by a colon and a mailbox name
-(default "inbox").  Unless the default name "imap" resolves on your
+(default \*(lqimap\*(rq), optionally followed by a colon and a mailbox name
+(default \*(lqinbox\*(rq).
+Unless the default name
+.I imap
+resolves on your
 network to the name of your IMAP server, you will need this argument.
-It is likely that the default mailbox name "inbox" will work for you.
+It is likely that the default mailbox name
+.I inbox
+will work for you.
 .PP
 Your
 .I ~/.netrc
@@ -45,59 +50,50 @@ file is consulted for the login and password for the IMAP server.
 See the FILES section, below, for the format of this file.
 .PP
 If the first argument to
-.I mailbox-preview
+.B mailbox-preview
 is instead the name of a file under a
 top-level directory that exists, it is treated as the name of a
 local mail drop, and that file is used instead of doing IMAP.
 .PP
 With
-.IR \-\-check ,
+.BR \-\-check ,
 the program conforms to the
 .I checkCommand
 protocol of
-.IR xlbiff (1).
+.BR xlbiff (1).
 The output is the new mailbox size to pass next time as the argument to
-.IR \-\-check .
+.BR \-\-check .
 (The contents of the mailbox are not output.)
 The exit value of the program describes how the mailbox size has
 changed, as documented under the
-.I \-checkCommand
+.B \-checkCommand
 option in 
-.IR xlbiff (1).
-.PP
-Example command lines:
-.PP
-.RS 4
-.EX
-mailbox-preview imap.example.com
-mailbox-preview imap.example.com --check 12
-.EE
-.RE
+.BR xlbiff (1).
 .SH OPTIONS
 .TP 8
 .B \-\-check \fIold_size\fP
 Check for mailbox change instead of scanning; see
 the description above and
-.IR xlbiff (1).
-.TP 8
-.B \-\-max\-messages \fIN\fP
-Display only the last \fIN\fP (default 20) new messages; 0 to display all.
-.TP 8
-.B \-\-form \fIfile\fP
-Format file for
-.IR scan ;
-see
-.IR mh-format (5).
-Default is
-.I xlbiff.form
+.BR xlbiff (1).
 .TP 8
 .B \-\-width \fIN\fP
 Width in characters to pass to
 .IR scan ;
 default is $COLUMNS (from the environment).
 .TP 8
+.B \-\-max\-messages \fIN\fP
+Display only the last \fIN\fP (default 20) new messages; 0 to display all.
+.TP 8
+.B \-\-form \fIfile\fP
+Format file for
+.BR scan ;
+see
+.BR mh-format (5).
+Default is
+.I xlbiff.form
+.TP 8
 .B \-\-scanproc \fIprogram\fP
-File name of the
+Filename of the
 program to pipe the messages through; default
 .IR /usr/bin/mh/scan .
 If set explicitly to an empty string, the messages will be 
@@ -114,26 +110,43 @@ debug level; level 4 displays the IMAP protocol messages.
 .TP 8
 ~/.netrc
 Login information for your IMAP server.
-It needs to have a
+If your IMAP server requires a password, supply it on a
 .I machine
 line matching the IMAP server name, for example
-.PP
+.IP
 .RS 12
 .EX
 machine \fIserver_name\fP login \fIaccount_name\fP password \fIyour_pw\fP
 .EE
 .RE
+.IP
+The
+.I login
+field defaults to your user name.
 .SH "BUGS REPORTS"
 When reporting interoperability problems with an IMAP server,
 include the output of
 .PP
 .RS 2
 .EX
-mailbox-preview \fIsrvr\fP --imap-debug=4 --quiet 2>&1 | grep -v " LOGIN "
+mailbox\-preview \fIsrvr\fP \-\-imap\-debug=4 \-\-quiet 2>&1 | grep \-v " LOGIN "
 .EE
 .RE
-.SH "SEE ALSO"
-.IR xlbiff (1),
-.IR scan (1)
+.SH EXAMPLE
+.PP
+Example command lines:
+.PP
+.RS 4
+.EX
+.\" the nf is needed by man2html
+.nf
+mailbox\-preview imap.example.com
+mailbox\-preview imap.example.com \-\-check 12
+.fi
+.EE
+.RE
 .SH AUTHOR
 Stephen Gildea, November 2021
+.SH "SEE ALSO"
+.BR xlbiff (1),
+.BR scan (1)

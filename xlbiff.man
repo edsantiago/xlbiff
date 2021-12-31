@@ -8,30 +8,30 @@ xlbiff \- mail notification pop-up with configurable message scans
 .SH DESCRIPTION
 Is \*(lqyou have mail\*(rq not quite enough detail?  Is a per-message
 notification too much?  Welcome to
-.IR xlbiff ,
+.BR xlbiff ,
 the X Literate Biff.
 .PP
-.I Xlbiff
+.B xlbiff
 presents enough information to tell you: Is this new mail worth
 reading right now?  And it stops distracting you once you decide.
 .PP
-.I Xlbiff
+.B xlbiff
 waits in the background, monitoring your mailbox file or IMAP server (or
 running your custom check-mail script).  When a new message arrives,
 it invokes the MH
-.IR scan (1)
+.BR scan (1)
 command (or your custom mail-scanning
 script) and pops up a window with the output (typically the
 .I From
 and
 .I Subject
 line of each new message).  If more mail arrives,
-.I xlbiff
+.B xlbiff
 scans again and resizes its preview window accordingly.
 .PP
 Clicking the left mouse button anywhere in the window causes it to
 vanish.  It will also vanish if the mailbox becomes empty.
-.I Xlbiff
+.B xlbiff
 stays out of your way when there is no new mail and pops up only
 when something requests your attention.
 .PP
@@ -50,56 +50,108 @@ Features:
 .IP "" 2
 \(bu lets you click anywhere on it; no trying to select a tiny \*(lqx\*(rq
 .PD
+.SH "GETTING STARTED"
+.PP
+If your new mail arrives in a local mail file in the usual system directory:
+.PP
+.RS 4
+.EX
+.nf
+xlbiff
+.fi
+.EE
+.RE
+.PP
+If your mail file is in a different location, you will need to specify
+the filename:
+.PP
+.RS 4
+.EX
+.nf
+xlbiff ~/Mailbox
+.fi
+.EE
+.RE
+.PP
+.nf
+If your mail is on an IMAP server, specify the server's name:
+.fi
+.PP
+.RS 4
+.EX
+.nf
+xlbiff imap.example.com
+.fi
+.EE
+.RE
+.PP
+Whichever way you start xlbiff, if you have new mail, it should pop up a
+window displaying summary lines for the new messages.
+(If you don't have new mail, you won't see any window, which is how
+.B xlbiff
+tries to stay out of your way.)
+The window will stay visible until you click it away or read the new mail.
+.PP
+You may need an entry in
+.I ~/.netrc
+to provide login credentials for your IMAP server.  See
+.BR \%mailbox-preview (1)
+for the format of this file.
+.PP
+When you have the correct options to
+.B xlbiff
+figured out, you will probably want to run it in the background or
+start it at the beginning of your X session.
+
 .SH OPTIONS
-.I Xlbiff
+.B xlbiff
 accepts all of the standard X Toolkit command line options along with the
 additional options listed below:
 .TP 8
-.B \-help
-This option indicates that a brief summary of the allowed options should be
-printed on standard output.
+.B \-file \fIfile_or_server_name\fP
+This option specifies the name of the file or IMAP server that should
+be monitored.  By default, it watches file /var/mail/\fIusername\fP,
+where \fIusername\fP is your login name.
+.IP
+If given the name of an IMAP server,
+.BR xlbiff ,
+assisted by its default
+.I checkCommand/scanCommand
+script
+.BR \%mailbox-preview (1),
+will peek at your new messages on this server.
+.IP
+The
+.B \-file
+is optional; a non-option argument will be treated the same.
 .TP 8
 .B \-bottom
 This option tells 
-.I xlbiff 
+.B xlbiff 
 to realize/unrealize() the output window instead of using XtPopup/down().
 This has the effect of causing the window manager to reposition the window
 each time it pops up, and is useful for when you specify negative Y
 coordinates, ie, at the bottom of the screen.  Running 
-.I xlbiff
+.B xlbiff
 in this situation without \-bottom would cause new lines to run off the
 bottom edge of the screen.
 .TP 8
 .B \+bottom
 Opposite of \-bottom.
 .TP 8
-.B \-file \fIfilename\fP
-This option specifies the name of the file which should be monitored.  By
-default, it watches /var/mail/\fIusername\fP, where \fIusername\fP
-is your login name.
-.IP
-The \*(lqfilename\*(rq can also be the name of an IMAP server, in
-which case
-.IR xlbiff ,
-assisted by its default
-.I checkCommand/scanCommand
-script
-.IR mailbox-preview (1),
-will peek at your new messages on this server.
-.TP 8
 .B \-rows \fIheight\fP
 This option specifies the maximum height, in lines of text, of the
-.I xlbiff
+.B xlbiff
 window.  The default is 20.
 .TP 8
 .B \-columns \fIwidth\fP
 This option specifies the maximum width, in characters, of the
-.I xlbiff
+.B xlbiff
 window.  The default is 80.
 .TP 8
 .B \-resetSaver
 If this option is set, 
-.I xlbiff
+.B xlbiff
 will reset the screen saver when new mail comes in.  This is useful if 
 you're doing something near your workstation but not on it.
 .TP 8
@@ -108,7 +160,7 @@ Opposite of \-resetSaver.
 .TP 8
 .B \-update \fIseconds\fP
 This option specifies the frequency in seconds at which
-.I xlbiff
+.B xlbiff
 should update its display.  The default is 15 seconds.
 .TP 8
 .B \-fade \fIseconds\fP
@@ -193,11 +245,11 @@ Specifies a shell command to be executed to check for new mail (or some
 other condition) rather than simply examining the size of the mail file.
 The specified string value is used as the argument to a \fIpopen\fP(3) 
 call, and the output generated is important.  Like
-.I xbiff,
+.BR xbiff ,
 an exit status of 0 indicates that a change in condition demands a new
 evaluation of scanCommand and subsequent popup, 1 indicates no change 
 in status, and 2 indicates that the condition has been cleared and the
-.I xlbiff
+.B xlbiff
 window should pop down.  The default, specified by the
 .I XLbiff
 application resources file, is
@@ -234,7 +286,7 @@ compare_size %s %d
 .EE
 .RE
 .IP
-would "do the right thing" if 
+would do the right thing if 
 .B compare_size
 were a script such as:
 .IP
@@ -257,7 +309,7 @@ exit 1
 .RE
 .IP
 The author of
-.I xlbiff
+.B xlbiff
 uses this facility to keep track of several maildrops with one command.
 See the 
 .I Bcheck
@@ -269,7 +321,7 @@ scripts, included.
 This option specifies how loud the bell should be rung when new mail comes in.
 .PP
 The following standard X Toolkit command line arguments are commonly used with 
-.I xlbiff:
+.BR xlbiff :
 .TP 8
 .B \-display \fIdisplay\fP
 This option specifies the X server to contact.
@@ -286,6 +338,10 @@ This option specifies the color to use for the foreground of the window.
 .B \-xrm \fIresourcestring\fP
 This option specifies a resource string to be used.  This is especially
 useful for setting resources that do not have separate command line options.
+.TP 8
+.B \-help
+This option indicates that a brief summary of the allowed options should be
+printed on standard output.
 .SH RESOURCES 
 The application class name is XLbiff.
 It understands all of the core resource names and classes as well as:
@@ -348,7 +404,7 @@ resource.
 .B volume (\fPclass\fB Volume)
 Same as the \fB\-volume\fP option.
 .SH ACTIONS
-.I Xlbiff
+.B xlbiff
 provides the following actions for use in event translations:
 .TP 8
 .B popdown()
@@ -356,16 +412,16 @@ This action causes the window to vanish.
 .TP 8
 .B mailer()
 This action causes 
-.I xlbiff
+.B xlbiff
 to pop down the main window and run the defined
 .B mailerCommand
 (if any), waiting for it to exit.  Then
-.I xlbiff
+.B xlbiff
 will check for new mail, and if necessary pop up again.
 .TP 8
 .B exit()
 This action causes 
-.I xlbiff
+.B xlbiff
 to exit.
 .PP
 The default translations are 
@@ -389,24 +445,26 @@ for examples of what you can customize.
 .PP
 You also probably want to tell your
 window manager not to put borders or titlebars or whatever around the
-.I xlbiff
+.B xlbiff
 window.
 .PP
 Note that an MH format file,
 .IR xlbiff.form ,
 is included.  This form:
 .PD 0
+.na
 .IP "" 2
 \(bu omits message number, which is meaningless in this context
 .IP "" 2
-\(bu omits message size, since \*(lqscan -file\*(rq can't figure it out
+\(bu omits message size, since \fIscan\ \-file\fP can't figure it out
 .IP "" 2
 \(bu puts a \*(lq*\*(rq next to the message if your name is on the To: list
-   (to distinguish from mailing lists and cc's)
+(to distinguish from mailing lists and cc's)
 .IP "" 2
 \(bu displays the date in a friendly format
 .IP "" 2
-\(bu packs as much subject & body into one line as possible.
+\(bu packs as much subject and body into one line as possible.
+.ad
 .PD
 .PP
 There are also two sample scripts,
@@ -429,30 +487,34 @@ is used to get the default host and display number.
 default mail file to check.
 .TP 8
 /etc/X11/app-defaults/XLbiff
-System app-defaults file.  Override entries here in your own
-app-defaults file or your own
-.I ~/.Xdefaults
+System app-defaults file.
+Override entries here in your own app-defaults file or your own
+.I \%~/.Xdefaults
 or
-.I ~/.Xresources
+.I \%~/.Xresources
 file.
+.TP 8
+~/.netrc
+Login info for your IMAP server.  See
+.BR \%mailbox-preview (1).
 .SH "SEE ALSO"
-.IR mailbox-preview (1),
-.IR X (1),
-.IR scan (1)
+.BR mailbox-preview (1),
+.BR X (1),
+.BR scan (1)
 .SH BUGS
-specifying dimensions in \-geometry causes badness.
+Specifying dimensions in \-geometry causes badness.
 .PP
 The \fBled\fP option does not work on Suns before SunOS 4.1/X11R5.
 .SH AUTHOR
 Ed Santiago <ed@edsantiago.com>
 .SH ACKNOWLEDGMENTS
-.I Xlbiff
+.B xlbiff
 took shape around the \fBxgoodbye\fP sample program
 in the O'Reilly \fIX Toolkit Intrinsics Programming Manual\fP.  A lot of
 code was stolen from \fBxbiff\fP, including this man page.  Thanks also
 to Stephen Gildea (gildea@expo.lcs.mit.edu) for the many, many 
 contributions that made
-.I xlbiff 
+.B xlbiff 
 grow from a midnight hack to a more mature product.
 .PP
 The
