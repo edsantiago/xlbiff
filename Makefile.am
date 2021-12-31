@@ -35,7 +35,7 @@ CLAMP_DATE = $(shell cd $(srcdir) && \
 
 # Rule modified from automake 1.16.1 to write a reproducible dist file.
 dist-gzip: distdir
-	chmod -R -- go-w $(distdir)
+	find $(distdir) -perm /go+w -exec chmod go-w '{}' +
 	LANG= LC_COLLATE= GZIP= tar --sort=name \
 	    --owner=0 --group=0 --numeric-owner \
 	    --mtime=@$(CLAMP_DATE) --clamp-mtime \
