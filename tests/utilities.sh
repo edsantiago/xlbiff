@@ -160,7 +160,7 @@ start_xlbiff_under_xvfb() {
                 util_check_dependencies "${wm_dependency[@]}"
                 TEST_WM="${wm_dependency[0]}"
             fi
-            util_verb "starting window manager $TEST_WM"
+            util_logv "starting window manager $TEST_WM"
             "$TEST_WM" 2>> "$logdir/xvfb.$current_test_name.log" &
             util_wait_for_client_has_connected "Sawfish|Metacity|$TEST_WM" \
                 || continue
@@ -201,16 +201,6 @@ util_logv() {
     fi
 }
 
-# if verbose, write to stdout.
-# prepend the messages with program name and time.
-util_verb() {
-    if [[ -n "$VERBOSE" ]]; then
-        local prefix
-        prefix="$0 $(date +'%H:%M:%S.%3N')"
-        echo "$prefix" "$@"
-    fi
-}
-
 # Returns success if test with this name should be run.
 # TEST_SELECTION is a comma-separated list of tests to run
 # or empty to run all tests
@@ -231,7 +221,7 @@ start_test() {
     fi
     current_test_name=$test_name
     ((num_tests_run++))
-    util_verb "starting test $current_test_name"
+    util_logv "starting test $current_test_name"
     return 0
 }
 
@@ -289,7 +279,7 @@ loop_for() {
             [[ -n "$return_on_failure" ]] && return 1
             exit 1
         fi
-        util_verb "try $loops_done/$loop_count: $success_function false"
+        util_logv "try $loops_done/$loop_count: $success_function false"
     done
 }
 

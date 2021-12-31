@@ -35,7 +35,7 @@ is_xlbiff_invisible() {
 }
 
 is_xlbiff_running() {
-    ps ax | grep "$xlbiff_name" | grep -E -v -q 'bash|xvfb|grep'
+    ps ax | grep "$xlbiff_name" | grep -E -v -q 'bash|Xvfb|grep'
 }
 
 is_xlbiff_not_running() {
@@ -52,7 +52,7 @@ does_mailer_action_file_exist() {
 
 send_key() {
     local key="$1"
-    util_verb "sending key $key to $xlbiff_name"
+    util_logv "sending key $key to $xlbiff_name"
     # also send keyup in case client thinks key is still down from
     # a previous half-delivered key
     msg=$(xdotool search --name "$xlbiff_name" \
@@ -66,11 +66,14 @@ send_key() {
     fi
 }
 
-# Echoes the corner positions
+# sets variable named by $1 to the corner positions
 get_window_corners() {
+    local -n return_var="$1"
     local corners i
     for ((i=1; i<=10; ++i)); do
-        corners=$(xwininfo -name "$xlbiff_name" | grep Corners:)
+        corners=$(xwininfo -name "$xlbiff_name" \
+                           2>> "$logdir/xvfb.$current_test_name.log" \
+                      | grep Corners:)
         if [[ -n "$corners" ]]; then
             [[ -z "$USE_WM" ]] && break
             # Upper left corner, with metacity,
@@ -83,7 +86,7 @@ get_window_corners() {
         util_logv "waiting $i/10 with $corners"
         sleep 0.1
     done
-    echo "$corners"
+    return_var="$corners"
 }
 
 pass_test_if_window_unmoved() {
@@ -97,7 +100,9 @@ pass_test_if_window_unmoved() {
 is_window_unmoved() {
     local top_bottom_all="$1"
     local corners_1="$2"
-    check_some_corners "$top_bottom_all" "$corners_1" "$(get_window_corners)"
+    local corners_2
+    get_window_corners corners_2
+    check_some_corners "$top_bottom_all" "$corners_1" "$corners_2"
 }
 
 check_some_corners() {
@@ -213,7 +218,7 @@ run_test_variations incmail test_sequence_incmail
 
 test_sequence_moremail() {
     local window_corners_1
-    window_corners_1="$(get_window_corners)"
+    get_window_corners window_corners_1
     send_key "d"
     loop_for 5 is_xlbiff_invisible
     send_new_mail
@@ -234,12 +239,12 @@ run_test_variations moremail test_sequence_moremail
 
 test_sequence_mailer_noinc() {
     local window_corners_1 window_corners_2
-    window_corners_1="$(get_window_corners)"
+    get_window_corners window_corners_1
 
     send_key "m"
     loop_for 5 does_mailer_action_file_exist msg1
     loop_for 5 is_xlbiff_visible msg1
-    window_corners_2="$(get_window_corners)"
+    get_window_corners window_corners_2
     check_some_corners all "$window_corners_1" "$window_corners_2"
     local test_result_1="$?"
 
@@ -288,7 +293,8 @@ test_sequence_fade() {
 run_test_variations fade test_sequence_fade -fade 0.3
 
 test_sequence_refresh() {
-    window_corners_1="$(get_window_corners)"
+    local window_corners_1
+    get_window_corners window_corners_1
     send_key d
     loop_for 10 is_xlbiff_invisible
     loop_for 30 is_xlbiff_visible
