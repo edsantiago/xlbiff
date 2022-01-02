@@ -114,8 +114,12 @@ start_xlbiff_under_xvfb() {
     export TMPDIR="$test_tmpdir"
     PATH=$test_tmpdir:$PATH
 
+    util_logv "$(dpkg-query --show \
+                 -f 'Package ${Package} ${Version} ${Status}' xlbiff 2>&1)"
+
     if [[ -n "$NO_XVFB" ]]; then
-        echo "$xlbiff_to_test" "$@" >> "$logdir/xvfb.$current_test_name.log"
+        util_logv "$("$xlbiff_to_test" -version 2>&1)"
+        util_logv "$xlbiff_to_test" "$@"
         timeout 60 "$xlbiff_to_test" "$@" &
         xvfb_pid=$!
         return
@@ -139,7 +143,7 @@ start_xlbiff_under_xvfb() {
         # Pass SIGUSR1 as ignored, so Xvfb will signal its parent when ready.
         # See xserver(1).
         (trap '' USR1; exec Xvfb "$DISPLAY" -auth "$XAUTHORITY" \
-                 2> "$logdir/xvfb.$current_test_name.log") &
+                 2>> "$logdir/xvfb.$current_test_name.log") &
         xvfb_pid=$!
 
         # Wait for Xvfb to to either signal us (if ready) or die (if
@@ -172,7 +176,8 @@ start_xlbiff_under_xvfb() {
         fi
 
         # everything started up successfully
-        echo "$xlbiff_to_test" "$@" >> "$logdir/xvfb.$current_test_name.log"
+        util_logv "$("$xlbiff_to_test" -version 2>&1)"
+        util_logv "$xlbiff_to_test" "$@"
         "$xlbiff_to_test" "$@" >> "$logdir/xvfb.$current_test_name.log" 2>&1 &
         xlbiff_pid=$!
         return
@@ -221,6 +226,8 @@ start_test() {
     fi
     current_test_name=$test_name
     ((num_tests_run++))
+    mv "$logdir/xvfb.$current_test_name.log" \
+       "$logdir/xvfb.$current_test_name.log.prev" 2>/dev/null
     util_logv "starting test $current_test_name"
     return 0
 }
