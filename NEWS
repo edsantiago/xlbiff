@@ -5,12 +5,12 @@ History
   Where applicable, changes are attributed to the people who submitted
   the ideas and, in many cases, patches and source code.
 
- * Version 4.6
-   + IMAP support added with new script mailbox-preview
+ * Version 4.6 (1 Jan 2022)
+   + IMAP support added with new script "mailbox-preview"
    + scanCommand accepts a "rows" parameter with additional %d
    + xlbiff.form used by default
    + xlbiff.form moved to nmh's config directory, so "scan" can find it
-   + Developers: Test logging improved
+   + Developers: Test logging and robustness improved
    + Developers: -debug output is line-buffered, not fully buffered
 
  * Version 4.5.6  (28 Nov 2021)

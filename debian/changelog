@@ -1,3 +1,12 @@
+xlbiff (4.6-1) unstable; urgency=low
+
+  * mailbox-preview: new script to support IMAP
+  * scanCommand accepts a "rows" parameter with additional %d
+  * xlbiff.form moved to nmh's config directory and used by default
+  * Developers: test logging and robustness improved
+
+ -- Stephen Gildea <stepheng+debian@gildea.com>  Sat, 01 Jan 2022 20:18:28 -0800
+
 xlbiff (4.5.6-1) unstable; urgency=low
 
   * Tests use Xvfb directly, eliminating xvfb-run script
