@@ -130,15 +130,19 @@ def main():
 
     imapc = connect_to_imap(imap_server_name, args.imap_debug, argparser.prog)
 
-    # capability is not documented, so perhaps not a stable interface
+    # capability() is not documented, so perhaps not a stable interface
     try:
-        _ok, post_login_capabilities = imapc.capability()
-        post_login_capabilities = post_login_capabilities[-1].decode().split()
+        # Check for capabilities the server already sent us.
+        _ok, post_login_capabilities = imapc.response('CAPABILITY')
+        # Documentation disagrees with implementation about the return value.
+        if post_login_capabilities in (None, [None]):
+            _ok, post_login_capabilities = imapc.capability()
+        capability_list = post_login_capabilities[-1].decode().split()
     except NameError:
-        post_login_capabilities = []
+        capability_list = []
     # Dovecot 2.3.15 dropped the "=FUZZY", in conformance with RFE 8970.
-    server_preview_available = ('PREVIEW' in post_login_capabilities or
-                                'PREVIEW=FUZZY' in post_login_capabilities)
+    server_preview_available = ('PREVIEW' in capability_list or
+                                'PREVIEW=FUZZY' in capability_list)
 
     select_cmdresp = imapc.select(mailbox=imap_mailbox_name, readonly=True)
     # select_cmdresp = ('OK', [b'17'])
