@@ -289,8 +289,8 @@ test_sequence_fade() {
     loop_for 10 is_xlbiff_visible
     end_test_with_status pass
 }
-# -fade 0.2 is too fast and makes the test flaky
-run_test_variations fade test_sequence_fade -fade 0.3
+# Any faster than -fade 0.6 makes the test flaky
+run_test_variations fade test_sequence_fade -fade 0.6
 
 test_sequence_refresh() {
     local window_corners_1
