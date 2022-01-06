@@ -1,4 +1,4 @@
-.TH MAILBOX-PREVIEW 1 "29 Nov 2021"
+.TH MAILBOX-PREVIEW 1 "2021-11-29"
 .SH NAME
 mailbox-preview \- list new email messages in an IMAP mailbox
 .SH SYNOPSIS
@@ -67,24 +67,24 @@ The output is the new mailbox size to pass next time as the argument to
 The exit value of the program describes how the mailbox size has
 changed, as documented under the
 .B \-checkCommand
-option in 
+option in
 .BR xlbiff (1).
 .SH OPTIONS
 .TP 8
-.B \-\-check \fIold_size\fP
+\fB\-\-check\fP \fIold_size\fP
 Check for mailbox change instead of scanning; see
 the description above and
 .BR xlbiff (1).
 .TP 8
-.B \-\-width \fIN\fP
+\fB\-\-width\fP \fIN\fP
 Width in characters to pass to
 .IR scan ;
 default is $COLUMNS (from the environment).
 .TP 8
-.B \-\-max\-messages \fIN\fP
+\fB\-\-max\-messages\fP \fIN\fP
 Display only the last \fIN\fP (default 20) new messages; 0 to display all.
 .TP 8
-.B \-\-form \fIfile\fP
+\fB\-\-form\fP \fIfile\fP
 Format file for
 .BR scan ;
 see
@@ -92,32 +92,34 @@ see
 Default is
 .I xlbiff.form
 .TP 8
-.B \-\-scanproc \fIprogram\fP
+\fB\-\-scanproc\fP \fIprogram\fP
 Filename of the
 program to pipe the messages through; default
 .IR /usr/bin/mh/scan .
-If set explicitly to an empty string, the messages will be 
+If set explicitly to an empty string, the messages will be
 output raw (which is probably useful only for debugging).
 .TP 8
 .B \-\-quiet
 Do not output the messages.  This option is probably useful only for debugging.
 .TP 8
-.B \-\-imap-debug \fIlevel\fP
+\fB\-\-imap-debug\fP \fIlevel\fP
 Set the
 .I imaplib
 debug level; level 4 displays the IMAP protocol messages.
 .SH FILES
 .TP 8
-~/.netrc
+.I ~/.netrc
 Login information for your IMAP server.
 If your IMAP server requires a password, supply it on a
 .I machine
 line matching the IMAP server name, for example
 .IP
 .RS 12
-.EX
+.ft C
+.nf
 machine \fIserver_name\fP login \fIaccount_name\fP password \fIyour_pw\fP
-.EE
+.fi
+.ft
 .RE
 .IP
 The
@@ -128,22 +130,23 @@ When reporting interoperability problems with an IMAP server,
 include the output of
 .PP
 .RS 2
-.EX
+.ft C
+.nf
 mailbox\-preview \fIsrvr\fP \-\-imap\-debug=4 \-\-quiet 2>&1 | grep \-v " LOGIN "
-.EE
+.fi
+.ft
 .RE
 .SH EXAMPLE
 .PP
 Example command lines:
 .PP
 .RS 4
-.EX
-.\" the nf is needed by man2html
+.ft C
 .nf
 mailbox\-preview imap.example.com
 mailbox\-preview imap.example.com \-\-check 12
 .fi
-.EE
+.ft
 .RE
 .SH AUTHOR
 Stephen Gildea, November 2021

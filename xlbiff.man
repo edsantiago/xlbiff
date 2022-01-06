@@ -1,4 +1,4 @@
-.TH XLBIFF 1 "29 Nov 2021"
+.TH XLBIFF 1 "2021-11-29"
 .SH NAME
 xlbiff \- mail notification pop-up with configurable message scans
 .SH SYNOPSIS
@@ -55,34 +55,32 @@ Features:
 If your new mail arrives in a local mail file in the usual system directory:
 .PP
 .RS 4
-.EX
+.ft C
 .nf
 xlbiff
 .fi
-.EE
+.ft
 .RE
 .PP
 If your mail file is in a different location, you will need to specify
 the filename:
 .PP
 .RS 4
-.EX
+.ft C
 .nf
 xlbiff ~/Mailbox
 .fi
-.EE
+.ft
 .RE
 .PP
-.nf
 If your mail is on an IMAP server, specify the server's name:
-.fi
 .PP
 .RS 4
-.EX
+.ft C
 .nf
 xlbiff imap.example.com
 .fi
-.EE
+.ft
 .RE
 .PP
 Whichever way you start xlbiff, if you have new mail, it should pop up a
@@ -108,7 +106,7 @@ start it at the beginning of your X session.
 accepts all of the standard X Toolkit command line options along with the
 additional options listed below:
 .TP 8
-.B \-file \fIfile_or_server_name\fP
+\fB\-file\fP \fIfile_or_server_name\fP
 This option specifies the name of the file or IMAP server that should
 be monitored.  By default, it watches file /var/mail/\fIusername\fP,
 where \fIusername\fP is your login name.
@@ -126,12 +124,12 @@ The
 is optional; a non-option argument will be treated the same.
 .TP 8
 .B \-bottom
-This option tells 
-.B xlbiff 
+This option tells
+.B xlbiff
 to realize/unrealize() the output window instead of using XtPopup/down().
 This has the effect of causing the window manager to reposition the window
 each time it pops up, and is useful for when you specify negative Y
-coordinates, ie, at the bottom of the screen.  Running 
+coordinates, i.e., at the bottom of the screen.  Running
 .B xlbiff
 in this situation without \-bottom would cause new lines to run off the
 bottom edge of the screen.
@@ -139,38 +137,38 @@ bottom edge of the screen.
 .B \+bottom
 Opposite of \-bottom.
 .TP 8
-.B \-rows \fIheight\fP
+\fB\-rows\fP \fIheight\fP
 This option specifies the maximum height, in lines of text, of the
 .B xlbiff
 window.  The default is 20.
 .TP 8
-.B \-columns \fIwidth\fP
+\fB\-columns\fP \fIwidth\fP
 This option specifies the maximum width, in characters, of the
 .B xlbiff
 window.  The default is 80.
 .TP 8
 .B \-resetSaver
-If this option is set, 
+If this option is set,
 .B xlbiff
-will reset the screen saver when new mail comes in.  This is useful if 
+will reset the screen saver when new mail comes in.  This is useful if
 you're doing something near your workstation but not on it.
 .TP 8
 .B \+resetSaver
 Opposite of \-resetSaver.
 .TP 8
-.B \-update \fIseconds\fP
+\fB\-update\fP \fIseconds\fP
 This option specifies the frequency in seconds at which
 .B xlbiff
 should update its display.  The default is 15 seconds.
 .TP 8
-.B \-fade \fIseconds\fP
+\fB\-fade\fP \fIseconds\fP
 Number of seconds to wait before popping window back down.  This option
 can be used to monitor events of non-lasting importance, such as syslog
 or UUCP queues.  The default value of 0 disables the
 .B fade
 option.
 .TP 8
-.B \-led \fIledNum\fP
+\fB\-led\fP \fIledNum\fP
 This option specifies a keyboard LED to light up when there is mail waiting
 in the \fIfile.\fP  The default is zero (do not light a LED).
 .TP 8
@@ -182,12 +180,12 @@ This option has no effect if the \-led option is disabled.
 .B \+ledPopdown
 Opposite of \-ledPopdown.
 .TP 8
-.B \-refresh \fIseconds\fP
+\fB\-refresh\fP \fIseconds\fP
 This option specifies the number of seconds to wait before re-posting the
 mail window after you acknowledge it, and it still contains the same mail.
 The default is 0 (no refresh).  A useful value for this is 1800 (30 minutes).
 .TP 8
-.B \-mailerCommand \fIcommand\fP
+\fB\-mailerCommand\fP \fIcommand\fP
 Specifies the command to invoke when the mailer() action,
 described below, is activated.
 Due to mailbox consistency considerations, the
@@ -199,55 +197,58 @@ Example
 values:
 .IP
 .RS 12
-.EX
+.ft C
 .nf
 xterm -e alpine
 emacsclient --eval '(mh-rmail)' --suppress-output
 .fi
-.EE
+.ft
 .RE
 .IP
 There is no default
 .BR mailerCommand .
 .TP 8
-.B \-scanCommand \fIcommand\fP
+\fB\-scanCommand\fP \fIcommand\fP
 Specifies a shell command to be executed to list the contents of mailbox
 \fBfile\fP.  The specified string value is used as the
-argument to a \fIsystem\fP(3) call and may therefore contain I/O redirection.
-The command's stdout is used to generate the window.  
+argument to a
+.BR popen (3)
+call and may therefore contain I/O redirection.
+The command's stdout is used to generate the window.
 Internally, the command is generated as
 .IP
 .RS 12
-.EX
+.ft C
 .nf
 sprintf(buf, scanCommand, file, columns, rows)
 .fi
-.EE
+.ft
 .RE
 .IP
 so a %s, %d and %d respectively in \fBscanCommand\fP will generate the values
-of \fBfile\fP, \fBcolumns\fP, and \fBrows\fP.  The default 
+of \fBfile\fP, \fBcolumns\fP, and \fBrows\fP.  The default
 .BR scanCommand ,
 specified by the
 .I XLbiff
 application resources file, is
 .IP
 .RS 12
-.EX
+.ft C
 .nf
 mailbox\-preview %s \-\-width %d \-\-max\-messages %d 2>&1
 .fi
-.EE
+.ft
 .RE
 .TP 8
-.B \-checkCommand \fIcommand\fP
+\fB\-checkCommand\fP \fIcommand\fP
 Specifies a shell command to be executed to check for new mail (or some
 other condition) rather than simply examining the size of the mail file.
-The specified string value is used as the argument to a \fIpopen\fP(3) 
+The specified string value is used as the argument to a
+.BR popen (3)
 call, and the output generated is important.  Like
 .BR xbiff ,
 an exit status of 0 indicates that a change in condition demands a new
-evaluation of scanCommand and subsequent popup, 1 indicates no change 
+evaluation of scanCommand and subsequent popup, 1 indicates no change
 in status, and 2 indicates that the condition has been cleared and the
 .B xlbiff
 window should pop down.  The default, specified by the
@@ -255,43 +256,43 @@ window should pop down.  The default, specified by the
 application resources file, is
 .IP
 .RS 12
-.EX
+.ft C
 .nf
 mailbox\-preview %s \-\-check %d
 .fi
-.EE
+.ft
 .RE
 .IP
 Similarly to scanCommand, the checkCommand is generated internally as
 .IP
 .RS 12
-.EX
+.ft C
 .nf
 sprintf(buf, checkCommand, file, previous)
 .fi
-.EE
+.ft
 .RE
 .IP
 .B previous
 is the numeric value output by the last time checkCommand was run, or
 zero the first time.  This is useful for allowing the checkCommand to
-maintain state in a primitive fashion.  For instance, a checkCommand 
+maintain state in a primitive fashion.  For instance, a checkCommand
 such as
 .IP
 .RS 12
-.EX
+.ft C
 .nf
 compare_size %s %d
 .fi
-.EE
+.ft
 .RE
 .IP
-would do the right thing if 
+would do the right thing if
 .B compare_size
 were a script such as:
 .IP
 .RS 12
-.EX
+.ft C
 .nf
 #!/bin/sh
 NEWSIZE=`wc -c <$1`
@@ -305,103 +306,103 @@ if [ $NEWSIZE -ne $2 ]; then
 fi
 exit 1
 .fi
-.EE
+.ft
 .RE
 .IP
 The author of
 .B xlbiff
 uses this facility to keep track of several maildrops with one command.
-See the 
+See the
 .I Bcheck
-and 
+and
 .I Bscan
 scripts, included.
 .TP 8
-.B \-volume \fIpercentage\fP
+\fB\-volume\fP \fIpercentage\fP
 This option specifies how loud the bell should be rung when new mail comes in.
 .PP
-The following standard X Toolkit command line arguments are commonly used with 
+The following standard X Toolkit command line arguments are commonly used with
 .BR xlbiff :
 .TP 8
-.B \-display \fIdisplay\fP
+\fB\-display\fP \fIdisplay\fP
 This option specifies the X server to contact.
 .TP 8
-.B \-geometry \fI+x+y\fP
+\fB\-geometry\fP \fI+x+y\fP
 This option specifies the preferred position of the scan window.
 .TP 8
-.B \-bg \fIcolor\fP
-This option specifies the color to use for the background of the window.  
+\fB\-bg\fP \fIcolor\fP
+This option specifies the color to use for the background of the window.
 .TP 8
-.B \-fg \fIcolor\fP
+\fB\-fg\fP \fIcolor\fP
 This option specifies the color to use for the foreground of the window.
 .TP 8
-.B \-xrm \fIresourcestring\fP
+\fB\-xrm\fP \fIresourcestring\fP
 This option specifies a resource string to be used.  This is especially
 useful for setting resources that do not have separate command line options.
 .TP 8
 .B \-help
 This option indicates that a brief summary of the allowed options should be
 printed on standard output.
-.SH RESOURCES 
+.SH RESOURCES
 The application class name is XLbiff.
 It understands all of the core resource names and classes as well as:
 .TP 8
-.B bottom (\fPclass\fB Bottom)
-Same as the \fB\-bottom\fP option.  
+\fBbottom\fP (class \fBBottom\fP)
+Same as the \fB\-bottom\fP option.
 .TP 8
-.B file (\fPclass\fB File)
+\fBfile\fP (class \fBFile\fP)
 Same as the \fB\-file\fP option.
 .TP 8
-.B mailerCommand (\fPclass\fB MailerCommand)
+\fBmailerCommand\fP (class \fBMailerCommand\fP)
 Same as the \fB\-mailerCommand\fP option.
 .TP 8
-.B scanCommand (\fPclass\fB ScanCommand)
+\fBscanCommand\fP (class \fBScanCommand\fP)
 Same as the \fB\-scanCommand\fP option.
 .TP 8
-.B checkCommand (\fPclass\fB CheckCommand)
+\fBcheckCommand\fP (class \fBCheckCommand\fP)
 Same as the \fB\-checkCommand\fP option.
 .TP 8
-.B resetSaver (\fPclass\fB ResetSaver)
+\fBresetSaver\fP (class \fBResetSaver\fP)
 Same as the \fB\-resetSaver\fP option.
 .TP 8
-.B update (\fPclass\fB Interval)
+\fBupdate\fP (class \fBInterval\fP)
 Same as the \fB\-update\fP option.
 .TP 8
-.B fade (\fPclass\fB Fade)
+\fBfade\fP (class \fBFade\fP)
 Same as the \fB\-fade\fP option.
 .TP 8
-.B columns (\fPclass\fB Columns)
+\fBcolumns\fP (class \fBColumns\fP)
 Same as the \fB\-columns\fP option.
 .TP 8
-.B rows (\fPclass\fB Rows)
-Specifies the maximum height, in lines, of the 
+\fBrows\fP (class \fBRows\fP)
+Specifies the maximum height, in lines, of the
 .I xlbiff
 window.  The default is 20.
 .TP 8
-.B led (\fPclass\fB Led)
+\fBled\fP (class \fBLed\fP)
 Same as the \fB\-led\fP option.
 .TP 8
-.B ledPopdown (\fPclass\fB LedPopdown)
+\fBledPopdown\fP (class \fBLedPopdown\fP)
 Same as the \fB\-ledPopdown\fP option.
 .TP 8
-.B refresh (\fPclass\fB Refresh)
+\fBrefresh\fP (class \fBRefresh\fP)
 Same as the \fB\-refresh\fP option.
 .TP 8
-.B sound (\fPclass\fB Sound)
+\fBsound\fP (class \fBSound\fP)
 Specify a command to be run in place of a bell when new mail arrives.
 For example, on a Sun Sparc you might use:
-.sp
+.IP
 .nf
- *sound: /usr/demo/SOUND/play \-v %d /usr/demo/SOUND/sounds/doorbell.au
+*sound: /usr/demo/SOUND/play \-v %d /usr/demo/SOUND/sounds/doorbell.au
 .fi
-.sp
+.IP
 The command is generated internally with
-.B sprintf,
+.BR sprintf (3),
 so the characters ``%d'' will be replaced with the numeric value of the
 .B volume
 resource.
 .TP 8
-.B volume (\fPclass\fB Volume)
+\fBvolume\fP (class \fBVolume\fP)
 Same as the \fB\-volume\fP option.
 .SH ACTIONS
 .B xlbiff
@@ -411,7 +412,7 @@ provides the following actions for use in event translations:
 This action causes the window to vanish.
 .TP 8
 .B mailer()
-This action causes 
+This action causes
 .B xlbiff
 to pop down the main window and run the defined
 .B mailerCommand
@@ -420,20 +421,20 @@ to pop down the main window and run the defined
 will check for new mail, and if necessary pop up again.
 .TP 8
 .B exit()
-This action causes 
+This action causes
 .B xlbiff
 to exit.
 .PP
-The default translations are 
+The default translations are
 .PP
 .RS 4
-.EX
+.ft C
 .nf
 <Button1Press>:  popdown()
 <Button2Press>:  mailer()
 <Button3Press>:  exit()
 .fi
-.EE
+.ft
 .RE
 .SH CUSTOMIZING
 .PP
@@ -477,16 +478,15 @@ See
 .I README.bulk
 for more info.
 .SH ENVIRONMENT
-.PP
 .TP 8
 .B DISPLAY
 is used to get the default host and display number.
 .SH FILES
 .TP 8
-/var/mail/\fIusername\fP
-default mail file to check.
+.I /var/mail/$USER
+Default mail file to check.
 .TP 8
-/etc/X11/app-defaults/XLbiff
+.I /etc/X11/app-defaults/XLbiff
 System app-defaults file.
 Override entries here in your own app-defaults file or your own
 .I \%~/.Xdefaults
@@ -494,15 +494,17 @@ or
 .I \%~/.Xresources
 file.
 .TP 8
-~/.netrc
+.I ~/.netrc
 Login info for your IMAP server.  See
 .BR \%mailbox-preview (1).
 .SH "SEE ALSO"
 .BR mailbox-preview (1),
-.BR X (1),
-.BR scan (1)
+.BR scan (1),
+.BR X (7)
 .SH BUGS
-Specifying dimensions in \-geometry causes badness.
+Specifying dimensions in
+.B \-geometry
+causes badness.
 .PP
 The \fBled\fP option does not work on Suns before SunOS 4.1/X11R5.
 .SH AUTHOR
@@ -512,9 +514,9 @@ Ed Santiago <ed@edsantiago.com>
 took shape around the \fBxgoodbye\fP sample program
 in the O'Reilly \fIX Toolkit Intrinsics Programming Manual\fP.  A lot of
 code was stolen from \fBxbiff\fP, including this man page.  Thanks also
-to Stephen Gildea (gildea@expo.lcs.mit.edu) for the many, many 
+to Stephen Gildea (gildea@expo.lcs.mit.edu) for the many, many
 contributions that made
-.B xlbiff 
+.B xlbiff
 grow from a midnight hack to a more mature product.
 .PP
 The
