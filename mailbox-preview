@@ -157,12 +157,14 @@ def main():
         do_check_and_exit(args.old_size, unseen_msg_count)
 
     if args.scanproc and not args.quiet:
+        # By 2024, Python 3.6 may be rare enough that we can
+        # replace universal_newlines=True with text=True
         scan_proc = subprocess.Popen([args.scanproc,
                                       '-file', '-',
                                       '-form', args.form,
                                       '-width', str(args.width)],
                                      stdin=subprocess.PIPE,
-                                     text=True)
+                                     universal_newlines=True)
         sys.stdout = scan_proc.stdin
 
     start_msg_index = 0
