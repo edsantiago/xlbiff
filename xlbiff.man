@@ -239,6 +239,13 @@ mailbox\-preview %s \-\-width %d \-\-max\-messages %d 2>&1
 .fi
 .ft
 .RE
+.IP
+If a
+.B scanCommand
+is used to change the way the mailbox is accessed (as opposed to
+change the way the content is displayed), you will need to supply
+a compatible
+.BR checkCommand .
 .TP 8
 \fB\-checkCommand\fP \fIcommand\fP
 Specifies a shell command to be executed to check for new mail (or some

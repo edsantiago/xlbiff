@@ -97,59 +97,43 @@ def main():
     args = argparser.parse_args()
 
     # This treatment of a local filename matches what xlbiff would do without
-    # any checkCommand/scanCommand specified.  We support it here so that the
-    # user can switch between IMAP and local by merely changing the file.
+    # any checkCommand/scanCommand specified.  We support it here for
+    # two reasons:
+    # First, so that the user can switch between IMAP and local by merely
+    # changing the file.  Second, nmh 1.7.1 and earlier cannot scan a Maildir.
+    mailbox_is_maildir = False
     possible_local_file = re.match(r'(?P<topdir>/[^/]+)/.+$',
                                    args.server_mailbox)
     if possible_local_file:
-        from pathlib import Path
-        if Path(possible_local_file.group('topdir')).is_dir():
-            if args.old_size >= 0:
-                try:
-                    new_size = os.path.getsize(args.server_mailbox)
-                except OSError:
-                    new_size = 0
-                do_check_and_exit(args.old_size, new_size)
-            if Path(args.server_mailbox).exists():
-                # run the same default scanCommand xlbiff would
-                subprocess.run([args.scanproc,
-                                '-file', args.server_mailbox,
-                                '-form', args.form,
-                                '-width', str(args.width)],
-                               check=True)
-            sys.exit(0)
+        if os.path.isdir(possible_local_file.group('topdir')):
+            if os.path.isdir(args.server_mailbox):
+                # a directory is assumed to be a Maildir
+                mailbox_is_maildir = True
+            else:
+                do_local_mailbox_file_and_exit(args)
 
-    imap_server_name = 'imap'
-    imap_mailbox_name = 'inbox'
-    parsed_arg = re.match(r'(?P<host>\[[^]]+\]|[^[:]*)?(?::(?P<mailbox>.*))?',
-                          args.server_mailbox)
-    if parsed_arg.group('host'):
-        imap_server_name = parsed_arg.group('host')
-    if parsed_arg.group('mailbox'):
-        imap_mailbox_name = parsed_arg.group('mailbox')
+    if mailbox_is_maildir:
+        import mailbox
+        maildir = mailbox.Maildir(args.server_mailbox)
+        unseen_list = get_maildir_unseen_list(maildir)
+    else:
+        imap_server_name = 'imap'
+        imap_mailbox_name = 'inbox'
+        parsed_arg = re.match(
+            r'(?P<host>\[[^]]+\]|[^[:]*)?(?::(?P<mailbox>.*))?',
+            args.server_mailbox)
+        if parsed_arg.group('host'):
+            imap_server_name = parsed_arg.group('host')
+        if parsed_arg.group('mailbox'):
+            imap_mailbox_name = parsed_arg.group('mailbox')
 
-    imapc = connect_to_imap(imap_server_name, args.imap_debug, argparser.prog)
+        imapc = connect_to_imap(imap_server_name, args.imap_debug,
+                                argparser.prog)
+        server_preview_available = is_imap_server_preview_available(imapc)
 
-    # capability() is not documented, so perhaps not a stable interface
-    try:
-        # Check for capabilities the server already sent us.
-        _ok, post_login_capabilities = imapc.response('CAPABILITY')
-        # Documentation disagrees with implementation about the return value.
-        if post_login_capabilities in (None, [None]):
-            _ok, post_login_capabilities = imapc.capability()
-        capability_list = post_login_capabilities[-1].decode().split()
-    except NameError:
-        capability_list = []
-    # Dovecot 2.3.15 dropped the "=FUZZY", in conformance with RFE 8970.
-    server_preview_available = ('PREVIEW' in capability_list or
-                                'PREVIEW=FUZZY' in capability_list)
+        imapc.select(mailbox=imap_mailbox_name, readonly=True)
+        unseen_list = get_imap_unseen_list(imapc)
 
-    select_cmdresp = imapc.select(mailbox=imap_mailbox_name, readonly=True)
-    # select_cmdresp = ('OK', [b'17'])
-    msg_count = int(select_cmdresp[1][0])
-
-    _ok, unseen_message_resp = imapc.search(None, b'(UNSEEN)')
-    unseen_list = unseen_message_resp[0].split()
     unseen_msg_count = len(unseen_list)
 
     # --check
@@ -172,28 +156,55 @@ def main():
         start_msg_index += unseen_msg_count - args.max_messages
     for msg_index in range(start_msg_index, unseen_msg_count):
         cur_msg = unseen_list[msg_index]
-        if server_preview_available:
-            body_part = 'PREVIEW'
-            encoding = 'utf-8'  # per RFC 8970
+        if mailbox_is_maildir:
+            if not args.quiet:
+                output_message(maildir.get_bytes(cur_msg))
         else:
-            # The summary will be more interesting if
-            # we can find message content and not just multipart MIME headers.
-            _ok, structure_data = imapc.fetch(cur_msg, b'BODY')
-            part_to_request, encoding = get_displayable_part(structure_data)
-            body_part = f'BODY.PEEK[{part_to_request}]<0.700>'
+            if server_preview_available:
+                body_part = 'PREVIEW'
+                encoding = 'utf-8'  # per RFC 8970
+            else:
+                # The summary will be more interesting if we can find
+                # message content and not just multipart MIME headers.
+                _ok, structure_data = imapc.fetch(cur_msg, b'BODY')
+                part_to_request, encoding = get_displayable_part(structure_data)
+                body_part = f'BODY.PEEK[{part_to_request}]<0.700>'
 
-        header_part = 'BODY.PEEK[HEADER.FIELDS (DATE SUBJECT FROM TO CC)]'
-        parts = (header_part, body_part)
-        _ok, fetch_data = imapc.fetch(
-            cur_msg,
-            b'(' + ' '.join(parts).encode('UTF-8') + b')')
-        # Return value is a 2-tuple:
-        # ('OK', parts)
+            header_part = 'BODY.PEEK[HEADER.FIELDS (DATE SUBJECT FROM TO CC)]'
+            parts = (header_part, body_part)
+            _ok, fetch_data = imapc.fetch(
+                cur_msg,
+                b'(' + ' '.join(parts).encode('UTF-8') + b')')
+            # Return value is a 2-tuple:
+            # ('OK', parts)
 
-        if not args.quiet:
-            output_message_parts(fetch_data, encoding)
+            if not args.quiet:
+                output_imap_message_parts(fetch_data, encoding)
 
-    imapc.logout()
+    if not mailbox_is_maildir:
+        imapc.logout()
+
+
+def do_local_mailbox_file_and_exit(args):
+    """This treatment of a local filename matches what xlbiff would do
+without any checkCommand/scanCommand specified.
+It does not honor the max-messages parameter.
+"""
+    if args.old_size >= 0:
+        try:
+            new_size = os.path.getsize(args.server_mailbox)
+        except OSError:
+            new_size = 0
+        do_check_and_exit(args.old_size, new_size)
+    if os.path.exists(args.server_mailbox):
+        # run the same default scanCommand xlbiff would
+        subprocess.run([args.scanproc,
+                        '-file', args.server_mailbox,
+                        '-form', args.form,
+                        '-width', str(args.width)],
+                       check=True)
+    sys.exit(0)
+
 
 def do_check_and_exit(old_size, new_size):
     """Implement --check mode."""
@@ -264,6 +275,50 @@ def connect_to_imap(imap_server_name, debug_flag, progname):
         sys.exit(2)
     return imapc
 
+def is_imap_server_preview_available(imapc):
+    """Return whether the IMAP server has the PREVIEW capability."""
+    # capability() is not documented, so perhaps not a stable interface
+    try:
+        # Check for capabilities the server already sent us.
+        _ok, post_login_capabilities = imapc.response('CAPABILITY')
+        # Documentation disagrees with implementation about the return value.
+        if post_login_capabilities in (None, [None]):
+            _ok, post_login_capabilities = imapc.capability()
+        capability_list = post_login_capabilities[-1].decode().split()
+    except NameError:
+        capability_list = []
+    # Dovecot 2.3.15 dropped the "=FUZZY", in conformance with RFE 8970.
+    return 'PREVIEW' in capability_list or 'PREVIEW=FUZZY' in capability_list
+
+def get_imap_unseen_list(imapc):
+    """Return a list of unseen messages in the currently selected mailbox."""
+    _ok, unseen_message_resp = imapc.search(None, b'(UNSEEN)')
+    return unseen_message_resp[0].split()
+
+
+def Maildir_get_flags(maildir, key):
+    """Return as a string the flags that are set on the keyed message.
+This is the same as maildir.get(key).get_flags() but much faster,
+because it does not open the message file.
+This method should exist in the mailbox.Maildir class.
+"""
+    subpath = maildir._lookup(key) # using internal method!
+    if maildir.colon in subpath:
+        info = subpath.split(maildir.colon)[-1]
+        if info.startswith('2,'):
+            return info[2:]
+    return ''
+
+
+def get_maildir_unseen_list(maildir):
+    """Return a list of unseen messages in the Maildir."""
+    # This textual sort will fail in the year 2286.
+    sorted_keys = sorted(maildir.keys())
+    unseen_list = [key for key in sorted_keys
+            # S is for Seen
+            if not 'S' in Maildir_get_flags(maildir, key)]
+    return unseen_list
+
 
 def get_displayable_part(imap_body_list):
     """Accepts the BODY response from IMAP, returns the MIME part to request."""
@@ -322,7 +377,16 @@ def select_displayable_part(body_list):
     encoding = body_list[5]
     return (part_to_fetch, encoding)
 
-def output_message_parts(parts, body_encoding):
+
+def output_message(message_bytes):
+    """Output the bytes of a message.  Does not handle MIME nor encoding."""
+    print('\1\1\1\1')           # MMDF delimiter
+    # Todo: figure out actual encoding
+    print(decode_body_part(message_bytes, 'utf-8'))
+    print('\1\1\1\1')           # MMDF delimiter
+
+
+def output_imap_message_parts(parts, body_encoding):
     """Writes one mesasge to stdout, in MMDF format."""
     # parts is list:
     # [msg1, msg2, ..., ')']
