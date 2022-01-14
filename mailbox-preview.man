@@ -102,6 +102,12 @@ output raw (which is probably useful only for debugging).
 .B \-\-quiet
 Do not output the messages.  This option is probably useful only for debugging.
 .TP 8
+.B \-\-client\-preview
+Do not request a short message preview from the IMAP server and
+instead create our own short form of the message.
+This option is probably useful only for testing.
+It has no effect unless the IMAP server advertises a preview capability.
+.TP 8
 \fB\-\-imap-debug\fP \fIlevel\fP
 Set the
 .I imaplib

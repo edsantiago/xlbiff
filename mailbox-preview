@@ -91,6 +91,10 @@ def main():
         '--quiet', action='store_true',
         help='do not output the messages (probably useful only for debugging)')
     argparser.add_argument(
+        '--client-preview', action='store_true',
+        help='do not use the IMAP PREVIEW command internally '
+        '(probably useful only for testing)')
+    argparser.add_argument(
         '--imap-debug', metavar='LEVEL', type=int, default=0,
         help='set imaplib debug level; 4 displays the IMAP protocol messages')
 
@@ -129,7 +133,10 @@ def main():
 
         imapc = connect_to_imap(imap_server_name, args.imap_debug,
                                 argparser.prog)
-        server_preview_available = is_imap_server_preview_available(imapc)
+        if args.client_preview:
+            server_preview_available = False
+        else:
+            server_preview_available = is_imap_server_preview_available(imapc)
 
         imapc.select(mailbox=imap_mailbox_name, readonly=True)
         unseen_list = get_imap_unseen_list(imapc)
