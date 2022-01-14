@@ -315,8 +315,8 @@ def get_maildir_unseen_list(maildir):
     # This textual sort will fail in the year 2286.
     sorted_keys = sorted(maildir.keys())
     unseen_list = [key for key in sorted_keys
-            # S is for Seen
-            if not 'S' in Maildir_get_flags(maildir, key)]
+                   # S is for Seen
+                   if 'S' not in Maildir_get_flags(maildir, key)]
     return unseen_list
 
 
@@ -339,7 +339,7 @@ def flatten_imap_response(imap_cmdresp):
             fragment0_match = re.match(rb'(?P<text>.*){[0-9]+}$', fragment[0])
             fragment = fragment0_match.group('text') + fragment[1]
         total_response += fragment
-    return total_response.decode()
+    return total_response.decode(errors='ignore')
 
 def parse_imap_bodystructure(imap_body_string):
     """Parses the result of a BODY or BODYSTRUCTURE response.
@@ -417,14 +417,15 @@ def output_imap_message_parts(parts, body_encoding):
         preview_literal_match = re.search(
             rb'\(PREVIEW \([A-Z]+ "(?P<text>.*?[^\\])"\)', part[0])
         if preview_literal_match:
-            preview = preview_literal_match.group('text').decode(body_encoding)
+            preview = preview_literal_match.group('text').decode(
+                body_encoding, errors='ignore')
             # remove backslashes used for quoting quotes
             preview = re.sub(r'\\([\'"])', r'\1', preview)
 
         preview_next_match = re.search(
             rb'\(PREVIEW \([A-Z]+ {[0-9]+}$', part[0])
         if preview_next_match:
-            preview = part[1].decode(body_encoding)
+            preview = part[1].decode(body_encoding, errors='ignore')
 
         header_next_match = re.search(
             rb'BODY\[HEADER\.FIELDS', part[0])
@@ -456,9 +457,9 @@ def decode_body_part(body_part, body_encoding):
         import quopri
         return quopri.decodestring(body_part).decode(errors='ignore')
     if body_encoding.lower() == "7bit":
-        return body_part.decode('ascii')
+        return body_part.decode('ascii', errors='ignore')
     if body_encoding.lower() == "8bit":
-        return body_part.decode('latin1')
+        return body_part.decode('latin1', errors='ignore')
     return body_part.decode(errors='ignore')
 
 def clean_preview(preview):
