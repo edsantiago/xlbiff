@@ -5,6 +5,11 @@ History
   Where applicable, changes are attributed to the people who submitted
   the ideas and, in many cases, patches and source code.
 
+ * Version 4.6.1 (13 Jan 2022)
+   + Maildir format for local mailbox is supported by mailbox-preview.
+   + mailbox-preview has other minor improvements.
+   + Developers: Tests fixed to work without a merged /usr partition.
+
  * Version 4.6 (1 Jan 2022)
    + IMAP support added with new script "mailbox-preview"
    + scanCommand accepts a "rows" parameter with additional %d
