@@ -192,6 +192,12 @@ util_client_has_connected() {
     xwininfo -root -children 2>&1 | grep -E -q -i "$util_window_name_pattern"
 }
 
+# append to the log and to stdout.
+# prepend the messages with program name and time.
+util_log() {
+    VERBOSE=1 util_logv "$@"
+}
+
 # append to the log, and if verbose to stdout.
 # prepend the messages with program name and time.
 util_logv() {
@@ -236,7 +242,7 @@ end_test_with_status() {
         echo "$0: end_test_with_status called outside a test" >&2
     fi
     if [[ "$pass_fail" = pass ]]; then
-        echo "$0: Passed: $current_test_name"
+        util_log "Passed: $current_test_name"
         ((num_tests_passed++))
     else
         echo "$0: FAILED: $current_test_name" >&2
@@ -260,11 +266,11 @@ loop_for() {
     local -i loops_done=0
     while sleep 0.1; do
         if ((++loops_done > loop_count)); then
-            echo "$0 $(date +'%H:%M:%S.%3N') timed out" \
+            util_log "timed out" \
                  "after $loop_count tries waiting for $success_function" \
-                 "in test $current_test_name $context_msg" >&2
-            xauth -v -i -n list >&2
-            xwininfo -root -tree >&2
+                 "in test $current_test_name $context_msg"
+            util_log "$(xauth -v -i -n list)"
+            util_log "$(xwininfo -root -tree)"
             kill_xvfb
             [[ -n "$return_on_failure" ]] && return 1
             exit 1
@@ -277,9 +283,9 @@ loop_for() {
             break
         fi
         if [[ "$child_alive" = 0 ]]; then
-            echo "$0: child process has died on try $loops_done/$loop_count" \
+            util_log "child process has died on try $loops_done/$loop_count" \
                  "waiting for $success_function" \
-                 "in test $current_test_name $context_msg" >&2
+                 "in test $current_test_name $context_msg"
             [[ -n "$return_on_failure" ]] && return 1
             exit 1
         fi

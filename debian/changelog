@@ -1,3 +1,9 @@
+xlbiff (4.6.2-1) unstable; urgency=low
+
+  * Developers: Tests do not write soft failures to stderr
+
+ -- Stephen Gildea <stepheng+debian@gildea.com>  Fri, 14 Jan 2022 12:01:13 -0800
+
 xlbiff (4.6.1-1) unstable; urgency=low
 
   * Maildir format for local mailbox is supported by mailbox-preview.

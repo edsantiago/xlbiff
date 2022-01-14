@@ -5,6 +5,9 @@ History
   Where applicable, changes are attributed to the people who submitted
   the ideas and, in many cases, patches and source code.
 
+ * Version 4.6.2 (14 Jan 2022)
+   + Developers: Tests do not write soft failures to stderr
+
  * Version 4.6.1 (13 Jan 2022)
    + Maildir format for local mailbox is supported by mailbox-preview.
    + mailbox-preview has other minor improvements.
