@@ -227,6 +227,7 @@ def connect_to_imap(imap_server_name, debug_flag, progname):
     import socket
 
     netrc_object = None
+    netrc_error = None
     netrc_auth = None
     imap_username = ''
     imap_password = ''
@@ -236,9 +237,10 @@ def connect_to_imap(imap_server_name, debug_flag, progname):
         if netrc_auth:
             imap_username = netrc_auth[0]
             imap_password = netrc_auth[2]
-    except FileNotFoundError:
-        # it is not an error to not have a ~/.netrc file
-        pass
+    except (OSError, netrc.NetrcParseError) as err:
+        # Do not surface the error unless we fail to log in.
+        # Maybe we won't need a .netrc file.
+        netrc_error = err
     if not imap_username:
         import getpass
         imap_username = getpass.getuser()
@@ -262,8 +264,9 @@ def connect_to_imap(imap_server_name, debug_flag, progname):
         print(f'{progname}: Login as {imap_username!r} '
               f'to IMAP server {imap_server_name!r}: {autherr}',
               file=sys.stderr)
-        if not netrc_object:
-            print(f'{progname}: No ~/.netrc file was found', file=sys.stderr)
+        if netrc_error is not None:
+            print(f'{progname}: Could not use .netrc file: {netrc_error}',
+                  file=sys.stderr)
         elif not netrc_auth:
             print(f'{progname}: '
                   f'~/.netrc is missing entry for machine {imap_server_name!r}',
