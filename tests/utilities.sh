@@ -39,7 +39,7 @@ parse_command_line() {
         # as built
         xlbiff_to_test=./xlbiff
         resource_file=./XLbiff
-        PATH=.:/usr/bin
+        PATH=.:/bin:/usr/bin
     fi
 }
 
@@ -67,10 +67,7 @@ util_check_dependencies() {
         binary=$1
         package=$2
         shift; shift
-        if [[ "$binary" != /* ]]; then
-            binary=/usr/bin/$binary
-        fi
-        if [[ ! -x "$binary" ]]; then
+        if [[ -z "$(type -p "$binary")" ]]; then
             echo "$0: program not available: $binary" >&2
             echo "$0: package \"$package\" is probably not installed" >&2
             echo "$0: (not required for build, only for this test)" >&2
