@@ -1,3 +1,10 @@
+xlbiff (4.6.3-1) unstable; urgency=low
+
+  * Developers: Disable automatic runs of flaky windowing test.
+    Test was introduced in version 4.5.4-1.
+
+ -- Stephen Gildea <stepheng+debian@gildea.com>  Sun, 16 Jan 2022 10:16:48 -0800
+
 xlbiff (4.6.2-1) unstable; urgency=low
 
   * Developers: Tests do not write soft failures to stderr
