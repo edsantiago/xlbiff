@@ -34,6 +34,13 @@ is_xlbiff_invisible() {
     ! is_xlbiff_visible
 }
 
+is_xlbiff_visible_with_new_mail() {
+    # send mail repeatedly, because sometimes xdotool seems to deliver
+    # two copies of the key that made xlbiff pop down ("d" or "m").
+    send_new_mail
+    is_xlbiff_visible
+}
+
 is_xlbiff_running() {
     ps ax | grep "$xlbiff_name" | grep -E -v -q 'bash|Xvfb|grep'
 }
@@ -199,8 +206,7 @@ declare -i num_tests_passed=0
 test_sequence_popdown() {
     send_key "d"
     loop_for 5 is_xlbiff_invisible
-    send_new_mail
-    loop_for 10 is_xlbiff_visible
+    loop_for 20 is_xlbiff_visible_with_new_mail
     end_test_with_status pass
 }
 run_test_variations popdown test_sequence_popdown
@@ -221,8 +227,7 @@ test_sequence_moremail() {
     get_window_corners window_corners_1
     send_key "d"
     loop_for 5 is_xlbiff_invisible
-    send_new_mail
-    loop_for 10 is_xlbiff_visible
+    loop_for 20 is_xlbiff_visible_with_new_mail
     local top_bottom_all
     if [[ -n "$BOTTOM" ]]; then
         # xlbiff at bottom of screen may grow up and to the right,
@@ -267,8 +272,7 @@ test_sequence_mailer_inc() {
     # the window back up here, but we check too fast
     sleep 0.1
     loop_for 5 is_xlbiff_invisible
-    send_new_mail
-    loop_for 10 is_xlbiff_visible
+    loop_for 20 is_xlbiff_visible_with_new_mail
     end_test_with_status pass
 }
 run_test_variations mailer_inc test_sequence_mailer_inc \
