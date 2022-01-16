@@ -5,6 +5,10 @@ History
   Where applicable, changes are attributed to the people who submitted
   the ideas and, in many cases, patches and source code.
 
+ * Version 4.6.3 (16 Jan 2022)
+   + Developers: Disable automatic runs of flaky windowing test.
+     Test was introduced in version 4.5.4.
+
  * Version 4.6.2 (14 Jan 2022)
    + Developers: Tests do not write soft failures to stderr
 
