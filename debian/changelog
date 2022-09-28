@@ -1,3 +1,9 @@
+xlbiff (4.6.3-2) UNRELEASED; urgency=medium
+
+  * Use secure URI in Homepage field.
+
+ -- Debian Janitor <janitor@jelmer.uk>  Wed, 28 Sep 2022 16:30:03 -0000
+
 xlbiff (4.6.3-1) unstable; urgency=low
 
   * Developers: Disable automatic runs of flaky windowing test.

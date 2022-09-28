@@ -6,7 +6,7 @@ Rules-Requires-Root: no
 Standards-Version: 4.6.0
 Vcs-Git: https://github.com/edsantiago/xlbiff.git/
 Vcs-Browser: https://github.com/edsantiago/xlbiff
-Homepage: http://www.edsantiago.com/xlbiff/
+Homepage: https://www.edsantiago.com/xlbiff/
 Build-Depends:
  debhelper (>= 10~),
  pkg-config,
