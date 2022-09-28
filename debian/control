@@ -8,7 +8,7 @@ Vcs-Git: https://github.com/edsantiago/xlbiff.git/
 Vcs-Browser: https://github.com/edsantiago/xlbiff
 Homepage: https://www.edsantiago.com/xlbiff/
 Build-Depends:
- debhelper (>= 13~),
+ debhelper-compat (= 13),
  pkg-config,
  libxaw7-dev,
  libxt-dev,
