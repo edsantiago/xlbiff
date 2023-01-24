@@ -8,11 +8,23 @@ import sys
 import unittest
 
 class TestMailboxPreview(unittest.TestCase):
+    def test_flatten_imap_response(self):
+        self.assertEqual(
+            r'(Some text--"and \"quotes\" and a \\backslash")',
+            mailbox_preview.flatten_imap_response(
+                [(b'(Some text--{18}',
+                  rb'and "quotes" and a \backslash'),
+                 b')']))
+
     def test_parse_imap_bodystructure(self):
         self.assertRaises(
             ValueError,
-            mailbox_preview.parse_imap_bodystructure,
+            mailbox_preview.parse_imap_bodystructure_raises,
             ("This" "String" "Will" "Not" "Parse"))
+        substituted = mailbox_preview.parse_imap_bodystructure(
+            "This" "String" "Will" "Not" "Parse")
+        self.assertEqual("text", substituted[0])
+        self.assertEqual("ascii", substituted[5])
         self.assertEqual(
             ("text", "html", ("charset", "UTF-8"), None, None,
              "quoted-printable", 512, 17),

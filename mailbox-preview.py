@@ -348,11 +348,21 @@ def flatten_imap_response(imap_cmdresp):
         # (literal braces) giving the length of the second.
         if isinstance(fragment, tuple):
             fragment0_match = re.match(rb'(?P<text>.*){[0-9]+}$', fragment[0])
-            fragment = fragment0_match.group('text') + fragment[1]
+            # The IMAP literal string needs to be converted to a
+            # string that parse_imap_bodystructure can parse.
+            fragment1_quoted = b'"' + re.sub(rb'(["\\])', rb'\\\1',
+                                             fragment[1]) + b'"'
+            fragment = fragment0_match.group('text') + fragment1_quoted
         total_response += fragment
     return total_response.decode(errors='ignore')
 
 def parse_imap_bodystructure(imap_body_string):
+    try:
+        return parse_imap_bodystructure_raises(imap_body_string)
+    except (SyntaxError, ValueError):
+        return ("text", "unparseable", None, None, None, "ascii", 1)
+
+def parse_imap_bodystructure_raises(imap_body_string):
     """Parses the result of a BODY or BODYSTRUCTURE response.
 Returns a list of the MIME parts."""
     # IMAP-tools, on GitHub, parses this better.
