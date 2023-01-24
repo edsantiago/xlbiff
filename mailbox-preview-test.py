@@ -45,11 +45,32 @@ class TestMailboxPreview(unittest.TestCase):
                   b'Subject: your test\r\n\r\n'),
                  b')'], 'utf-8'))
 
+    def test_extract_imap_preview_header(self):
+        self.assertEqual(
+            'From: testing harness\r\n'
+            'Subject: your test\r\n'
+            '\r\n'
+            'the \"preview\" text',
+            mailbox_preview.extract_imap_message_parts(
+                [(b'1 (PREVIEW "the \\\"preview\\\" text" '
+                  b'BODY[HEADER.FIELDS (FROM SUBJECT)] {45}',
+                  b'From: testing harness\r\n'
+                  b'Subject: your test\r\n\r\n'),
+                 b')'], 'utf-8'))
+
     def test_extract_imap_preview_fuzzy_only(self):
         self.assertEqual(
             'the \"preview\" text',
             mailbox_preview.extract_imap_message_parts(
                 [(b'1 (PREVIEW (FUZZY {18}',
+                  b'the \"preview\" text'),
+                 b')'], 'utf-8'))
+
+    def test_extract_imap_preview_only(self):
+        self.assertEqual(
+            'the \"preview\" text',
+            mailbox_preview.extract_imap_message_parts(
+                [(b'1 (PREVIEW {18}',
                   b'the \"preview\" text'),
                  b')'], 'utf-8'))
 

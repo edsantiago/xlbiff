@@ -421,13 +421,19 @@ def extract_imap_message_parts(parts, body_encoding):
     # each message has a 2-tuple entry, and at the end is literal ')'
     # each message 2-tuple:
     # (imap-metadata contents)
-    # If we asked for PREVIEW, the imap-metadata is
+    # If we asked for PREVIEW, the imap-metadata is (Dovecot before 2.3.15)
     #     msgnum (PREVIEW (FUZZY "preview text ...")
     #     BODY[HEADER.FIELDS (DATE SUBJECT FROM TO CC)] {nnn}
     # and the contents is the headers.
-    # Or, could be imap-metadata is
+    # With Dovecot 2.3.15 or later
+    #     msgnum (PREVIEW "preview text ..."
+    #     BODY[HEADER.FIELDS (DATE SUBJECT FROM TO CC)] {nnn}
+    # and the contents is the headers.
+    # Or, could be imap-metadata is (Dovecot before 2.3.15)
     #     msgnum (PREVIEW (FUZZY {nnn}
     # and the contents is the preview (followed by literal ')'),
+    # With Dovecot 2.3.15 or later
+    #     msgnum (PREVIEW {nnn}
     # and the next imap-metadata is
     #     BODY[HEADER.FIELDS (DATE SUBJECT FROM TO CC)] {nnn}
     # If we didn't ask for PREVIEW, the first imap-metadata is
@@ -441,8 +447,9 @@ def extract_imap_message_parts(parts, body_encoding):
         if not isinstance(part, tuple): # the close paren
             continue
 
+        # Dovecot before 2.3.15 wraps with "(FUZZY ...)"
         preview_literal_match = re.search(
-            rb'\(PREVIEW \([A-Z]+ "(?P<text>.*?[^\\])"\)', part[0])
+            rb'\(PREVIEW(?: \([A-Z]+)? "(?P<text>.*?[^\\])"\)?', part[0])
         if preview_literal_match:
             preview = preview_literal_match.group('text').decode(
                 body_encoding, errors='ignore')
@@ -450,7 +457,7 @@ def extract_imap_message_parts(parts, body_encoding):
             preview = re.sub(r'\\([\'"])', r'\1', preview)
 
         preview_next_match = re.search(
-            rb'\(PREVIEW \([A-Z]+ {[0-9]+}$', part[0])
+            rb'\(PREVIEW(?: \([A-Z]+)? {[0-9]+}$', part[0])
         if preview_next_match:
             preview = part[1].decode(body_encoding, errors='ignore')
 
