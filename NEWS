@@ -7,6 +7,7 @@ History
 
  * Version 4.6.4
    + Set window type to Notification so it doesn't steal the focus on popup.
+   + Option -debug now takes a debug level.
 
  * Version 4.6.3 (16 Jan 2022)
    + Developers: Disable automatic runs of flaky windowing test.
