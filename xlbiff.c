@@ -591,8 +591,8 @@ char *doScan() {
     ** Initialise command string
     */
     if (buf == NULL) {
-        /* +1 for the newline */
-        bufsize = (lbiff_data.columns + 1) * lbiff_data.rows;
+        /* +6 for a few multibyte characters, +1 for the newline */
+        bufsize = (lbiff_data.columns + 6 + 1) * lbiff_data.rows;
 
         buf = (char *)malloc(bufsize + sizeof(scan_fail_msg) + 1);
         if (buf == NULL)
