@@ -1,4 +1,4 @@
-.TH XLBIFF 1 "2021-11-29"
+.TH XLBIFF 1 2022-01-23
 .SH NAME
 xlbiff \- mail notification pop-up with configurable message scans
 .SH SYNOPSIS
@@ -51,7 +51,6 @@ Features:
 \(bu lets you click anywhere on it; no trying to select a tiny \*(lqx\*(rq
 .PD
 .SH "GETTING STARTED"
-.PP
 If your new mail arrives in a local mail file in the usual system directory:
 .PP
 .RS 4
@@ -92,15 +91,14 @@ The window will stay visible until you click it away or read the new mail.
 .PP
 You may need an entry in
 .I ~/.netrc
-to provide login credentials for your IMAP server.  See
-.BR \%mailbox-preview (1)
-for the format of this file.
+to provide login credentials for your IMAP server.
+The format of this file is described in
+.BR mailbox-preview (1).
 .PP
 When you have the correct options to
 .B xlbiff
 figured out, you will probably want to run it in the background or
 start it at the beginning of your X session.
-
 .SH OPTIONS
 .B xlbiff
 accepts all of the standard X Toolkit command line options along with the
@@ -116,7 +114,7 @@ If given the name of an IMAP server,
 assisted by its default
 .I checkCommand/scanCommand
 script
-.BR \%mailbox-preview (1),
+.BR mailbox-preview (1),
 will peek at your new messages on this server.
 .IP
 The
@@ -134,7 +132,7 @@ coordinates, i.e., at the bottom of the screen.  Running
 in this situation without \-bottom would cause new lines to run off the
 bottom edge of the screen.
 .TP 8
-.B \+bottom
+.B +bottom
 Opposite of \-bottom.
 .TP 8
 \fB\-rows\fP \fIheight\fP
@@ -153,7 +151,7 @@ If this option is set,
 will reset the screen saver when new mail comes in.  This is useful if
 you're doing something near your workstation but not on it.
 .TP 8
-.B \+resetSaver
+.B +resetSaver
 Opposite of \-resetSaver.
 .TP 8
 \fB\-update\fP \fIseconds\fP
@@ -177,7 +175,7 @@ This option indicates that the LED should be turned off when xlbiff is
 popped down.  Ordinarily the LED stays lit to remind one of awaiting mail.
 This option has no effect if the \-led option is disabled.
 .TP 8
-.B \+ledPopdown
+.B +ledPopdown
 Opposite of \-ledPopdown.
 .TP 8
 \fB\-refresh\fP \fIseconds\fP
@@ -254,11 +252,25 @@ The specified string value is used as the argument to a
 .BR popen (3)
 call, and the output generated is important.  Like
 .BR xbiff ,
-an exit status of 0 indicates that a change in condition demands a new
-evaluation of scanCommand and subsequent popup, 1 indicates no change
-in status, and 2 indicates that the condition has been cleared and the
+an exit status of
+.RS 2
+.PD 0
+.na
+.IP
+\(bu 0 indicates that a change in condition demands a new
+evaluation of scanCommand and subsequent popup,
+.IP
+\(bu 1 indicates no change
+in status, and
+.IP
+\(bu 2 indicates that the condition has been cleared and the
 .B xlbiff
-window should pop down.  The default, specified by the
+window should pop down.
+.ad
+.PD
+.RE
+.IP
+The default, specified by the
 .I XLbiff
 application resources file, is
 .IP
@@ -283,47 +295,9 @@ sprintf(buf, checkCommand, file, previous)
 .B previous
 is the numeric value output by the last time checkCommand was run, or
 zero the first time.  This is useful for allowing the checkCommand to
-maintain state in a primitive fashion.  For instance, a checkCommand
-such as
+maintain state.
 .IP
-.RS 12
-.ft C
-.nf
-compare_size %s %d
-.fi
-.ft
-.RE
-.IP
-would do the right thing if
-.B compare_size
-were a script such as:
-.IP
-.RS 12
-.ft C
-.nf
-#!/bin/sh
-NEWSIZE=`wc -c <$1`
-echo $NEWSIZE
-if [ $NEWSIZE -ne $2 ]; then
-    if [ $NEWSIZE -eq 0 ]; then
-        exit 2
-    else
-        exit 0
-    fi
-fi
-exit 1
-.fi
-.ft
-.RE
-.IP
-The author of
-.B xlbiff
-uses this facility to keep track of several maildrops with one command.
-See the
-.I Bcheck
-and
-.I Bscan
-scripts, included.
+See the EXAMPLES section, below, for different ways to use checkCommand.
 .TP 8
 \fB\-volume\fP \fIpercentage\fP
 This option specifies how loud the bell should be rung when new mail comes in.
@@ -405,7 +379,7 @@ For example, on a Sun Sparc you might use:
 .IP
 The command is generated internally with
 .BR sprintf (3),
-so the characters ``%d'' will be replaced with the numeric value of the
+so the characters \*(lq%d\*(rq will be replaced with the numeric value of the
 .B volume
 resource.
 .TP 8
@@ -444,7 +418,6 @@ The default translations are
 .ft
 .RE
 .SH CUSTOMIZING
-.PP
 You may want to tweak some values in an app-defaults file and/or add
 some resources to your .Xdefaults or .Xresources file.  See the system
 app-defaults file
@@ -458,7 +431,7 @@ window.
 .PP
 Note that an MH format file,
 .IR xlbiff.form ,
-is included.  This form:
+is included.  This form
 .PD 0
 .na
 .IP "" 2
@@ -474,8 +447,10 @@ is included.  This form:
 \(bu packs as much subject and body into one line as possible.
 .ad
 .PD
-.PP
-There are also two sample scripts,
+.SH EXAMPLES
+.SS "Bulk maildrops"
+.B xlbiff
+ships with two sample scripts,
 .I Bcheck
 and
 .IR Bscan ,
@@ -484,6 +459,39 @@ used in conjunction.  These are for checking mail in \*(lqbulk\*(rq maildrops.
 See
 .I README.bulk
 for more info.
+.SS "Laptop fan speed"
+.B xlbiff
+can be used to display your laptop's temperature sensors only when the
+fan is running.  This example uses the
+.BR sensors (1)
+program as a scanCommand to display the sensor values.  To pop up the
+info only when the laptop is hot, we can use a check command that
+extracts from the sensors output whether the fan is running and whether
+its speed has changed.  Here is a possible check script:
+.PP
+.RS 4
+.ft C
+.nf
+fan1_speed=$(sensors | sed -E -n '/^fan/{s/.* ([0-9]+).*/\e1/p;q}')
+echo "$fan1_speed"
+[ "$fan1_speed" = 0 ] && exit 2
+[ "$fan1_speed" = "$1" ] && exit 1
+exit 0
+.fi
+.ft
+.RE
+.PP
+If the script is called
+.IR xlbiff-fan-check.sh ,
+you can use it by running xlbiff like this:
+.PP
+.RS 4
+.ft C
+.nf
+xlbiff \-checkCommand 'xlbiff\-fan\-check.sh %d' \-scanCommand sensors
+.fi
+.ft
+.RE
 .SH ENVIRONMENT
 .TP 8
 .B DISPLAY
@@ -494,16 +502,16 @@ is used to get the default host and display number.
 Default mail file to check.
 .TP 8
 .I /etc/X11/app-defaults/XLbiff
-System app-defaults file.
+System app-defaults file for X11 resources.
 Override entries here in your own app-defaults file or your own
-.I \%~/.Xdefaults
+.I ~/.Xdefaults
 or
-.I \%~/.Xresources
+.I ~/.Xresources
 file.
 .TP 8
 .I ~/.netrc
 Login info for your IMAP server.  See
-.BR \%mailbox-preview (1).
+.BR mailbox-preview (1).
 .SH "SEE ALSO"
 .BR mailbox-preview (1),
 .BR scan (1),
@@ -520,7 +528,7 @@ Ed Santiago <ed@edsantiago.com>
 .B xlbiff
 took shape around the \fBxgoodbye\fP sample program
 in the O'Reilly \fIX Toolkit Intrinsics Programming Manual\fP.  A lot of
-code was stolen from \fBxbiff\fP, including this man page.  Thanks also
+code was copied from \fBxbiff\fP, including this man page.  Thanks also
 to Stephen Gildea (gildea@expo.lcs.mit.edu) for the many, many
 contributions that made
 .B xlbiff

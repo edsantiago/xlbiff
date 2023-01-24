@@ -57,6 +57,15 @@ Installing
       autoreconf -i
 
 
+Documentation
+=============
+
+  The complete guide to using and configuring xlbiff is in xlbiff.man.
+  After installing xlbiff, you can view the formatted manual with
+
+      man xlbiff
+
+
 Author
 ======
 

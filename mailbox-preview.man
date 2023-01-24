@@ -1,4 +1,4 @@
-.TH MAILBOX-PREVIEW 1 "2021-11-29"
+.TH MAILBOX-PREVIEW 1 2022-12-01
 .SH NAME
 mailbox-preview \- list new email messages in an IMAP mailbox
 .SH SYNOPSIS
@@ -105,13 +105,14 @@ Do not output the messages.  This option is probably useful only for debugging.
 .B \-\-client\-preview
 Do not request a short message preview from the IMAP server and
 instead create our own short form of the message.
-This option is probably useful only for testing.
+Use this option if you don't like the preview your IMAP server generates.
 It has no effect unless the IMAP server advertises a preview capability.
 .TP 8
 \fB\-\-imap-debug\fP \fIlevel\fP
 Set the
 .I imaplib
-debug level; level 4 displays the IMAP protocol messages.
+debug level; level 4 displays the IMAP protocol messages,
+level 5 also displays IMAP literal strings.
 .SH FILES
 .TP 8
 .I ~/.netrc
@@ -128,9 +129,9 @@ machine \fIserver_name\fP login \fIaccount_name\fP password \fIyour_pw\fP
 .ft
 .RE
 .IP
-The
-.I login
-field defaults to your user name.
+If \*(lqlogin \fIaccount_name\fP\*(rq is omitted,
+.I account_name
+defaults to your user name.
 .SH "BUGS REPORTS"
 When reporting interoperability problems with an IMAP server,
 include the output of
@@ -143,7 +144,6 @@ mailbox\-preview \fIsrvr\fP \-\-imap\-debug=4 \-\-quiet 2>&1 | grep \-v " LOGIN 
 .ft
 .RE
 .SH EXAMPLE
-.PP
 Example command lines:
 .PP
 .RS 4
