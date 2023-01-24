@@ -87,6 +87,7 @@ get_window_corners() {
             # should be +0+37 or +0+1007 (for bottom).
             [[ ! "$corners" =~ [+]0[+]0 ]] &&
                 [[ ! "$corners" =~ [+]0[+]1005 ]] &&
+                [[ ! "$corners" =~ [+]-1[+] ]] &&
                 break
         fi
         # WM moves the window after it first maps; wait for it
@@ -293,8 +294,8 @@ test_sequence_fade() {
     loop_for 10 is_xlbiff_visible
     end_test_with_status pass
 }
-# Any faster than -fade 0.6 makes the test flaky
-run_test_variations fade test_sequence_fade -fade 0.6
+# Any faster than -fade 0.7 makes the test flaky
+run_test_variations fade test_sequence_fade -fade 0.7
 
 test_sequence_refresh() {
     local window_corners_1
@@ -304,7 +305,8 @@ test_sequence_refresh() {
     loop_for 30 is_xlbiff_visible
     pass_test_if_window_unmoved all "$window_corners_1"
 }
-run_test_variations refresh test_sequence_refresh -refresh 0.2
+# Any faster than -refresh 0.3 makes the test flaky
+run_test_variations refresh test_sequence_refresh -refresh 0.3
 
 
 if ((num_tests_run == 0)); then

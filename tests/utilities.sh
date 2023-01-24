@@ -67,7 +67,7 @@ util_check_dependencies() {
         binary=$1
         package=$2
         shift; shift
-        if [[ -z "$(type -p "$binary")" ]]; then
+        if [[ -z "$(command -v "$binary")" ]]; then
             echo "$0: program not available: $binary" >&2
             echo "$0: package \"$package\" is probably not installed" >&2
             echo "$0: (not required for build, only for this test)" >&2
@@ -138,8 +138,10 @@ start_xlbiff_under_xvfb() {
         # we don't want it to kill us.
         trap : USR1
         # Pass SIGUSR1 as ignored, so Xvfb will signal its parent when ready.
+        # Option -r turns off auto-repeat, so a missed keyup from xdotool
+        #   doesn't start repeating keys to the application.
         # See xserver(1).
-        (trap '' USR1; exec Xvfb "$DISPLAY" -auth "$XAUTHORITY" \
+        (trap '' USR1; exec Xvfb "$DISPLAY" -auth "$XAUTHORITY" -r \
                  2>> "$logdir/xvfb.$current_test_name.log") &
         xvfb_pid=$!
 
