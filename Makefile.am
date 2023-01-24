@@ -14,6 +14,8 @@ nodist_bin_SCRIPTS = mailbox-preview
 	cp -- $< $@
 
 MOSTLYCLEANFILES = $(appdefault_DATA) $(nodist_bin_SCRIPTS)
+distclean-local:
+	rm -rf __pycache__
 
 # "configure" normally sets appdefaultdir for each system with "pkg-config",
 # which returns an absolute pathname.  "make distcheck" doesn't use DESTDIR
@@ -26,7 +28,8 @@ dist_man1_MANS = xlbiff.man mailbox-preview.man
 EXTRA_DIST = README.md README.bulk XLbiff.ad \
     $(bin_SCRIPTS) \
     Bcheck Bscan \
-    tests/utilities.sh tests/test-scan-interface.sh tests/test-windowing.sh
+    tests/utilities.sh tests/test-scan-interface.sh tests/test-windowing.sh \
+    mailbox-preview-test.py
 
 # Compute mtime of newest project source file, for reproducible dist file.
 DATED_SRCS = $(EXTRA_DIST) configure.ac Makefile.am \

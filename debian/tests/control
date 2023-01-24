@@ -4,6 +4,10 @@ Test-Command: TMPDIR="$AUTOPKGTEST_TMP" ./tests/test-scan-interface.sh
 Features: test-name=scantest
 Depends: @, xvfb, xauth, util-linux, xfonts-base, x11-utils
 
+Test-Command: TMPDIR="$AUTOPKGTEST_TMP" ./mailbox-preview-test.py
+Features: test-name=mailbox-preview
+Depends: @
+
 # This test has flaky timing in the "fade" tests.
 # Fixing it requires reworking the fade timing in xlbiff itself.
 # In the mean time, don't have autopkgtest run this test.

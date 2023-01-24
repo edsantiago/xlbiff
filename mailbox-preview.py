@@ -104,7 +104,8 @@ def main():
     # any checkCommand/scanCommand specified.  We support it here for
     # two reasons:
     # First, so that the user can switch between IMAP and local by merely
-    # changing the file.  Second, nmh 1.7.1 and earlier cannot scan a Maildir.
+    # changing the value of the named "file".
+    # Second, nmh 1.7.1 and earlier cannot scan a Maildir.
     mailbox_is_maildir = False
     possible_local_file = re.match(r'(?P<topdir>/[^/]+)/.+$',
                                    args.server_mailbox)
@@ -297,7 +298,7 @@ def is_imap_server_preview_available(imapc):
         capability_list = post_login_capabilities[-1].decode().split()
     except NameError:
         capability_list = []
-    # Dovecot 2.3.15 dropped the "=FUZZY", in conformance with RFE 8970.
+    # Dovecot 2.3.15 dropped the "=FUZZY", in conformance with RFC 8970.
     return 'PREVIEW' in capability_list or 'PREVIEW=FUZZY' in capability_list
 
 def get_imap_unseen_list(imapc):
@@ -398,6 +399,13 @@ def output_message(message_bytes):
 
 def output_imap_message_parts(parts, body_encoding):
     """Writes one mesasge to stdout, in MMDF format."""
+    print('\1\1\1\1')           # MMDF delimiter
+    print(extract_imap_message_parts(parts, body_encoding))
+    print('\1\1\1\1')           # MMDF delimiter
+
+
+def extract_imap_message_parts(parts, body_encoding):
+    """Converts a message to text."""
     # parts is list:
     # [msg1, msg2, ..., ')']
     # each message has a 2-tuple entry, and at the end is literal ')'
@@ -416,7 +424,6 @@ def output_imap_message_parts(parts, body_encoding):
     #     msgnum (BODY[HEADER.FIELDS (DATE SUBJECT FROM TO CC)] {nnn}
     # and the second is
     #     BODY[1.1]<0> {500}
-    print('\1\1\1\1')           # MMDF delimiter
     header = ""
     preview = ""
     body = ""
@@ -451,8 +458,8 @@ def output_imap_message_parts(parts, body_encoding):
     preview = clean_preview(preview)
     body = clean_preview(body)
     # Either preview or body will be non-empty
-    print(f'{header}{preview}{body}')
-    print('\1\1\1\1')           # MMDF delimiter
+    return f'{header}{preview}{body}'
+
 
 def decode_body_part(body_part, body_encoding):
     """Returns body_part decoded per body_encoding."""
