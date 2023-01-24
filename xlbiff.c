@@ -21,6 +21,7 @@
 #include <X11/StringDefs.h>
 #include <X11/Shell.h>
 #include <X11/Xaw/Command.h>
+#include <X11/Xatom.h>          // for XA_ATOM
 #include <X11/Xos.h>
 #include <X11/extensions/Xrandr.h>
 
@@ -84,6 +85,7 @@ typedef union wait      waitType;
 \*****************************************************************************/
 char		*doScan();
 void		Popdown(), Popup();
+void		realize_window();
 void		Usage();
 extern char	*getlogin();
 
@@ -736,10 +738,27 @@ void Popup() {
         XtSetArg(args[n], XtNy, -1); n++;
         XtSetValues(topLevel, args, n);
     }
-    XtRealizeWidget(topLevel);
+    realize_window();
     XtPopup(topLevel, XtGrabNone);
     XSync(XtDisplay(topLevel), False);
     visible = True;
+}
+
+void realize_window() {
+    XtRealizeWidget(topLevel);
+
+    (void)XSetWMProtocols(XtDisplay(topLevel), XtWindow(topLevel),
+                          &wm_delete_window, 1);
+
+    // Tell WM not to give us the focus when we pop up.
+    // May also cause WM to not decorate the window.
+    Atom wm_window_type_value = XInternAtom(
+        XtDisplay(topLevel), "_NET_WM_WINDOW_TYPE_NOTIFICATION", False);
+    XChangeProperty(
+        XtDisplay(topLevel), XtWindow(topLevel),
+        XInternAtom(XtDisplay(topLevel), "_NET_WM_WINDOW_TYPE", False),
+        XA_ATOM, 32, PropModeReplace,
+        (unsigned char *)&wm_window_type_value, 1);
 }
 
 
@@ -806,8 +825,6 @@ void lbiffRealize(char *s) {
 
     if (first_time) {
         /* first time through this code */
-        (void)XSetWMProtocols(XtDisplay(topLevel), XtWindow(topLevel),
-                              &wm_delete_window, 1);
         init_randr();
         first_time = 0;
     }
@@ -1090,7 +1107,7 @@ void handle_screen_change(Widget w, XtPointer client_data, XEvent *event,
         if (visible) {
             DP(("screen_change: widget is visible, so letting it move\n"));
             XtUnrealizeWidget(w);
-            XtRealizeWidget(w);
+            realize_window();
         }
     }
 }
