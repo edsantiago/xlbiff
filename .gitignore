@@ -11,6 +11,7 @@ config.*
 configure
 depcomp
 install-sh
+mailbox-preview
 missing
 xlbiff._man
 xlbiff.o

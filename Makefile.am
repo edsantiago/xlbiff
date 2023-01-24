@@ -1,5 +1,5 @@
 bin_PROGRAMS = xlbiff
-xlbiff_SOURCES = xlbiff.c
+xlbiff_SOURCES = xlbiff.c mailbox-preview.py
 
 xmhformdir = @xmhformdir@
 dist_xmhform_DATA = xlbiff.form
@@ -9,9 +9,11 @@ appdefault_DATA = XLbiff
 %: %.ad
 	cp -- $< $@
 
-bin_SCRIPTS = mailbox-preview
+nodist_bin_SCRIPTS = mailbox-preview
+%: %.py
+	cp -- $< $@
 
-CLEANFILES = $(appdefault_DATA)
+MOSTLYCLEANFILES = $(appdefault_DATA) $(nodist_bin_SCRIPTS)
 
 # "configure" normally sets appdefaultdir for each system with "pkg-config",
 # which returns an absolute pathname.  "make distcheck" doesn't use DESTDIR
