@@ -130,15 +130,15 @@ check_some_corners() {
             exit 2 ;;
     esac
     if [[ "$compare1" != "$compare2" ]]; then
-        echo "Before $window_corners_1" >&2
-        echo " After $window_corners_2" >&2
-    elif [[ -n "$VERBOSE" ]]; then
-        echo "Before $window_corners_1"
-        echo " After $window_corners_2"
+        util_err "Before $window_corners_1"
+        util_err " After $window_corners_2"
+    else
+        util_logv "Before $window_corners_1"
+        util_logv " After $window_corners_2"
     fi
     if [[ "$compare1" != "$compare2" ]]; then
-        echo "$0: $top_bottom_all corners should not have moved" \
-             "in test $current_test_name" >&2
+        util_err "$top_bottom_all corners should not have moved" \
+                 "in test $current_test_name"
         return 1
     fi
 }

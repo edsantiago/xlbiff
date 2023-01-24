@@ -192,17 +192,26 @@ util_client_has_connected() {
     xwininfo -root -children 2>&1 | grep -E -q -i "$util_window_name_pattern"
 }
 
+# append to the log and to stderr.
+# prepend the message with the time and program name.
+util_err() {
+    local prefix
+    prefix="$(date +'%H:%M:%S.%3N') $0"
+    echo "$prefix" "$@" >> "$logdir/xvfb.$current_test_name.log"
+    echo "$prefix" "$@" >&2
+}
+
 # append to the log and to stdout.
-# prepend the messages with program name and time.
+# prepend the message with the time and program name.
 util_log() {
     VERBOSE=1 util_logv "$@"
 }
 
 # append to the log, and if verbose to stdout.
-# prepend the messages with program name and time.
+# prepend the message with the time and program name.
 util_logv() {
     local prefix
-    prefix="$0 $(date +'%H:%M:%S.%3N')"
+    prefix="$(date +'%H:%M:%S.%3N') $0"
     echo "$prefix" "$@" >> "$logdir/xvfb.$current_test_name.log"
     if [[ -n "$VERBOSE" ]]; then
         echo "$prefix" "$@"
@@ -225,7 +234,7 @@ maybe_start_test() {
 start_test() {
     local test_name="$1"
     if [[ -n "$current_test_name" ]]; then
-        echo "$0: start_test called again within test $current_test_name" >&2
+        util_err "start_test called again within test $current_test_name"
     fi
     current_test_name=$test_name
     ((num_tests_run++))
@@ -239,13 +248,13 @@ start_test() {
 end_test_with_status() {
     local pass_fail="$1"
     if [[ -z "$current_test_name" ]]; then
-        echo "$0: end_test_with_status called outside a test" >&2
+        util_err "end_test_with_status called outside a test"
     fi
     if [[ "$pass_fail" = pass ]]; then
         util_log "Passed: $current_test_name"
         ((num_tests_passed++))
     else
-        echo "$0: FAILED: $current_test_name" >&2
+        util_err "FAILED: $current_test_name"
     fi
     current_test_name=
 }
@@ -262,15 +271,17 @@ loop_for() {
     local context_msg="$3"
     local return_on_failure="$4"
 
+    local failure_is_fatal=
     local child_alive=1
     local -i loops_done=0
+    [[ -z "$return_on_failure" ]] && failure_is_fatal=1
     while sleep 0.1; do
         if ((++loops_done > loop_count)); then
-            util_log "timed out" \
+            VERBOSE=${VERBOSE:-$failure_is_fatal} util_logv "timed out" \
                  "after $loop_count tries waiting for $success_function" \
                  "in test $current_test_name $context_msg"
-            util_log "$(xauth -v -i -n list)"
-            util_log "$(xwininfo -root -tree)"
+            util_logv "$(xauth -v -i -n list)"
+            util_logv "$(xwininfo -root -tree)"
             kill_xvfb
             [[ -n "$return_on_failure" ]] && return 1
             exit 1
@@ -283,7 +294,8 @@ loop_for() {
             break
         fi
         if [[ "$child_alive" = 0 ]]; then
-            util_log "child process has died on try $loops_done/$loop_count" \
+            VERBOSE=${VERBOSE:-$failure_is_fatal} util_logv \
+                 "child process has died on try $loops_done/$loop_count" \
                  "waiting for $success_function" \
                  "in test $current_test_name $context_msg"
             [[ -n "$return_on_failure" ]] && return 1
