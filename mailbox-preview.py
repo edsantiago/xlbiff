@@ -464,7 +464,7 @@ def extract_imap_message_parts(parts, body_encoding):
         header_next_match = re.search(
             rb'BODY\[HEADER\.FIELDS', part[0])
         if header_next_match:
-            header = part[1].decode(errors='ignore')
+            header = decode_headers(part[1])
 
         body_next_match = re.search(
             rb'BODY\[[0-9.]+\]', part[0])
@@ -476,6 +476,16 @@ def extract_imap_message_parts(parts, body_encoding):
     body = clean_preview(body)
     # Either preview or body will be non-empty
     return f'{header}{preview}{body}'
+
+
+def decode_headers(header_lines):
+    """Decode header lines.
+The CR/LF line ends in headers breaks the ability of "scan" to unfold
+Subject lines (it keeps the leading Space on the folded line), so we
+remove them.  We accept bytes and return a string."""
+    header_string = header_lines.decode(errors='ignore')
+    header_native = re.sub(r'\r\n', '\n', header_string)
+    return header_native
 
 
 def decode_body_part(body_part, body_encoding):

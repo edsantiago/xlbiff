@@ -34,9 +34,9 @@ class TestMailboxPreview(unittest.TestCase):
 
     def test_extract_imap_preview_fuzzy_header(self):
         self.assertEqual(
-            'From: testing harness\r\n'
-            'Subject: your test\r\n'
-            '\r\n'
+            'From: testing harness\n'
+            'Subject: your test\n'
+            '\n'
             'the \"preview\" text',
             mailbox_preview.extract_imap_message_parts(
                 [(b'1 (PREVIEW (FUZZY "the \\\"preview\\\" text") '
@@ -47,9 +47,9 @@ class TestMailboxPreview(unittest.TestCase):
 
     def test_extract_imap_preview_header(self):
         self.assertEqual(
-            'From: testing harness\r\n'
-            'Subject: your test\r\n'
-            '\r\n'
+            'From: testing harness\n'
+            'Subject: your test\n'
+            '\n'
             'the \"preview\" text',
             mailbox_preview.extract_imap_message_parts(
                 [(b'1 (PREVIEW "the \\\"preview\\\" text" '
@@ -87,6 +87,12 @@ class TestMailboxPreview(unittest.TestCase):
         self.assertEqual('=====', mailbox_preview.clean_preview('======'))
         # different: not shortened
         self.assertEqual('=-=-=-=', mailbox_preview.clean_preview('=-=-=-='))
+
+    def test_decode_headers(self):
+        self.assertEqual(
+            'Subject: =?UTF-8?Q?bytes+line+1?=\n =?UTF-8?Q?bytes+line+2?=',
+            mailbox_preview.decode_headers(
+                b'Subject: =?UTF-8?Q?bytes+line+1?=\r\n =?UTF-8?Q?bytes+line+2?='))
 
 
 if __name__ == '__main__':

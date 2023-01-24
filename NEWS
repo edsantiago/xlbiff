@@ -11,6 +11,7 @@ History
    + Option -debug now takes a debug level.
    + Handle unquoted literals in bodystructure response from IMAP server.
    + Handle non-fuzzy preview from recent IMAP servers.
+   + Handle folded Subject lines.
 
  * Version 4.6.3 (16 Jan 2022)
    + Developers: Disable automatic runs of flaky windowing test.
