@@ -5,6 +5,9 @@ History
   Where applicable, changes are attributed to the people who submitted
   the ideas and, in many cases, patches and source code.
 
+ * Version 4.6.5 (30 Jan 2023)
+   + nmh 1.8 support (changes to unit tests only)
+
  * Version 4.6.4 (24 Jan 2023)
    + Set window type to Notification so it doesn't steal the focus on popup.
    + Expand internal buffer to handle multi-byte characters.

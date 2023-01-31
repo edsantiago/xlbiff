@@ -1,8 +1,8 @@
-xlbiff (4.6.4-2) unstable; urgency=low
+xlbiff (4.6.5-1) unstable; urgency=low
 
   * test automation: nmh 1.8-RC2 requires non-empty $HOME (closes: #1029752)
 
- -- Stephen Gildea <stepheng+debian@gildea.com>  Mon, 30 Jan 2023 13:17:48 -0800
+ -- Stephen Gildea <stepheng+debian@gildea.com>  Mon, 30 Jan 2023 13:19:10 -0800
 
 xlbiff (4.6.4-1) unstable; urgency=low
 
