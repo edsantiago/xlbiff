@@ -20,7 +20,7 @@ create_test_tmpdir
 # This wrapper touches a file to let us know when scan runs successfully.
 cat > "$test_tmpdir"/scan <<EOF
 #! /bin/sh
-HOME=
+HOME=/nonexistent
 echo "\$@" > "$test_tmpdir"/scan.args
 "$scan_binary" "\$@" > "$logdir/scan.\$\$.stdout" 2> "$logdir/scan.\$\$.stderr"
 status=\$?
