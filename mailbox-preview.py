@@ -309,9 +309,9 @@ def get_imap_unseen_list(imapc):
 
 def Maildir_get_flags(maildir, key):
     """Return as a string the flags that are set on the keyed message.
-This is the same as maildir.get(key).get_flags() but much faster,
-because it does not open the message file.
-This method should exist in the mailbox.Maildir class.
+This is similar to maildir.get(key).get_flags() but much faster,
+because it does not open the message file.  This is the same as
+maildir.get_flags(key) in Python 3.13 and later.
 """
     subpath = maildir._lookup(key) # using internal method!
     if maildir.colon in subpath:

@@ -111,6 +111,9 @@ start_xlbiff_under_xvfb() {
     export TMPDIR="$test_tmpdir"
     PATH=$test_tmpdir:$PATH
 
+    # add any desired debug flag from env to xlbiff argument list
+    set -- ${XLBIFF_DEBUG:+-debug "$XLBIFF_DEBUG"} "$@"
+
     util_logv "$(dpkg-query --show \
                  -f 'Package ${Package} ${Version} ${Status}' xlbiff 2>&1)"
 
@@ -176,8 +179,8 @@ start_xlbiff_under_xvfb() {
 
         # everything started up successfully
         util_logv "$("$xlbiff_to_test" -version 2>&1)"
-        util_logv "$xlbiff_to_test" "$@"
-        "$xlbiff_to_test" "$@" >> "$logdir/xvfb.$current_test_name.log" 2>&1 &
+        util_logv $TEST_CMD_PREFIX "$xlbiff_to_test" "$@"
+        $TEST_CMD_PREFIX "$xlbiff_to_test" "$@" >> "$logdir/xvfb.$current_test_name.log" 2>&1 &
         xlbiff_pid=$!
         return
     done

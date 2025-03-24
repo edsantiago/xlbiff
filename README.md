@@ -19,6 +19,13 @@ What is xlbiff
   stays out of your way when there is no new mail and pops up only
   when something requests your attention.
 
+  Included with xlbiff is mailbox-preview, a command-line program
+  that peeks at an IMAP mailbox and uses scan to display a summary,
+  one line per new message.   Local mailboxes are also supported:
+  Maildir directories and any single-file format scan supports
+  (mbox and MMDF).  Use mailbox-preview stand-alone on the command line
+  or as the back-end of xlbiff.
+
 
 Advantages (or, why yet another biff?)
 ==========

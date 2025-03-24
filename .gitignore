@@ -18,6 +18,10 @@ xlbiff._man
 xlbiff.o
 xlbiff
 XLbiff
+xlbiff_*.build
+xlbiff_*.buildinfo
+xlbiff_*.changes
+xlbiff*.deb
 xlbiff-*.tar.gz
 debian/.debhelper/
 debian/autoreconf.*

@@ -91,7 +91,7 @@ The window will stay visible until you click it away or read the new mail.
 .PP
 You may need an entry in
 .I ~/.netrc
-to provide login credentials for your IMAP server.
+to provide login credentials for the IMAP server of your mail provider.
 The format of this file is described in
 .BR mailbox-preview (1).
 .PP
@@ -161,8 +161,8 @@ should update its display.  The default is 15 seconds.
 .TP 8
 \fB\-fade\fP \fIseconds\fP
 Number of seconds to wait before popping window back down.  This option
-can be used to monitor events of non-lasting importance, such as syslog
-or UUCP queues.  The default value of 0 disables the
+can be used to monitor events of non-lasting importance, such as syslog.
+The default value of 0 disables the
 .B fade
 option.
 .TP 8
@@ -510,7 +510,7 @@ or
 file.
 .TP 8
 .I ~/.netrc
-Login info for your IMAP server.  See
+Login info for the IMAP server.  See
 .BR mailbox-preview (1).
 .SH "SEE ALSO"
 .BR mailbox-preview (1),

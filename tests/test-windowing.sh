@@ -161,7 +161,6 @@ run_1_variation() {
     start_test "$test_name-$wm-$bottom"
 
     local xlbiff_common_args=(
-        ${XLBIFF_DEBUG:+-debug "$XLBIFF_DEBUG"}
         -name "$xlbiff_name"
         -file "$test_tmpdir/mailbox"
         -update 0.1

@@ -36,7 +36,7 @@
 #include <errno.h>
 
 /*
-** This grody gunk stolen outright from mit/lib/Xaw/Mailbox.h
+** This grody gunk copied from mit/lib/Xaw/Mailbox.h
 */
 #ifndef X_NOT_POSIX
 #ifdef _POSIX_SOURCE
@@ -85,8 +85,10 @@ extern char	*getlogin();
 void	Shrink(Widget, XtPointer, XEvent*, Boolean*);
 void	handler(XtPointer, XtIntervalId*);
 void	initStaticData(int*, int*, int*);
-void	Exit(Widget, XEvent*, String*, Cardinal*);
-void	Mailer(Widget, XEvent*, String*, Cardinal*);
+void	ExitAction(Widget, XEvent*, String*, Cardinal*);
+void	MailerAction(Widget, XEvent*, String*, Cardinal*);
+void	PopdownAction(Widget, XEvent*, String*, Cardinal*);
+void	PopdownCallback(Widget, XtPointer, XtPointer);
 void	lbiffUnrealize(), lbiffRealize(char*);
 void	getDimensions(char*, Dimension*, Dimension*);
 void	toggle_key_led(int);
@@ -202,9 +204,9 @@ static char *fallback_resources[] = {
 };
 
 static XtActionsRec lbiff_actions[] = {
-    {"exit", Exit},
-    {"mailer", Mailer},
-    {"popdown", Popdown}
+    {"exit", ExitAction},
+    {"mailer", MailerAction},
+    {"popdown", PopdownAction}
 };
 
 
@@ -303,7 +305,7 @@ int main(int argc, char *argv[]) {
                                       topLevel,
                                       NULL);
 
-    XtAddCallback(textBox, XtNcallback, Popdown, textBox);
+    XtAddCallback(textBox, XtNcallback, PopdownCallback, textBox);
     XtAppAddActions(app_context, lbiff_actions, XtNumber(lbiff_actions));
     XtAddEventHandler(topLevel, StructureNotifyMask, False,
                       (XtEventHandler)Shrink, (XtPointer)NULL);
@@ -328,6 +330,10 @@ int main(int argc, char *argv[]) {
     ** note that we will continually be interrupted by the timeout code
     */
     XtAppMainLoop(app_context);
+
+    XtDestroyWidget(topLevel);  // prevent memory leak
+    XtDestroyApplicationContext(app_context);  // close the Display
+    exit(0);
 }
 
 
@@ -373,11 +379,12 @@ int time_passed(struct timeval *newtime, struct timeval *oldtime,
     return timediff_secs > interval_seconds;
 }
 
-/**********\
-|*  Exit  *|  called via callback, exits the program
-\**********/
-void Exit(Widget w, XEvent *event, String *params, Cardinal *num_params) {
-    debug(1, "++Exit()");
+/****************\
+|*  ExitAction  *|  called via callback, exits the program
+\****************/
+void ExitAction(Widget w, XEvent *event, String *params,
+                Cardinal *num_params) {
+    debug(1, "++ExitAction()");
 
     if (event->type == ClientMessage) {
         if (event->xclient.data.l[0] != wm_delete_window) {
@@ -390,9 +397,8 @@ void Exit(Widget w, XEvent *event, String *params, Cardinal *num_params) {
 
     toggle_key_led(False);
 
-    XCloseDisplay(XtDisplay(w));
-
-    exit(0);
+    // tell XtAppMainLoop to stop looping
+    XtAppSetExitFlag(app_context);
 }
 
 
@@ -537,12 +543,13 @@ void checksize() {
 }
 
 
-/************\
-|*  Mailer  *|  called via callback, starts a mailer
-\************/
-void Mailer(Widget w, XEvent *event, String *params, Cardinal *num_params) {
+/******************\
+|*  MailerAction  *|  called via callback, starts a mailer
+\******************/
+void MailerAction(Widget w, XEvent *event, String *params,
+                  Cardinal *num_params) {
     int system_return;
-    debug(1, "++Mailer()");
+    debug(1, "++MailerAction()");
 
     Popdown();
     if (lbiff_data.mailerCmd != NULL && lbiff_data.mailerCmd[0] != '\0') {
@@ -591,8 +598,8 @@ char *doScan() {
     ** Initialise command string
     */
     if (buf == NULL) {
-        /* +6 for a few multibyte characters, +1 for the newline */
-        bufsize = (lbiff_data.columns + 6 + 1) * lbiff_data.rows;
+        /* *4 for multibyte characters, +1 for the newline */
+        bufsize = (lbiff_data.columns * 4 + 1) * lbiff_data.rows;
 
         buf = (char *)malloc(bufsize + sizeof(scan_fail_msg) + 1);
         if (buf == NULL)
@@ -699,6 +706,15 @@ void Shrink(Widget w, XtPointer data, XEvent *e, Boolean *b) {
 /*************\
 |*  Popdown  *|  kill window
 \*************/
+void PopdownAction(Widget w, XEvent *event, String *params,
+                   Cardinal *num_params) {
+    debug(1, "++PopdownAction()");
+    lbiffUnrealize();
+}
+void PopdownCallback(Widget w, XtPointer client_data, XtPointer call_data) {
+    debug(1, "++PopdownCallback()");
+    lbiffUnrealize();
+}
 void Popdown() {
     debug(1, "++Popdown()");
     lbiffUnrealize();
@@ -956,8 +972,6 @@ void ErrExit(Boolean errno_valid, char *s) {
         fprintf(stderr, "%s: %s\n", progname, s);
 
     toggle_key_led(False);
-
-    XCloseDisplay(XtDisplay(topLevel));
 
     exit(1);
 }

@@ -3,13 +3,13 @@ Section: mail
 Priority: optional
 Maintainer: Stephen Gildea <stepheng+debian@gildea.com>
 Rules-Requires-Root: no
-Standards-Version: 4.6.2
+Standards-Version: 4.7.2
 Vcs-Git: https://github.com/edsantiago/xlbiff.git/
 Vcs-Browser: https://github.com/edsantiago/xlbiff
 Homepage: https://www.edsantiago.com/xlbiff/
 Build-Depends:
  debhelper-compat (= 12),
- pkg-config,
+ pkgconf,
  libxaw7-dev,
  libxt-dev,
  libxrandr-dev,
@@ -34,3 +34,10 @@ Description: mail notification pop-up with configurable message scans
  vanish.  It will also vanish if the mailbox becomes empty.  Xlbiff
  stays out of your way when there is no new mail and pops up only
  when something requests your attention.
+ .
+ Included with xlbiff is mailbox-preview, a command-line program
+ that peeks at an IMAP mailbox and uses scan to display a summary,
+ one line per new message.   Local mailboxes are also supported:
+ Maildir directories and any single-file format scan supports
+ (mbox and MMDF).  Use mailbox-preview stand-alone on the command line
+ or as the back-end of xlbiff.

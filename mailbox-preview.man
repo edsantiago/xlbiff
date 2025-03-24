@@ -1,6 +1,6 @@
-.TH MAILBOX-PREVIEW 1 2022-12-01
+.TH MAILBOX-PREVIEW 1 2025-03-09
 .SH NAME
-mailbox-preview \- list new email messages in an IMAP mailbox
+mailbox-preview \- list new email messages in an IMAP or local mailbox
 .SH SYNOPSIS
 .na
 .B mailbox-preview
@@ -26,20 +26,26 @@ mailbox-preview \- list new email messages in an IMAP mailbox
 .SH DESCRIPTION
 The
 .B mailbox-preview
-program reads an IMAP mailbox and uses
+program peeks at an IMAP mailbox and uses
 .BR scan (1)
 to display a summary, one line per new message.
-It can be used stand-alone on the command line or as the back-end
+It also supports local mailboxes: Maildir directories and any
+single-file format
+.BR scan (1)
+supports (mbox and MMDF).
+Use
+.BR mailbox-preview
+stand-alone on the command line or as the back-end
 of a graphical, literate new-mail notification program such as
 .BR xlbiff (1).
 .PP
-The optional first argument is an optional name of an IMAP server
+The first argument is an optional name of an IMAP server
 (default \*(lqimap\*(rq), optionally followed by a colon and a mailbox name
 (default \*(lqinbox\*(rq).
-Unless the default name
+You will need this argument unless the default name
 .I imap
-resolves on your
-network to the name of your IMAP server, you will need this argument.
+resolves on your network to the name of the IMAP server of your mail
+provider.
 It is likely that the default mailbox name
 .I inbox
 will work for you.
@@ -105,7 +111,7 @@ Do not output the messages.  This option is probably useful only for debugging.
 .B \-\-client\-preview
 Do not request a short message preview from the IMAP server and
 instead create our own short form of the message.
-Use this option if you don't like the preview your IMAP server generates.
+Use this option if you don't like the preview the IMAP server generates.
 It has no effect unless the IMAP server advertises a preview capability.
 .TP 8
 \fB\-\-imap-debug\fP \fIlevel\fP
@@ -116,8 +122,8 @@ level 5 also displays IMAP literal strings.
 .SH FILES
 .TP 8
 .I ~/.netrc
-Login information for your IMAP server.
-If your IMAP server requires a password, supply it on a
+Login information for your mail provider's IMAP server.
+If the IMAP server requires a password, supply it on a
 .I machine
 line matching the IMAP server name, for example
 .IP
@@ -132,7 +138,7 @@ machine \fIserver_name\fP login \fIaccount_name\fP password \fIyour_pw\fP
 If \*(lqlogin \fIaccount_name\fP\*(rq is omitted,
 .I account_name
 defaults to your user name.
-.SH "BUGS REPORTS"
+.SH "BUG REPORTS"
 When reporting interoperability problems with an IMAP server,
 include the output of
 .PP

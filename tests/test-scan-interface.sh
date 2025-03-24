@@ -20,7 +20,7 @@ create_test_tmpdir
 # This wrapper touches a file to let us know when scan runs successfully.
 cat > "$test_tmpdir"/scan <<EOF
 #! /bin/sh
-HOME=/nonexistent
+HOME=/xlbiff-scan-test-nonexistent
 echo "\$@" > "$test_tmpdir"/scan.args
 "$scan_binary" "\$@" > "$logdir/scan.\$\$.stdout" 2> "$logdir/scan.\$\$.stderr"
 status=\$?
@@ -49,16 +49,16 @@ The scan program should be called on this message.
 EOF
 
 start_test scan
-start_xlbiff_under_xvfb ${XLBIFF_DEBUG:+-debug "$XLBIFF_DEBUG"} \
-                        -file "$test_tmpdir/mailbox" -xrm "$xrm_scan"
+util_logv "$("$scan_binary" -version 2>&1)"
+start_xlbiff_under_xvfb -file "$test_tmpdir/mailbox" -xrm "$xrm_scan"
 
 scan_success_file_exists() {
     [[ -f "$test_tmpdir"/scan.success ]]
 }
 
 # wait for xlbiff to run "scan"
+loop_for 50 scan_success_file_exists
 
-loop_for 25 scan_success_file_exists
 end_test_with_status pass
 
 kill_xvfb

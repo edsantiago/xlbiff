@@ -1,4 +1,4 @@
-AC_INIT([xlbiff], [4.6.5], [ed@edsantiago.com])
+AC_INIT([xlbiff], [4.6.6], [ed@edsantiago.com])
 AM_INIT_AUTOMAKE(foreign)
 AM_MAINTAINER_MODE(enable)
 AC_PROG_CC
@@ -24,7 +24,7 @@ AC_ARG_WITH(xmhformdir,
 	[xmhformdir="$withval"], [xmhformdir="${sysconfdir}/nmh"])
 AC_SUBST(xmhformdir)
 
-AC_SEARCH_LIBS([XCloseDisplay], [X11])
+AC_SEARCH_LIBS([XInternAtom], [X11])
 AC_SEARCH_LIBS([XRRSelectInput], [Xrandr])
 AC_SEARCH_LIBS([XtAppMainLoop], [Xt])
 AC_SEARCH_LIBS([commandWidgetClass], [Xaw])

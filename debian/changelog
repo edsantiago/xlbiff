@@ -1,3 +1,15 @@
+xlbiff (4.6.6-1) unstable; urgency=low
+
+  * mailbox-preview is documented in the package description.
+  * Developers: XtDestroyApplicationContext replaces
+    XCloseDisplay, to stay at the Xt level
+  * Developers: callback and action proc types corrected (closes: #1098148)
+  * Developers: build dependency on new pkgconf instead of obsolete pkg-config
+  * Testing: wait longer for scan_success_file_exists to avoid flaky timeouts
+  * Policy updated to 4.7.2 (no changes)
+
+ -- Stephen Gildea <stepheng+debian@gildea.com>  Thu, 06 Mar 2025 15:46:01 -0800
+
 xlbiff (4.6.5-1) unstable; urgency=low
 
   * test automation: nmh 1.8-RC2 requires non-empty $HOME (closes: #1029752)
