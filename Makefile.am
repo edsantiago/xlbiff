@@ -4,6 +4,9 @@ xlbiff_SOURCES = xlbiff.c mailbox-preview.py
 xmhformdir = @xmhformdir@
 dist_xmhform_DATA = xlbiff.form
 
+metainfodir = ${datarootdir}/metainfo
+dist_metainfo_DATA = com.edsantiago.xlbiff.metainfo.xml com.edsantiago.mailbox-preview.metainfo.xml
+
 appdefaultdir = @appdefaultdir@
 appdefault_DATA = XLbiff
 %: %.ad
@@ -28,7 +31,8 @@ dist_man1_MANS = xlbiff.man mailbox-preview.man
 EXTRA_DIST = README.md README.bulk XLbiff.ad \
     $(bin_SCRIPTS) \
     Bcheck Bscan \
-    tests/utilities.sh tests/test-scan-interface.sh tests/test-windowing.sh \
+    tests/utilities.sh tests/test-scan-interface.sh \
+    tests/test-doc-format.sh tests/test-windowing.sh \
     mailbox-preview-test.py
 
 # Compute mtime of newest project source file, for reproducible dist file.

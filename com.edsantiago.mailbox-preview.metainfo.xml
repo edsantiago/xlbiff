@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component>
+  <id>com.edsantiago.mailbox-preview</id>
+  <metadata_license>MIT</metadata_license>
+  <project_license>MIT</project_license>
+  <name>mailbox-preview</name>
+  <summary>List new email messages in an IMAP or local mailbox</summary>
+  <description>
+    <p>
+    mailbox-preview is a command-line program
+    that peeks at an IMAP mailbox and uses scan to display a summary,
+    one line per new message.   Local mailboxes are also supported:
+    Maildir directories and any single-file format scan supports
+    (mbox and MMDF).  Use mailbox-preview stand-alone on the command line
+    or as the back-end of xlbiff.
+    </p>
+  </description>
+  <provides>
+    <binary>mailbox-preview</binary>
+  </provides>
+  <categories>
+    <category>Network</category>
+    <category>Email</category>
+  </categories>
+  <url type="homepage">https://www.edsantiago.com/xlbiff/</url>
+  <url type="vcs-browser">https://github.com/edsantiago/xlbiff</url>
+  <developer id="com.github.gildea">
+    <name>Stephen Gildea</name>
+  </developer>
+</component>

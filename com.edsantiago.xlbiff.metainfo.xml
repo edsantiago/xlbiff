@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component>
+  <id>com.edsantiago.xlbiff</id>
+  <metadata_license>MIT</metadata_license>
+  <project_license>MIT</project_license>
+  <name>XLbiff</name>
+  <summary>Mail notification pop-up with configurable message scans</summary>
+  <description>
+    <p>
+    Xlbiff presents enough information to tell you: Is this new mail worth
+    reading right now?  And it stops distracting you once you decide.
+    </p>
+    <p>
+    Xlbiff waits in the background, monitoring your mailbox file or IMAP
+    server (or running your custom check-mail script).  When a new message
+    arrives, it invokes the MH scan(1) command (or your custom
+    mail-scanning script) and pops up a window with the output (typically
+    the From and Subject line of each new message).  If more mail arrives,
+    xlbiff scans again and resizes its preview window accordingly.
+    </p>
+    <p>
+    Clicking the left mouse button anywhere in the window causes it to
+    vanish.  It will also vanish if the mailbox becomes empty.  Xlbiff
+    stays out of your way when there is no new mail and pops up only
+    when something requests your attention.
+    </p>
+  </description>
+  <categories>
+    <category>Network</category>
+    <category>Email</category>
+  </categories>
+  <url type="homepage">https://www.edsantiago.com/xlbiff/</url>
+  <url type="vcs-browser">https://github.com/edsantiago/xlbiff</url>
+  <developer id="com.github.gildea">
+    <name>Stephen Gildea</name>
+  </developer>
+</component>
