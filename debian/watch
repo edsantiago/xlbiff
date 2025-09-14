@@ -1,8 +1,4 @@
 # Test with: uscan --report-status
 version=4
-# Older releases used "pl" (patchlevel) and "t" (tiny); change these into dots.
-# The matching-pattern intentionally excludes debian/ tags.
-opts=uversionmangle=\
-       s/(pl|t)(\d)/.$2/g;\
-       s/beta/~beta/ \
-  https://github.com/edsantiago/xlbiff/tags .+/tags/v?(\d\S+)\.tar\.gz
+opts=mode=git,pgpmode=gittag \
+  https://github.com/edsantiago/xlbiff.git/ .+/tags/debian/([\d.]+).*
