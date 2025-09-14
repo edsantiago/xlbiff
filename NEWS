@@ -5,6 +5,12 @@ History
   Where applicable, changes are attributed to the people who submitted
   the ideas and, in many cases, patches and source code.
 
+ * Version 4.6.7 (12 Sep 2025)
+   + add .metainfo.xml files for Appstream
+   + license name changed from "Expat" to "MIT" because Appstream
+     doesn't recognize "Expat".
+   + fix nroff 1.23 warning about selecting font 'C', add a test for it
+
  * Version 4.6.6 (7 Mar 2025)
    + XtDestroyApplicationContext replaces
      XCloseDisplay, to stay at the Xt level.
