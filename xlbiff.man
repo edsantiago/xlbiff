@@ -54,7 +54,8 @@ Features:
 If your new mail arrives in a local mail file in the usual system directory:
 .PP
 .RS 4
-.ft C
+.ie '\*(.T'html' .ft C
+.el .if t .ft CR
 .nf
 xlbiff
 .fi
@@ -65,7 +66,8 @@ If your mail file is in a different location, you will need to specify
 the filename:
 .PP
 .RS 4
-.ft C
+.ie '\*(.T'html' .ft C
+.el .if t .ft CR
 .nf
 xlbiff ~/Mailbox
 .fi
@@ -75,7 +77,8 @@ xlbiff ~/Mailbox
 If your mail is on an IMAP server, specify the server's name:
 .PP
 .RS 4
-.ft C
+.ie '\*(.T'html' .ft C
+.el .if t .ft CR
 .nf
 xlbiff imap.example.com
 .fi
@@ -195,7 +198,8 @@ Example
 values:
 .IP
 .RS 12
-.ft C
+.ie '\*(.T'html' .ft C
+.el .if t .ft CR
 .nf
 xterm -e alpine
 emacsclient --eval '(mh-rmail)' --suppress-output
@@ -216,7 +220,8 @@ The command's stdout is used to generate the window.
 Internally, the command is generated as
 .IP
 .RS 12
-.ft C
+.ie '\*(.T'html' .ft C
+.el .if t .ft CR
 .nf
 sprintf(buf, scanCommand, file, columns, rows)
 .fi
@@ -231,7 +236,8 @@ specified by the
 application resources file, is
 .IP
 .RS 12
-.ft C
+.ie '\*(.T'html' .ft C
+.el .if t .ft CR
 .nf
 mailbox\-preview %s \-\-width %d \-\-max\-messages %d 2>&1
 .fi
@@ -275,7 +281,8 @@ The default, specified by the
 application resources file, is
 .IP
 .RS 12
-.ft C
+.ie '\*(.T'html' .ft C
+.el .if t .ft CR
 .nf
 mailbox\-preview %s \-\-check %d
 .fi
@@ -285,7 +292,8 @@ mailbox\-preview %s \-\-check %d
 Similarly to scanCommand, the checkCommand is generated internally as
 .IP
 .RS 12
-.ft C
+.ie '\*(.T'html' .ft C
+.el .if t .ft CR
 .nf
 sprintf(buf, checkCommand, file, previous)
 .fi
@@ -409,7 +417,8 @@ to exit.
 The default translations are
 .PP
 .RS 4
-.ft C
+.ie '\*(.T'html' .ft C
+.el .if t .ft CR
 .nf
 <Button1Press>:  popdown()
 <Button2Press>:  mailer()
@@ -470,7 +479,8 @@ extracts from the sensors output whether the fan is running and whether
 its speed has changed.  Here is a possible check script:
 .PP
 .RS 4
-.ft C
+.ie '\*(.T'html' .ft C
+.el .if t .ft CR
 .nf
 fan1_speed=$(sensors | sed -E -n '/^fan/{s/.* ([0-9]+).*/\e1/p;q}')
 echo "$fan1_speed"
@@ -486,7 +496,8 @@ If the script is called
 you can use it by running xlbiff like this:
 .PP
 .RS 4
-.ft C
+.ie '\*(.T'html' .ft C
+.el .if t .ft CR
 .nf
 xlbiff \-checkCommand 'xlbiff\-fan\-check.sh %d' \-scanCommand sensors
 .fi

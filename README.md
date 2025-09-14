@@ -68,9 +68,11 @@ Documentation
 =============
 
   The complete guide to using and configuring xlbiff is in xlbiff.man.
-  After installing xlbiff, you can view the formatted manual with
+  Using and configuring mailbox-preview is documented in mailbox-preview.man.
+  After installing xlbiff, you can view the formatted manuals with
 
       man xlbiff
+      man mailbox-preview
 
 
 Author

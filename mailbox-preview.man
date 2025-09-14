@@ -128,7 +128,8 @@ If the IMAP server requires a password, supply it on a
 line matching the IMAP server name, for example
 .IP
 .RS 12
-.ft C
+.ie '\*(.T'html' .ft C
+.el .if t .ft CR
 .nf
 machine \fIserver_name\fP login \fIaccount_name\fP password \fIyour_pw\fP
 .fi
@@ -143,7 +144,8 @@ When reporting interoperability problems with an IMAP server,
 include the output of
 .PP
 .RS 2
-.ft C
+.ie '\*(.T'html' .ft C
+.el .if t .ft CR
 .nf
 mailbox\-preview \fIsrvr\fP \-\-imap\-debug=4 \-\-quiet 2>&1 | grep \-v " LOGIN "
 .fi
@@ -153,7 +155,8 @@ mailbox\-preview \fIsrvr\fP \-\-imap\-debug=4 \-\-quiet 2>&1 | grep \-v " LOGIN 
 Example command lines:
 .PP
 .RS 4
-.ft C
+.ie '\*(.T'html' .ft C
+.el .if t .ft CR
 .nf
 mailbox\-preview imap.example.com
 mailbox\-preview imap.example.com \-\-check 12
