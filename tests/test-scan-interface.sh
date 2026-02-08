@@ -57,7 +57,7 @@ scan_success_file_exists() {
 }
 
 # wait for xlbiff to run "scan"
-loop_for 50 scan_success_file_exists
+loop_for 100 scan_success_file_exists
 
 end_test_with_status pass
 

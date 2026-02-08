@@ -1,9 +1,8 @@
 Source: xlbiff
 Section: mail
-Priority: optional
 Maintainer: Stephen Gildea <stepheng+debian@gildea.com>
 Rules-Requires-Root: no
-Standards-Version: 4.7.2
+Standards-Version: 4.7.3
 Vcs-Git: https://github.com/edsantiago/xlbiff.git/
 Vcs-Browser: https://github.com/edsantiago/xlbiff
 Homepage: https://www.edsantiago.com/xlbiff/

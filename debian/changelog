@@ -1,3 +1,10 @@
+xlbiff (4.6.8-1) unstable; urgency=low
+
+  * Testing: wait longer for scan_success_file_exists to avoid flaky timeouts
+  * Policy updated to 4.7.3: remove Priority field from control file.
+
+ -- Stephen Gildea <stepheng+debian@gildea.com>  Wed, 04 Feb 2026 10:10:01 -0800
+
 xlbiff (4.6.7-1) unstable; urgency=low
 
   * add .metainfo.xml files
