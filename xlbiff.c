@@ -996,6 +996,7 @@ void debug(int level, char *format, ...) {
     vprintf(format, argp);
     va_end(argp);
     printf("\n");
+    fflush(stdout);
   }
 }
 

@@ -62,11 +62,20 @@ wm_dependency=(
 
 util_check_dependencies() {
     # arguments are alternating binary and package
+    if (($# == 0)); then
+        echo "$0: util_check_dependencies was not passed any arguments" >&2
+        exit 2
+    fi
     local binary package
     while (($# > 0)); do
         binary=$1
         package=$2
         shift; shift
+        if [[ -z "$package" ]]; then
+            echo "$0: util_check_dependencies: odd number of arguments:" >&2
+            echo "$0: no package given for binary ${binary@Q}" >&2
+            exit 2
+        fi
         if [[ -z "$(command -v "$binary")" ]]; then
             echo "$0: program not available: $binary" >&2
             echo "$0: package \"$package\" is probably not installed" >&2
@@ -201,7 +210,7 @@ util_client_has_connected() {
 # prepend the message with the time and program name.
 util_err() {
     local prefix
-    prefix="$(date +'%H:%M:%S.%3N') $0"
+    set_log_prefix prefix
     echo "$prefix" "$@" >> "$logdir/xvfb.$current_test_name.log"
     echo "$prefix" "$@" >&2
 }
@@ -216,11 +225,22 @@ util_log() {
 # prepend the message with the time and program name.
 util_logv() {
     local prefix
-    prefix="$(date +'%H:%M:%S.%3N') $0"
+    set_log_prefix prefix
     echo "$prefix" "$@" >> "$logdir/xvfb.$current_test_name.log"
     if [[ -n "$VERBOSE" ]]; then
         echo "$prefix" "$@"
     fi
+}
+
+# sets $1 to the current time and process name.
+# resource-efficient: does not create any processes or pipes.
+set_log_prefix() {
+    local time_var="$1"
+
+    local now="$EPOCHREALTIME"
+    local epochsecs="${now%.*}"
+    local millisecs="${now#*.}"; millisecs="${millisecs%???}"
+    printf -v "$time_var" '%(%H:%M:%S)T.%s %q' "$epochsecs" "$millisecs" "$0"
 }
 
 # Returns success if test with this name should be run.

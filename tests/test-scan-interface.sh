@@ -21,7 +21,7 @@ create_test_tmpdir
 cat > "$test_tmpdir"/scan <<EOF
 #! /bin/sh
 HOME=/xlbiff-scan-test-nonexistent
-echo "\$@" > "$test_tmpdir"/scan.args
+echo "\$@" > "$logdir"/scan.\$\$.args
 "$scan_binary" "\$@" > "$logdir/scan.\$\$.stdout" 2> "$logdir/scan.\$\$.stderr"
 status=\$?
 cat -- "$logdir/scan.\$\$.stdout"
@@ -50,6 +50,7 @@ EOF
 
 start_test scan
 util_logv "$("$scan_binary" -version 2>&1)"
+XLBIFF_DEBUG=1
 start_xlbiff_under_xvfb -file "$test_tmpdir/mailbox" -xrm "$xrm_scan"
 
 scan_success_file_exists() {
@@ -57,7 +58,7 @@ scan_success_file_exists() {
 }
 
 # wait for xlbiff to run "scan"
-loop_for 100 scan_success_file_exists
+loop_for 1000 scan_success_file_exists
 
 end_test_with_status pass
 

@@ -6,8 +6,14 @@
 
 . "$(dirname "$0")"/utilities.sh
 
-util_check_dependencies groff groff man man-db
-util_check_dependencies mandoc mandoc man2html man2html-base
+doc_dependencies=(
+    groff groff
+    man man-db
+    mandoc mandoc
+    man2html man2html-base
+)
+
+util_check_dependencies "${doc_dependencies[@]}"
 
 create_test_tmpdir
 

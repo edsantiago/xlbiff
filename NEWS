@@ -5,6 +5,9 @@ History
   Where applicable, changes are attributed to the people who submitted
   the ideas and, in many cases, patches and source code.
 
+ * Version 4.6.9 (15 Feb 2026)
+   + Testing: more logging to help debug flaky tests.
+
  * Version 4.6.8 (4 Feb 2026)
    + Testing: wait longer for scan_success_file_exists to avoid flaky timeouts.
 
