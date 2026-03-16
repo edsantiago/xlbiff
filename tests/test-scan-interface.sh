@@ -58,6 +58,7 @@ scan_success_file_exists() {
 }
 
 # wait for xlbiff to run "scan"
+# March 2026: largest number of loops seen used: 210
 loop_for 1000 scan_success_file_exists
 
 end_test_with_status pass

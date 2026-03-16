@@ -239,7 +239,7 @@ set_log_prefix() {
 
     local now="$EPOCHREALTIME"
     local epochsecs="${now%.*}"
-    local millisecs="${now#*.}"; millisecs="${millisecs%???}"
+    local millisecs="${now#*.}"; millisecs="${millisecs:0:3}"
     printf -v "$time_var" '%(%H:%M:%S)T.%s %q' "$epochsecs" "$millisecs" "$0"
 }
 
@@ -311,7 +311,7 @@ loop_for() {
             [[ -n "$return_on_failure" ]] && return 1
             exit 1
         fi
-        if [[ -z "$(jobs -r -p)" ]]; then
+        if are_all_jobs_finished; then
             child_alive=0
         fi
         if $success_function; then
@@ -328,6 +328,13 @@ loop_for() {
         fi
         util_logv "try $loops_done/$loop_count: $success_function false"
     done
+}
+
+are_all_jobs_finished() {
+    # must run "jobs" first, to update job status
+    jobs -r -p > /dev/null
+    local jobs_count_prompt='\j'
+    return "${jobs_count_prompt@P}"
 }
 
 # Returns status 0, so suitable as the last thing in a successful test.
