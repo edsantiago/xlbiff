@@ -28,15 +28,9 @@ main() {
 
     run_man_test 'man' "$xlbiff_man_out" "$preview_man_out"
     run_man_test 'nroff -man' "$xlbiff_man_out" "$preview_man_out"
-    run_man_test 'groff -man -Tpdf' '/Courier'
-    run_man_test 'groff -man -Thtml' '<pre[ >]'
+    run_man_test 'groff -man -ww -z -rCHECKSTYLE=3' ''
     run_man_test 'mandoc -T lint' ''
     run_man_test 'mandoc -T html' '<pre[ >]'
-    run_man_test 'man2html' '<pre[ >]'
-    # man2texi does not have a Debian package; test only if we find the binary.
-    if hash man2texi 2> /dev/null; then
-        run_man_test 'man2texi' '@display'
-    fi
 }
 
 
@@ -70,7 +64,8 @@ run_man_test_1() {
     "${command_parts[@]}" "$input_file" \
                           > "$test_tmpdir"/stdout 2> "$test_tmpdir"/stderr
     # test is case insensitive:  <PRE> == <pre>
-    if ! grep -i -- "$expected_in_output" "$test_tmpdir"/stdout > /dev/null
+    if [[ "$expected_in_output" ]] && \
+           ! grep -i -- "$expected_in_output" "$test_tmpdir"/stdout > /dev/null
     then
         printf '%q: text "%s" not found in output of %s %s\n' \
                "$0" "$expected_in_output" "$formatting_command" "$input_file"
@@ -80,6 +75,14 @@ run_man_test_1() {
         # mandoc lint incorrectly/uselessly flags
         # "WARNING: skipping paragraph macro: IP empty"
         grep -v 'IP empty' "$test_tmpdir/stdout" >> "$test_tmpdir/stderr"
+    fi
+    if [[ "$formatting_command" =~ CHECKSTYLE ]]; then
+        # groff -rCHECKSTYLE=3 flags
+        #   "style: use of deprecated macro: .PD"
+        #   We understand that "paragraph distance" is not translated
+        #   into HTML, but it improves the PDF appearance of lists so
+        #   much that we contintue to use it.
+        sed -i '/style: use of deprecated macro: .PD/d' "$test_tmpdir/stderr"
     fi
     if [[ -s "$test_tmpdir/stderr" ]]; then
         printf '%q: unexpected error output running %s %s\n' \

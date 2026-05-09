@@ -62,35 +62,26 @@ Features:
 If your new mail arrives in a local mail file in the usual system directory:
 .PP
 .RS 4
-.ie '\*(.T'html' .ft C
-.el .if t .ft CR
-.nf
+.EX
 xlbiff
-.fi
-.ft
+.EE
 .RE
 .PP
 If your mail file is in a different location, you will need to specify
 the filename:
 .PP
 .RS 4
-.ie '\*(.T'html' .ft C
-.el .if t .ft CR
-.nf
+.EX
 xlbiff ~/Mailbox
-.fi
-.ft
+.EE
 .RE
 .PP
 If your mail is on an IMAP server, specify the server's name:
 .PP
 .RS 4
-.ie '\*(.T'html' .ft C
-.el .if t .ft CR
-.nf
+.EX
 xlbiff imap.example.com
-.fi
-.ft
+.EE
 .RE
 .PP
 Whichever way you start xlbiff, if you have new mail, it should pop up a
@@ -206,13 +197,10 @@ Example
 values:
 .IP
 .RS 12
-.ie '\*(.T'html' .ft C
-.el .if t .ft CR
-.nf
+.EX
 xterm -e alpine
 emacsclient --eval '(mh-rmail)' --suppress-output
-.fi
-.ft
+.EE
 .RE
 .IP
 There is no default
@@ -228,12 +216,9 @@ The command's stdout is used to generate the window.
 Internally, the command is generated as
 .IP
 .RS 12
-.ie '\*(.T'html' .ft C
-.el .if t .ft CR
-.nf
+.EX
 sprintf(buf, scanCommand, file, columns, rows)
-.fi
-.ft
+.EE
 .RE
 .IP
 so a %s, %d and %d respectively in \fBscanCommand\fP will generate the values
@@ -244,12 +229,9 @@ specified by the
 application resources file, is
 .IP
 .RS 12
-.ie '\*(.T'html' .ft C
-.el .if t .ft CR
-.nf
+.EX
 mailbox\-preview %s \-\-width %d \-\-max\-messages %d 2>&1
-.fi
-.ft
+.EE
 .RE
 .IP
 If a
@@ -289,23 +271,17 @@ The default, specified by the
 application resources file, is
 .IP
 .RS 12
-.ie '\*(.T'html' .ft C
-.el .if t .ft CR
-.nf
+.EX
 mailbox\-preview %s \-\-check %d
-.fi
-.ft
+.EE
 .RE
 .IP
 Similarly to scanCommand, the checkCommand is generated internally as
 .IP
 .RS 12
-.ie '\*(.T'html' .ft C
-.el .if t .ft CR
-.nf
+.EX
 sprintf(buf, checkCommand, file, previous)
-.fi
-.ft
+.EE
 .RE
 .IP
 .B previous
@@ -425,14 +401,11 @@ to exit.
 The default translations are
 .PP
 .RS 4
-.ie '\*(.T'html' .ft C
-.el .if t .ft CR
-.nf
+.EX
 <Button1Press>:  popdown()
 <Button2Press>:  mailer()
 <Button3Press>:  exit()
-.fi
-.ft
+.EE
 .RE
 .SH CUSTOMIZING
 You may want to tweak some values in an app-defaults file and/or add
@@ -487,16 +460,13 @@ extracts from the sensors output whether the fan is running and whether
 its speed has changed.  Here is a possible check script:
 .PP
 .RS 4
-.ie '\*(.T'html' .ft C
-.el .if t .ft CR
-.nf
+.EX
 fan1_speed=$(sensors | sed -E -n '/^fan/{s/.* ([0-9]+).*/\e1/p;q}')
 echo "$fan1_speed"
 [ "$fan1_speed" = 0 ] && exit 2
 [ "$fan1_speed" = "$1" ] && exit 1
 exit 0
-.fi
-.ft
+.EE
 .RE
 .PP
 If the script is called
@@ -504,12 +474,9 @@ If the script is called
 you can use it by running xlbiff like this:
 .PP
 .RS 4
-.ie '\*(.T'html' .ft C
-.el .if t .ft CR
-.nf
+.EX
 xlbiff \-checkCommand 'xlbiff\-fan\-check.sh %d' \-scanCommand sensors
-.fi
-.ft
+.EE
 .RE
 .SH ENVIRONMENT
 .TP 8
