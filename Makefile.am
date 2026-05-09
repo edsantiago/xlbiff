@@ -16,9 +16,16 @@ nodist_bin_SCRIPTS = mailbox-preview
 %: %.py
 	cp -- $< $@
 
-MOSTLYCLEANFILES = $(appdefault_DATA) $(nodist_bin_SCRIPTS)
+man1_MANS = xlbiff.man mailbox-preview.man
+%.man: %.man.in
+	rm -f -- $@
+	sed 's/MANUAL_VERSION/$(VERSION)/g' -- $< > $@
+	chmod -- -w $@
+
+MOSTLYCLEANFILES = $(appdefault_DATA) $(nodist_bin_SCRIPTS) $(man1_MANS)
 distclean-local:
 	rm -rf __pycache__
+	rm -f xlbiff.man mailbox-preview.man
 
 # "configure" normally sets appdefaultdir for each system with "pkg-config",
 # which returns an absolute pathname.  "make distcheck" doesn't use DESTDIR
@@ -26,11 +33,9 @@ distclean-local:
 # Makefile variable, so that it doesn't install into the real directory.
 DISTCHECK_CONFIGURE_FLAGS = --with-appdefaultdir=\$${datadir}/X11/app-defaults
 
-dist_man1_MANS = xlbiff.man mailbox-preview.man
-
 EXTRA_DIST = README.md README.bulk XLbiff.ad \
-    $(bin_SCRIPTS) \
     Bcheck Bscan \
+    xlbiff.man.in mailbox-preview.man.in \
     tests/utilities.sh tests/test-scan-interface.sh \
     tests/test-doc-format.sh tests/test-windowing.sh \
     mailbox-preview-test.py

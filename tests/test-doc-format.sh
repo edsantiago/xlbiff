@@ -23,6 +23,9 @@ main() {
     local xlbiff_man_out='<Button1Press>:  popdown()$'
     local preview_man_out='^ *mailbox-preview imap.example.com$'
 
+    ensure_file_exists xlbiff.man
+    ensure_file_exists mailbox-preview.man
+
     run_man_test 'man' "$xlbiff_man_out" "$preview_man_out"
     run_man_test 'nroff -man' "$xlbiff_man_out" "$preview_man_out"
     run_man_test 'groff -man -Tpdf' '/Courier'
@@ -84,6 +87,16 @@ run_man_test_1() {
         cat "$test_tmpdir/stderr"
         exit_status=1
     fi
+}
+
+ensure_file_exists() {
+    local filename="$1"
+
+    test ! -f "$filename" || return
+    # omit version-customization of the man page; good enough for this test
+    printf '%q: sed s/MANUAL_VERSION/xlbiff/g -- %q.in > %q\n' \
+           "$0" "$filename" "$filename"
+    sed 's/MANUAL_VERSION/xlbiff/g' -- "$filename".in > "$filename"
 }
 
 main "$@"

@@ -10,9 +10,9 @@
     mailbox-preview is a command-line program
     that peeks at an IMAP mailbox and uses scan to display a summary,
     one line per new message.   Local mailboxes are also supported:
-    Maildir directories and any single-file format scan supports
-    (mbox and MMDF).  Use mailbox-preview stand-alone on the command line
-    or as the back-end of xlbiff.
+    Maildir directories, MH folders, mbox files and MMDF files.
+    Use mailbox-preview stand-alone on the command line or as the
+    back-end of xlbiff.
     </p>
   </description>
   <provides>

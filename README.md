@@ -8,11 +8,15 @@ What is xlbiff
   reading right now?  And it stops distracting you once you decide.
 
   Xlbiff waits in the background, monitoring your mailbox file or IMAP
-  server (or running your custom check-mail script).  When a new message
-  arrives, it invokes the MH scan(1) command (or your custom
-  mail-scanning script) and pops up a window with the output (typically
-  the From and Subject line of each new message).  If more mail arrives,
-  xlbiff scans again and resizes its preview window accordingly.
+  server (or running any state-monitoring script you configure).
+  When a new message arrives, it invokes the MH scan(1) command (or
+  any status-generating script) and pops up a window with the output.
+  If more mail arrives (or the monitored state changes), xlbiff scans
+  again and resizes its preview window accordingly.
+
+  You can customize scan(1) to show any header and/or content; by
+  default xlbiff displays the From, Subject and beginning of the
+  message content.  Xlbiff can also beep or play a custom sound.
 
   Clicking the left mouse button anywhere in the window causes it to
   vanish.  It will also vanish if the mailbox becomes empty.  Xlbiff
@@ -22,9 +26,9 @@ What is xlbiff
   Included with xlbiff is mailbox-preview, a command-line program
   that peeks at an IMAP mailbox and uses scan to display a summary,
   one line per new message.   Local mailboxes are also supported:
-  Maildir directories and any single-file format scan supports
-  (mbox and MMDF).  Use mailbox-preview stand-alone on the command line
-  or as the back-end of xlbiff.
+  Maildir directories, MH folders, mbox files and MMDF files.
+  Use mailbox-preview stand-alone on the command line or as the
+  back-end of xlbiff.
 
 
 Advantages (or, why yet another biff?)
@@ -34,7 +38,7 @@ Advantages (or, why yet another biff?)
    + occupies no screen real estate until mail comes in
    + supports scripts for checking mail
    + has configurable screen location, color, and font
-   + can notify by bell and/or keyboard LED
+   + can notify by bell, sound file and/or keyboard LED
    + shows all new messages in one, easy-to-dismiss window
    + lets you click anywhere on it; no trying to select a tiny "x"
 

@@ -12,11 +12,16 @@
     </p>
     <p>
     Xlbiff waits in the background, monitoring your mailbox file or IMAP
-    server (or running your custom check-mail script).  When a new message
-    arrives, it invokes the MH scan(1) command (or your custom
-    mail-scanning script) and pops up a window with the output (typically
-    the From and Subject line of each new message).  If more mail arrives,
-    xlbiff scans again and resizes its preview window accordingly.
+    server (or running any state-monitoring script you configure).
+    When a new message arrives, it invokes the MH scan(1) command (or
+    any status-generating script) and pops up a window with the output.
+    If more mail arrives (or the monitored state changes), xlbiff scans
+    again and resizes its preview window accordingly.
+    </p>
+    <p>
+    You can customize scan(1) to show any header and/or content; by
+    default xlbiff displays the From, Subject and beginning of the
+    message content.  Xlbiff can also beep or play a custom sound.
     </p>
     <p>
     Clicking the left mouse button anywhere in the window causes it to

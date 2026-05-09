@@ -1,4 +1,4 @@
-.TH MAILBOX-PREVIEW 1 2025-03-09
+.TH MAILBOX-PREVIEW 1 2026-05-08 MANUAL_VERSION
 .SH NAME
 mailbox-preview \- list new email messages in an IMAP or local mailbox
 .SH SYNOPSIS
@@ -29,12 +29,10 @@ The
 program peeks at an IMAP mailbox and uses
 .BR scan (1)
 to display a summary, one line per new message.
-It also supports local mailboxes: Maildir directories and any
-single-file format
-.BR scan (1)
-supports (mbox and MMDF).
+It also supports local mailboxes:
+Maildir directories, MH folders, mbox files and MMDF files.
 Use
-.BR mailbox-preview
+.B mailbox-preview
 stand-alone on the command line or as the back-end
 of a graphical, literate new-mail notification program such as
 .BR xlbiff (1).
