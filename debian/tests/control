@@ -9,6 +9,7 @@ Features: test-name=mailbox-preview
 Depends: @
 
 Test-Command: TMPDIR="$AUTOPKGTEST_TMP" ./tests/test-doc-format.sh
+  --logdir "$AUTOPKGTEST_ARTIFACTS"
 Features: test-name=doc-format
 Depends: @, groff, man-db, mandoc, man2html-base
 

@@ -1,3 +1,9 @@
+xlbiff (4.6.11-1) unstable; urgency=low
+
+  * Testing: doc-format test saves test artifacts.
+
+ -- Stephen Gildea <stepheng+debian@gildea.com>  Tue, 16 Jun 2026 07:01:25 -0700
+
 xlbiff (4.6.10-1) unstable; urgency=low
 
   * Doc: update the introductory description

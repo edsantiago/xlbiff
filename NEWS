@@ -5,6 +5,9 @@ History
   Where applicable, changes are attributed to the people who submitted
   the ideas and, in many cases, patches and source code.
 
+ * Version 4.6.11 (16 Jun 2026)
+   + Testing: doc-format test saves test artifacts.
+
  * Version 4.6.10 (8 May 2026)
    + Doc: update the introductory description
    + Doc: support groff 1.24 with the manual pages, removing font
