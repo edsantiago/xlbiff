@@ -93,8 +93,14 @@ Format file for
 .BR scan ;
 see
 .BR mh-format (5).
+Use a format file to customize how each message is summarized in the output.
 Default is
-.I xlbiff.form
+.IR xlbiff.form ,
+which displays the
+.IR From ,
+.I Subject
+and beginning of the
+message content.
 .TP 8
 \fB\-\-scanproc\fP \fIprogram\fP
 Filename of the
