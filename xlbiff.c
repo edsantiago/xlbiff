@@ -97,6 +97,7 @@ void	ErrExit(Boolean, char*);
 Bool	CheckEvent(Display*, XEvent*, XPointer);
 void	debug(int level, char *format, ...);
 waitType popen_nmh(char *cmd, int bufsize, char **buf_out, size_t *size_out);
+int	asprintf_or_die(const char *caller, char **bufferp, const char *format, ...);
 
 /*****************************************************************************\
 **                                 globals				     **
@@ -270,15 +271,7 @@ int main(int argc, char *argv[]) {
             username = pwd->pw_name;
         }
 
-        // -2 for the "%s" removed by formatting, +1 for the NUL.
-        size_t mailpath_file_size =
-            strlen(XLBIFF_MAILPATH) - 2 + strlen(username) + 1;
-        default_file = (char *)malloc(mailpath_file_size);
-        if (default_file == NULL)
-            ErrExit(True, "default_file malloc()");
-
-        snprintf(default_file, mailpath_file_size, XLBIFF_MAILPATH, username);
-        default_file[mailpath_file_size - 1] = '\0';
+        asprintf_or_die("default_file", &default_file, XLBIFF_MAILPATH, username);
         lbiff_data.file = default_file;
     }
     debug(1, "file= %s", lbiff_data.file);
@@ -291,14 +284,7 @@ int main(int argc, char *argv[]) {
     /*
     ** Fix DISPLAY environment variable, might be needed by subprocesses
     */
-    {
-        char *envstr =
-            (char *)malloc(strlen("DISPLAY=") + 1 +
-                           strlen(XDisplayString(XtDisplay(topLevel))));
-
-        sprintf(envstr, "DISPLAY=%s", XDisplayString(XtDisplay(topLevel)));
-        putenv(envstr);
-    }
+    setenv("DISPLAY", XDisplayString(XtDisplay(topLevel)), /*overwrite=*/1);
 
     textBox = XtVaCreateManagedWidget("text",
                                       commandWidgetClass,
@@ -436,19 +422,13 @@ void checksize() {
         static char *cmd_buf;
         static int   previous;
 
-        if (cmd_buf == NULL) {
-            cmd_buf = (char *)malloc(strlen(lbiff_data.checkCmd) +
-                                     strlen(lbiff_data.file) + 10);
-            if (cmd_buf == NULL)
-                ErrExit(True, "scan command buffer malloc()");
-        }
         if (outbuf == NULL) {
             outbuf = (char *)malloc(outbuf_size);
             if (outbuf == NULL)
                 ErrExit(True, "check output buffer malloc()");
         }
 
-        sprintf(cmd_buf, lbiff_data.checkCmd, lbiff_data.file, previous);
+        asprintf_or_die("checksize", &cmd_buf, lbiff_data.checkCmd, lbiff_data.file, previous);
         debug(1, "++checkCommand= %s", cmd_buf);
 
         status = popen_nmh(cmd_buf, outbuf_size, &outbuf, NULL);
@@ -607,13 +587,8 @@ char *doScan() {
 
         debug(1, "---size= %dx%d", lbiff_data.rows, lbiff_data.columns);
 
-        cmd_buf = (char *)malloc(strlen(lbiff_data.cmd) +
-                                 strlen(lbiff_data.file) + 10);
-        if (cmd_buf == NULL)
-            ErrExit(True, "command buffer malloc()");
-
-        sprintf(cmd_buf, lbiff_data.cmd,
-                lbiff_data.file, lbiff_data.columns, lbiff_data.rows);
+        asprintf_or_die("command buffer", &cmd_buf, lbiff_data.cmd,
+                        lbiff_data.file, lbiff_data.columns, lbiff_data.rows);
         debug(1, "---cmd= %s", cmd_buf);
     }
 
@@ -850,11 +825,7 @@ void lbiffRealize(char *s) {
         ** Initialise sound string
         */
         if (sound_buf == NULL) {
-            sound_buf = (char *)malloc(strlen(lbiff_data.sound) + 10);
-            if (sound_buf == NULL)
-                ErrExit(True, "sound_buf malloc()");
-
-            sprintf(sound_buf, lbiff_data.sound, lbiff_data.volume);
+            asprintf_or_die("sound_buf", &sound_buf, lbiff_data.sound, lbiff_data.volume);
             debug(1, "---sound= %s", sound_buf);
         }
         system_return = system(sound_buf);
@@ -1007,7 +978,7 @@ waitType popen_simple(char *cmd, int bufsize, char **buf_out,
     waitType status;
     /*
     ** Execute the command and read the results.
-    ** If there is data remaining in the pipe, read it in (and throw it away)
+    ** If there are bytes remaining in the pipe, read them (and throw them away)
     ** so our exit status is correct (eg, not "Broken pipe").
     */
     if ((p = popen(cmd, "r")) == NULL)
@@ -1162,4 +1133,28 @@ void init_randr() {
     // tell RANDR we want to receive screen configuration events
     XRRSelectInput(XtDisplay(topLevel), XRootWindowOfScreen(XtScreen(topLevel)),
                    RRScreenChangeNotifyMask);
+}
+
+/*
+ * Format a string into a (re)allocated buffer.
+ * The passed-in buffer must be NULL or a malloced pointer; it will be
+ *   realloced if needed.  Caller must hold on to the buffer or free it.
+ * Never returns -1; if the allocation fails, kills the program.
+ */
+int asprintf_or_die(const char *caller, char **bufferp, const char *format, ...) {
+    va_list argp;
+    va_start(argp, format);
+    int buffer_size_needed = vsnprintf(NULL, 0, format, argp);
+    va_end(argp);
+    *bufferp = realloc(*bufferp, buffer_size_needed + 1);
+    if (*bufferp == NULL) {
+        fprintf(stderr, "cannot realloc to %d bytes for snprintf, caller: %s\n",
+                buffer_size_needed + 1, caller);
+        fprintf(stderr, "failing snprintf format: %s\n", format);
+        ErrExit(True, "asprintf_or_die");
+    }
+    va_start(argp, format);
+    vsnprintf(*bufferp, buffer_size_needed + 1, format, argp);
+    va_end(argp);
+    return buffer_size_needed;
 }
