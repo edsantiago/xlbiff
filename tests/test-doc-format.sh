@@ -52,9 +52,9 @@ run_man_test() {
     if [[ -z "$expect_in_preview_out" ]]; then
         expect_in_preview_out=$expect_in_xlbiff_out
     fi
-    run_man_test_1 "$test_name" "${pre}xlbiff${post}" "$formatting_cmd" \
+    run_man_test_1 "${test_name}-xlb" "${pre}xlbiff${post}" "$formatting_cmd" \
                    "$expect_in_xlbiff_out"
-    run_man_test_1 "$test_name" "${pre}mailbox-preview${post}" \
+    run_man_test_1 "${test_name}-mbp" "${pre}mailbox-preview${post}" \
                    "$formatting_cmd" "$expect_in_preview_out"
 }
 
