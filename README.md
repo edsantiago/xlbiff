@@ -46,6 +46,14 @@ Advantages (or, why yet another biff?)
 Installing
 ==========
 
+  To compile, you will need the run-time library and development
+  header files for the following libraries: Xaw, Xt, Xrandr, X11.
+
+  To run xlbiff in its default configuration, you will need nmh
+  ("new MH") and Python 3 installed.
+
+  When you have these dependencies installed, build xlbiff:
+
       ./configure
       make && make install
 
