@@ -51,7 +51,7 @@ EOF
 start_test scan
 util_logv "$("$scan_binary" -version 2>&1)"
 XLBIFF_DEBUG=1
-start_xlbiff_under_xvfb -file "$test_tmpdir/mailbox" -xrm "$xrm_scan"
+start_xlbiff_under_xvfb -volume 0 -file "$test_tmpdir/mailbox" -xrm "$xrm_scan"
 
 scan_success_file_exists() {
     [[ -f "$test_tmpdir"/scan.success ]]

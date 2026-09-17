@@ -166,6 +166,7 @@ run_1_variation() {
         -update 0.1
         -scanCommand "cat ${test_tmpdir@Q}/mailbox"
         -mailerCommand "touch ${test_tmpdir@Q}/mailer"
+        -volume 0
         -xrm
         '*translations: <Key>d: popdown()\n <Key>m: mailer()\n <Key>x: exit()\n'
     )
