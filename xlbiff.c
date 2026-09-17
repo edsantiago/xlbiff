@@ -26,6 +26,7 @@
 #include <X11/extensions/Xrandr.h>
 
 #include <unistd.h>
+#include <limits.h>
 #include <stdarg.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -84,7 +85,7 @@ extern char	*getlogin();
 
 void	Shrink(Widget, XtPointer, XEvent*, Boolean*);
 void	handler(XtPointer, XtIntervalId*);
-void	initStaticData(int*, int*, int*);
+void	initDimensionData();
 void	ExitAction(Widget, XEvent*, String*, Cardinal*);
 void	MailerAction(Widget, XEvent*, String*, Cardinal*);
 void	PopdownAction(Widget, XEvent*, String*, Cardinal*);
@@ -280,6 +281,15 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "%s: empty scanCommand will not work\n", progname);
         exit(1);
     }
+    if (lbiff_data.update < 0.0f) {
+        fprintf(stderr, "%s: update < 0 will hang forever\n", progname);
+        exit(2);
+    }
+    if (lbiff_data.update > INT_MAX / 1000 - 1) {
+        fprintf(stderr, "%s: update greater than %d may overflow\n",
+                progname, INT_MAX / 1000 - 1);
+        exit(2);
+    }
 
     /*
     ** Fix DISPLAY environment variable, might be needed by subprocesses
@@ -303,6 +313,8 @@ int main(int argc, char *argv[]) {
         XInternAtom(XtDisplay(topLevel), "WM_DELETE_WINDOW", False);
 
     toggle_key_led(False);
+
+    initDimensionData();
 
     /*
     ** check to see if there's something to do, pop up window if necessary,
@@ -578,6 +590,14 @@ char *doScan() {
     ** Initialise command string
     */
     if (buf == NULL) {
+        if (lbiff_data.columns <= 0)
+            ErrExit(False, "columns must be greater than 0");
+        if (lbiff_data.rows <= 0)
+            ErrExit(False, "rows must be greater than 0");
+
+        int fail_msg_columns = (sizeof(scan_fail_msg) + 1) / lbiff_data.rows + 1;
+        if ((INT_MAX / lbiff_data.rows - 1) / 4 < lbiff_data.columns + fail_msg_columns)
+            ErrExit(False, "rows and/or columns too big");
         /* *4 for multibyte characters, +1 for the newline */
         bufsize = (lbiff_data.columns * 4 + 1) * lbiff_data.rows;
 
@@ -839,6 +859,8 @@ void lbiffRealize(char *s) {
         XResetScreenSaver(XtDisplay(topLevel));
 }
 
+int fontWidth, fontHeight;
+int borderWidth;
 
 /*******************\
 |*  getDimensions  *|  get width x height of text string
@@ -846,13 +868,8 @@ void lbiffRealize(char *s) {
 void getDimensions(char *s, Dimension *width, Dimension *height) {
     Dimension tmp_width;
     int i, len = strlen(s);
-    static int fontWidth, fontHeight;
-    static int borderWidth = -1;
 
     tmp_width = *width = *height = 1;
-
-    if (borderWidth == -1)
-        initStaticData(&borderWidth, &fontHeight, &fontWidth);
 
     /*
     ** count rows and columns
@@ -882,26 +899,37 @@ void getDimensions(char *s, Dimension *width, Dimension *height) {
 }
 
 
-/********************\
-|*  initStaticData  *|  initializes font size & borderWidth
-\********************/
-void initStaticData(int *bw, int *fontH, int *fontW) {
+/***********************\
+|*  initDimensionData  *|  initializes font size & borderWidth
+\***********************/
+void initDimensionData() {
     Arg args[2];
     XFontStruct *fs = NULL;
     int tmp = 0;
 
-    debug(1, "++initStaticData...");
+    debug(1, "++initDimensionData...");
     XtSetArg(args[0], XtNfont, &fs);
     XtSetArg(args[1], XtNborderWidth, &tmp);
     XtGetValues(textBox, args, 2);
     if (fs == NULL)
         ErrExit(False, "unknown font");
 
-    *bw = tmp;
-    *fontW = fs->max_bounds.width;
-    *fontH = fs->max_bounds.ascent + fs->max_bounds.descent;
+    borderWidth = tmp;
+    fontWidth = fs->max_bounds.width;
+    fontHeight = fs->max_bounds.ascent + fs->max_bounds.descent;
 
-    debug(1, "font= %dx%d,  borderWidth= %d", *fontH, *fontW, *bw);
+    if (lbiff_data.rows > SHRT_MAX / fontHeight) {
+        fprintf(stderr, "%s: rows greater than %d may overflow\n",
+                progname, SHRT_MAX / fontHeight);
+        exit(2);
+    }
+    if (lbiff_data.columns > SHRT_MAX / fontWidth) {
+        fprintf(stderr, "%s: columns greater than %d may overflow\n",
+                progname, SHRT_MAX / fontWidth);
+        exit(2);
+    }
+
+    debug(1, "font= %dx%d,  borderWidth= %d", fontHeight, fontWidth, borderWidth);
 }
 
 
