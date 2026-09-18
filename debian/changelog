@@ -1,3 +1,12 @@
+xlbiff (4.7-1) unstable; urgency=low
+
+  * Display a welcome message on startup, if there is no mail to display.
+  * Document the existing -debug command line option in the manual.
+  * Mailbox file name (IMAP folder name) is now quoted by default.
+    If you previously quoted special characters, remove the quotes.
+
+ -- Stephen Gildea <stepheng+debian@gildea.com>  Fri, 18 Sep 2026 14:48:01 -0700
+
 xlbiff (4.6.11-1) unstable; urgency=low
 
   * Testing: doc-format test saves test artifacts.

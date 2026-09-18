@@ -5,6 +5,12 @@ History
   Where applicable, changes are attributed to the people who submitted
   the ideas and, in many cases, patches and source code.
 
+ * Version 4.7 (17 Sep 2026)
+   + Display a welcome message on startup, if there is no mail to display.
+   + Document the existing -debug command line option in the manual.
+   + Mailbox file name (IMAP folder name) is now quoted by default.
+     If you previously quoted special characters, remove the quotes.
+
  * Version 4.6.11 (16 Jun 2026)
    + Testing: doc-format test saves test artifacts.
 
