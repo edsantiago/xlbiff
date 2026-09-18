@@ -251,9 +251,9 @@ int main(int argc, char *argv[]) {
             lbiff_data.file = argv[1];
         } else {
             fprintf(stderr,
-                    "%s: no such option \"%s\", type '%s -help' for help\n",
+                    "%s: \"%s\" option is unknown or missing its argument; try '%s -help'\n",
                     progname, argv[1], progname);
-            exit(1);
+            exit(2);
         }
     }
 
@@ -276,7 +276,7 @@ int main(int argc, char *argv[]) {
         asprintf_or_die("default_file", &default_file, XLBIFF_MAILPATH, username);
         lbiff_data.file = default_file;
     }
-    debug(1, "file= %s", lbiff_data.file);
+    debug(2, "file: %s", lbiff_data.file);
     if (strchr(lbiff_data.file, '\'')) {
         ErrExit(False, "The character single quote (') must not appear in file name");
     }
@@ -284,7 +284,7 @@ int main(int argc, char *argv[]) {
 
     if (lbiff_data.cmd == NULL || lbiff_data.cmd[0] == '\0') {
         fprintf(stderr, "%s: empty scanCommand will not work\n", progname);
-        exit(1);
+        exit(2);
     }
     if (lbiff_data.update < 0.0f) {
         fprintf(stderr, "%s: update < 0 will hang forever\n", progname);
@@ -346,7 +346,6 @@ int main(int argc, char *argv[]) {
 void Usage() {
     static char *help_message[] = {
         "where options include:",
-        "    -version                   display xlbiff version number",
         "    -display host:dpy          X server to contact",
         "    -geometry +x+y             x,y coords of window",
         "    -rows height               height of window, in lines",
@@ -363,10 +362,12 @@ void Usage() {
         "    -scanCommand command       command to interpret and display",
         "    -checkCommand command      command used to check for change",
         "    -mailerCommand command     command used to read mail",
+        "    -version                   display xlbiff version number",
+        "    -help                      display this help",
         NULL};
     char **s;
 
-    printf("usage:\t%s  [-options ...]  [file to watch]\n", progname);
+    printf("usage:\t%s  [-options ...]  [file to watch or IMAP server name]\n", progname);
     for (s = help_message; *s; s++)
         printf("%s\n", *s);
     printf("\n");
@@ -391,11 +392,12 @@ void ExitAction(Widget w, XEvent *event, String *params,
 
     if (event->type == ClientMessage) {
         if (event->xclient.data.l[0] != wm_delete_window) {
-            debug(1, "received client message that was not delete_window");
+            debug(3, "received client message %d that was not WM_DELETE_WINDOW",
+                  event->xclient.data.l[0]);
             XBell(XtDisplay(w), 0);
             return;
         } else
-            debug(1, "exiting after receiving a wm_delete_window message");
+            debug(1, "exiting after receiving a WM_DELETE_WINDOW message");
     }
 
     toggle_key_led(False);
@@ -421,7 +423,7 @@ void checksize() {
     int pop_window = False;
     struct timeval tp;
 
-    debug(1, "++checksize()...");
+    debug(1, "++checksize()");
 
     /*
     ** If user has specified a command to use to check the file, invoke
@@ -446,11 +448,13 @@ void checksize() {
         }
 
         asprintf_or_die("checksize", &cmd_buf, lbiff_data.checkCmd, lbiff_data.file, previous);
-        debug(1, "++checkCommand= %s", cmd_buf);
+        debug(1, "checkCommand: %s", cmd_buf);
 
         status = popen_nmh(cmd_buf, outbuf_size, &outbuf, NULL);
         previous = atol(outbuf);
-        debug(1, "checkCommand returns %d", previous);
+        debug(1, "checkCommand status %d (%s), new size %d", waitCode(status),
+              waitCode(status) == 0 ? "changed" : waitCode(status) == 2 ? "empty" : "same",
+              previous);
         switch (waitCode(status)) {
         case 0:					/* 0: new data */
             mailstat.st_size = mailsize + 1;
@@ -487,7 +491,7 @@ void checksize() {
     ** If it's changed size, take appropriate action.
     */
     if (mailstat.st_size != mailsize) {
-        debug(1, "changed size: %d -> %d", mailsize, (int)mailstat.st_size);
+        debug(1, "checksize: mailbox changed size: %d -> %d", mailsize, (int)mailstat.st_size);
         mailsize = mailstat.st_size;
         pop_window = True;
     } else if (!visible && lbiff_data.refresh && mailsize != 0) {
@@ -535,7 +539,7 @@ void checksize() {
             }
         }
     } else {
-        debug(1, "no change (still %d)", mailsize);
+        debug(3, "checksize: mailbox size unchanged (still %d)", mailsize);
     }
 }
 
@@ -550,10 +554,10 @@ void MailerAction(Widget w, XEvent *event, String *params,
 
     Popdown();
     if (lbiff_data.mailerCmd != NULL && lbiff_data.mailerCmd[0] != '\0') {
-        debug(1, "---mailerCmd = %s", lbiff_data.mailerCmd);
+        debug(2, "mailerCommand: %s", lbiff_data.mailerCmd);
         system_return = system(lbiff_data.mailerCmd);
         if (system_return == 0) {
-            debug(1, "---mailerCmd completed successfully");
+            debug(3, "mailerCommand completed successfully");
         } else {
             fprintf(stderr, "mailer command \"%s\" returned %d (%#x)\n",
                     lbiff_data.mailerCmd, system_return, system_return);
@@ -610,11 +614,11 @@ char *doScan() {
         if (buf == NULL)
             ErrExit(True, "text buffer malloc()");
 
-        debug(1, "---size= %dx%d", lbiff_data.rows, lbiff_data.columns);
+        debug(2, "scan buffer size: %dx%d", lbiff_data.rows, lbiff_data.columns);
 
         asprintf_or_die("command buffer", &cmd_buf, lbiff_data.cmd,
                         lbiff_data.file, lbiff_data.columns, lbiff_data.rows);
-        debug(1, "---cmd= %s", cmd_buf);
+        debug(2, "scanCommand: %s", cmd_buf);
     }
 
     /*
@@ -628,7 +632,7 @@ char *doScan() {
 
     buf[size] = '\0';				/* null-terminate it! */
 
-    debug(1, "scanned:%s", buf);
+    debug(3, "scanned: %s", buf);
     return buf;
 }
 
@@ -664,7 +668,7 @@ void Shrink(Widget w, XtPointer data, XEvent *e, Boolean *b) {
     case ConfigureNotify: type_str = "ConfigureNotify"; break;
     default: type_str = "event type";
     }
-    debug(1, "++Shrink(%s %d)", type_str, e->type);
+    debug(3, "++Shrink(%s %d)", type_str, e->type);
 
     if (e->type != MapNotify && e->type != UnmapNotify) {
         return;
@@ -708,15 +712,15 @@ void Shrink(Widget w, XtPointer data, XEvent *e, Boolean *b) {
 \*************/
 void PopdownAction(Widget w, XEvent *event, String *params,
                    Cardinal *num_params) {
-    debug(1, "++PopdownAction()");
+    debug(3, "++PopdownAction()");
     lbiffUnrealize();
 }
 void PopdownCallback(Widget w, XtPointer client_data, XtPointer call_data) {
-    debug(1, "++PopdownCallback()");
+    debug(3, "++PopdownCallback()");
     lbiffUnrealize();
 }
 void Popdown() {
-    debug(1, "++Popdown()");
+    debug(3, "++Popdown()");
     lbiffUnrealize();
 }
 
@@ -724,7 +728,7 @@ void Popdown() {
 void Popup() {
     struct timeval tp;
 
-    debug(1, "++Popup() hasdata=%d visible=%d", hasdata, visible);
+    debug(3, "++Popup() hasdata=%d visible=%d", hasdata, visible);
     if (!hasdata || visible) {
       return;
     }
@@ -781,7 +785,7 @@ void lbiffUnrealize() {
     acknowledge_time = tp;
 
     if (visible) {
-        debug(1, "calling XtUnrealizeWidget");
+        debug(3, "calling XtUnrealizeWidget");
         XtUnrealizeWidget(topLevel);
         XSync(XtDisplay(topLevel), False);
     }
@@ -840,7 +844,7 @@ void lbiffRealize(char *s) {
         */
         if (lbiff_data.volume > 0) {
             XBell(XtDisplay(topLevel), lbiff_data.volume - 100);
-            debug(1, "---sound= %s", "XBell default");
+            debug(3, "sound: XBell at %d", lbiff_data.volume);
         }
     } else {
         static char *sound_buf;
@@ -851,7 +855,7 @@ void lbiffRealize(char *s) {
         */
         if (sound_buf == NULL) {
             asprintf_or_die("sound_buf", &sound_buf, lbiff_data.sound, lbiff_data.volume);
-            debug(1, "---sound= %s", sound_buf);
+            debug(3, "sound command: %s", sound_buf);
         }
         system_return = system(sound_buf);
         if (system_return != 0) {
@@ -895,7 +899,7 @@ void getDimensions(char *s, Dimension *width, Dimension *height) {
     if (*width > lbiff_data.columns)
         *width = lbiff_data.columns;
 
-    debug(1, "geom= %dx%d chars (%dx%d pixels)", *width, *height,
+    debug(3, "geom: %dx%d chars (%dx%d pixels)", *width, *height,
                                               *width * fontWidth,
                                               *height * fontHeight);
 
@@ -912,7 +916,6 @@ void initDimensionData() {
     XFontStruct *fs = NULL;
     int tmp = 0;
 
-    debug(1, "++initDimensionData...");
     XtSetArg(args[0], XtNfont, &fs);
     XtSetArg(args[1], XtNborderWidth, &tmp);
     XtGetValues(textBox, args, 2);
@@ -934,7 +937,7 @@ void initDimensionData() {
         exit(2);
     }
 
-    debug(1, "font= %dx%d,  borderWidth= %d", fontHeight, fontWidth, borderWidth);
+    debug(2, "font: %dx%d,  borderWidth: %d", fontHeight, fontWidth, borderWidth);
 }
 
 
@@ -947,7 +950,7 @@ void toggle_key_led(int flag) {
     if (lbiff_data.led == 0)		/* return if no led action desired */
         return;
 
-    debug(1, "++toggle_key_led(%d,%s)", lbiff_data.led, flag ? "True" : "False");
+    debug(3, "++toggle_key_led(%d,%s)", lbiff_data.led, flag ? "True" : "False");
 
     if (flag)
         keyboard.led_mode = LedModeOn;
@@ -981,7 +984,8 @@ void ErrExit(Boolean errno_valid, char *s) {
 }
 
 // Debug level 1 logs changes in the internal state of xlbiff
-// Debug level 2 logs extra events that don't change state
+// Debug level 2 logs start-up static info
+// Debug level 3 logs extra events that don't change state
 // The formatted string is preceded by the current time and program name
 // and followed by a newline
 void debug(int level, char *format, ...) {
@@ -1017,7 +1021,7 @@ waitType popen_simple(char *cmd, int bufsize, char **buf_out,
     if ((p = popen(cmd, "r")) == NULL)
         ErrExit(True, "popen");
     read_size = fread(*buf_out, 1, bufsize, p);
-    debug(2, "fread() returned %zu, bufsize = %d", read_size, bufsize);
+    debug(3, "fread() returned %zu, bufsize = %d", read_size, bufsize);
     if (read_size == bufsize) {
         --read_size;              // leave room for NUL we add later
         char junkbuf[100];
@@ -1091,7 +1095,7 @@ waitType popen_nmh(char *cmd, int bufsize, char **buf_out, size_t *size_out) {
     if (profile_fd < 0)
         ErrExit(True, "profile_name mkstemp()");
     umask(old_mask);
-    debug(1, "created profile_name = %s", profile_name);
+    debug(3, "created profile_name = %s", profile_name);
     profile_stream = fdopen(profile_fd, "w");
     fprintf(profile_stream, "Path: %s\nWelcome: disable\n", tmpdir_name);
     fclose(profile_stream);
@@ -1153,7 +1157,7 @@ Boolean dispatch_screen_change(XEvent *event) {
 void init_randr() {
     int event1, error1;
     if (!XRRQueryExtension(XtDisplay(topLevel), &event1, &error1)) {
-        debug(1, "XRRQueryExtension returned False");
+        debug(2, "XRRQueryExtension returned False");
         return;
     }
     // provide a handler for RANDR screen change events
