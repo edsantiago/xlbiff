@@ -222,7 +222,14 @@ sprintf(buf, scanCommand, file, columns, rows)
 .RE
 .IP
 so a %s, %d and %d respectively in \fBscanCommand\fP will generate the values
-of \fBfile\fP, \fBcolumns\fP, and \fBrows\fP.  The default
+of \fBfile\fP, \fBcolumns\fP, and \fBrows\fP.
+The
+.B file
+string is guaranteed by
+.B xlbiff
+not to contain single quotes, so single quotes can be used to quote it
+in the scan command.
+The default
 .BR scanCommand ,
 specified by the
 .I XLbiff
@@ -230,7 +237,7 @@ application resources file, is
 .IP
 .RS 12
 .EX
-mailbox\-preview %s \-\-width %d \-\-max\-messages %d 2>&1
+mailbox\-preview '%s' \-\-width %d \-\-max\-messages %d 2>&1
 .EE
 .RE
 .IP
@@ -272,7 +279,7 @@ application resources file, is
 .IP
 .RS 12
 .EX
-mailbox\-preview %s \-\-check %d
+mailbox\-preview '%s' \-\-check %d
 .EE
 .RE
 .IP
@@ -288,6 +295,12 @@ sprintf(buf, checkCommand, file, previous)
 is the numeric value output by the last time checkCommand was run, or
 zero the first time.  This is useful for allowing the checkCommand to
 maintain state.
+The
+.B file
+string is guaranteed by
+.B xlbiff
+not to contain single quotes, so single quotes can be used to quote it
+in the check command.
 .IP
 See the EXAMPLES section, below, for different ways to use checkCommand.
 .TP 8
@@ -461,21 +474,23 @@ its speed has changed.  Here is a possible check script:
 .PP
 .RS 4
 .EX
-fan1_speed=$(sensors | sed -E -n '/^fan/{s/.* ([0-9]+).*/\e1/p;q}')
-echo "$fan1_speed"
-[ "$fan1_speed" = 0 ] && exit 2
-[ "$fan1_speed" = "$1" ] && exit 1
+speed=$(sensors | sed -E -n "/^${1%%/*}/{s/.* ([0-9]+).*/\e1/p;q}")
+echo "$speed"
+[ "$speed" = 0 ] && exit 2
+[ "$speed" = "$2" ] && exit 1
 exit 0
 .EE
 .RE
 .PP
 If the script is called
-.IR xlbiff-fan-check.sh ,
-you can use it by running xlbiff like this:
+.IR fans.sh ,
+you can use it by running
+.B xlbiff
+like this:
 .PP
-.RS 4
+.RS 2
 .EX
-xlbiff \-checkCommand 'xlbiff\-fan\-check.sh %d' \-scanCommand sensors
+xlbiff \-file fan \-checkCommand "fans.sh '%s' %d" \-scanCommand sensors
 .EE
 .RE
 .SH ENVIRONMENT

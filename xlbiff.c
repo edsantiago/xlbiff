@@ -30,6 +30,7 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include <sys/stat.h>
 #include <sys/time.h>
 #include <time.h>
@@ -150,7 +151,7 @@ static XtResource xlbiff_resources[] = {
     {"checkCommand", "CheckCommand", XtRString, sizeof(String),
      offset(checkCmd), XtRString, NULL},
     {"scanCommand", "ScanCommand", XtRString, sizeof(String),
-     offset(cmd), XtRString, "scan -file %s -width %d 2>&1"},
+     offset(cmd), XtRString, "scan -file '%s' -width %d 2>&1"},
     {"mailerCommand", "MailerCommand", XtRString, sizeof(String),
      offset(mailerCmd), XtRString, NULL },
     {"update", "Interval", XtRFloat, sizeof(float),
@@ -276,6 +277,10 @@ int main(int argc, char *argv[]) {
         lbiff_data.file = default_file;
     }
     debug(1, "file= %s", lbiff_data.file);
+    if (strchr(lbiff_data.file, '\'')) {
+        ErrExit(False, "The character single quote (') must not appear in file name");
+    }
+
 
     if (lbiff_data.cmd == NULL || lbiff_data.cmd[0] == '\0') {
         fprintf(stderr, "%s: empty scanCommand will not work\n", progname);
