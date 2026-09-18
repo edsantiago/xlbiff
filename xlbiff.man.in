@@ -185,6 +185,15 @@ This option specifies the number of seconds to wait before re-posting the
 mail window after you acknowledge it, and it still contains the same mail.
 The default is 0 (no refresh).  A useful value for this is 1800 (30 minutes).
 .TP 8
+.B +welcomeMessage
+Never show a welcome message on startup.
+.TP 8
+.B \-welcomeMessage
+Show a welcome message on startup, if there is no new mail to display.
+This is the default; use
+.B +welcomeMessage
+to suppress the welcome message.
+.TP 8
 \fB\-mailerCommand\fP \fIcommand\fP
 Specifies the command to invoke when the mailer() action,
 described below, is activated.
@@ -382,6 +391,11 @@ Same as the \fB\-led\fP option.
 .TP 8
 \fBledPopdown\fP (class \fBLedPopdown\fP)
 Same as the \fB\-ledPopdown\fP option.
+.TP 8
+\fBwelcomeMessage\fP (class \fBWelcomeMessage\fP)
+Setting this to
+.B no
+is the same as the \fB+welcomeMessage\fP option.
 .TP 8
 \fBrefresh\fP (class \fBRefresh\fP)
 Same as the \fB\-refresh\fP option.

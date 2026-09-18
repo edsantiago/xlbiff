@@ -94,6 +94,8 @@ void	PopdownCallback(Widget, XtPointer, XtPointer);
 void	lbiffUnrealize(), lbiffRealize(char*);
 void	getDimensions(char*, Dimension*, Dimension*);
 void	toggle_key_led(int);
+void	allocate_scan_buffers();
+char	*welcomeMessage();
 void	init_randr();
 void	ErrExit(Boolean, char*);
 Bool	CheckEvent(Display*, XEvent*, XPointer);
@@ -134,6 +136,7 @@ typedef struct {
     int		led;			/* led number to light up	*/
     Boolean	ledPopdown;		/* turn off LED on popdown?	*/
     char	*sound;			/* Sound file to use		*/
+    Boolean	welcomeMessage;		/* welcome on empty mailbox?	*/
 } AppData, *AppDataPtr;
 AppData lbiff_data;
 
@@ -170,6 +173,8 @@ static XtResource xlbiff_resources[] = {
      offset(bottom), XtRImmediate, False},
     {"resetSaver", "ResetSaver", XtRBoolean, sizeof(Boolean),
      offset(resetSaver), XtRImmediate, False},
+    {"welcomeMessage", "WelcomeMessage", XtRBoolean, sizeof(Boolean),
+     offset(welcomeMessage), XtRImmediate, (XtPointer)True},
     {"refresh", "Refresh", XtRFloat, sizeof(float),
      offset(refresh), XtRFloat, &default_refresh_secs},
     {"led", "Led", XtRInt, sizeof(int),
@@ -190,6 +195,8 @@ static XrmOptionDescRec optionDescList[] = {
     {"-volume",      ".volume",      XrmoptionSepArg,	(XtPointer) NULL},
     {"-resetSaver",  ".resetSaver",  XrmoptionNoArg,	(XtPointer) "true"},
     {"+resetSaver",  ".resetSaver",  XrmoptionNoArg,	(XtPointer) "false"},
+    {"-welcomeMessage",".welcomeMessage",XrmoptionNoArg,(XtPointer) "true"},
+    {"+welcomeMessage",".welcomeMessage",XrmoptionNoArg,(XtPointer) "false"},
     {"-refresh",     ".refresh",     XrmoptionSepArg,	(XtPointer) NULL},
     {"-led",         ".led",         XrmoptionSepArg,	(XtPointer) NULL},
     {"-ledPopdown",  ".ledPopdown",  XrmoptionNoArg,	(XtPointer) "true"},
@@ -281,11 +288,11 @@ int main(int argc, char *argv[]) {
         ErrExit(False, "The character single quote (') must not appear in file name");
     }
 
-
     if (lbiff_data.cmd == NULL || lbiff_data.cmd[0] == '\0') {
         fprintf(stderr, "%s: empty scanCommand will not work\n", progname);
         exit(2);
     }
+
     if (lbiff_data.update < 0.0f) {
         fprintf(stderr, "%s: update < 0 will hang forever\n", progname);
         exit(2);
@@ -321,6 +328,7 @@ int main(int argc, char *argv[]) {
 
     initDimensionData();
 
+    allocate_scan_buffers();
     /*
     ** check to see if there's something to do, pop up window if necessary,
     ** and set up alarm to wake us up again every so often.
@@ -362,6 +370,7 @@ void Usage() {
         "    -scanCommand command       command to interpret and display",
         "    -checkCommand command      command used to check for change",
         "    -mailerCommand command     command used to read mail",
+        "    +welcomeMessage            no welcome message with empty mailbox",
         "    -version                   display xlbiff version number",
         "    -help                      display this help",
         NULL};
@@ -372,6 +381,57 @@ void Usage() {
         printf("%s\n", *s);
     printf("\n");
     exit(1);
+}
+
+char *cmd_buf;
+char *scan_buf = NULL;
+int   scan_bufsize;
+char  scan_fail_msg[] = "\n---->>>> scanCommand failed <<<<<----\n";
+int welcome_state;
+
+
+/*
+** Initialise display buffer to #rows * #cols
+** Initialise command string
+*/
+void allocate_scan_buffers() {
+    if (lbiff_data.columns <= 0)
+        ErrExit(False, "columns must be greater than 0");
+    if (lbiff_data.rows <= 0)
+        ErrExit(False, "rows must be greater than 0");
+
+    int fail_msg_columns = (sizeof(scan_fail_msg) + 1) / lbiff_data.rows + 1;
+    if ((INT_MAX / lbiff_data.rows - 1) / 4 < lbiff_data.columns + fail_msg_columns)
+        ErrExit(False, "rows and/or columns too big");
+    /* *4 for multibyte characters, +1 for the newline */
+    scan_bufsize = (lbiff_data.columns * 4 + 1) * lbiff_data.rows;
+
+    scan_buf = (char *)malloc(scan_bufsize + sizeof(scan_fail_msg) + 1);
+    if (scan_buf == NULL)
+        ErrExit(True, "text buffer malloc()");
+
+    debug(2, "scan buffer size: %dx%d", lbiff_data.rows, lbiff_data.columns);
+
+    asprintf_or_die("command buffer", &cmd_buf, lbiff_data.cmd,
+                    lbiff_data.file, lbiff_data.columns, lbiff_data.rows);
+    debug(2, "scanCommand: %s", cmd_buf);
+
+    if (!lbiff_data.welcomeMessage) {
+        welcome_state = 2;
+    }
+}
+
+char *welcomeMessage() {
+    snprintf(scan_buf, scan_bufsize, "No new mail\n"
+             "Welcome to xlbiff, the X Literate Biff, version %s\n"
+             "checking for new mail at %s\n"
+             "every %.0f second%s\n"
+             "This welcome message will fade at the next check\n",
+             VERSION,
+             lbiff_data.file,
+             lbiff_data.update, lbiff_data.update == 1.0f ? "" : "s");
+    scan_buf[scan_bufsize - 1] = '\0';
+    return scan_buf;
 }
 
 // Returns true if the difference between newtime and oldtime is
@@ -523,6 +583,7 @@ void checksize() {
     }
 
     if (pop_window) {
+        welcome_state = 2;
         if (mailsize == 0) {
             hasdata = False;
             toggle_key_led(False);
@@ -539,7 +600,18 @@ void checksize() {
             }
         }
     } else {
-        debug(3, "checksize: mailbox size unchanged (still %d)", mailsize);
+        if (welcome_state == 0) {
+            char *s = welcomeMessage();
+            hasdata = True;
+            lbiffRealize(s);
+            welcome_state = 1;
+        } else if (welcome_state == 1) {
+            hasdata = False;
+            lbiffUnrealize();
+            welcome_state = 2;
+        } else {
+            debug(3, "checksize: mailbox size unchanged (still %d)", mailsize);
+        }
     }
 }
 
@@ -585,55 +657,24 @@ void handler(XtPointer closure, XtIntervalId *id) {
 |* does this by invoking scan(1) or some other user-defined function.
  */
 char *doScan() {
-    static char *cmd_buf;
-    static char *buf = NULL;
-    static int   bufsize;
-    static char  scan_fail_msg[] = "\n---->>>> scanCommand failed <<<<<----\n";
     size_t       size;
     waitType     status;
 
     debug(1, "++doScan()");
 
     /*
-    ** Initialise display buffer to #rows * #cols
-    ** Initialise command string
-    */
-    if (buf == NULL) {
-        if (lbiff_data.columns <= 0)
-            ErrExit(False, "columns must be greater than 0");
-        if (lbiff_data.rows <= 0)
-            ErrExit(False, "rows must be greater than 0");
-
-        int fail_msg_columns = (sizeof(scan_fail_msg) + 1) / lbiff_data.rows + 1;
-        if ((INT_MAX / lbiff_data.rows - 1) / 4 < lbiff_data.columns + fail_msg_columns)
-            ErrExit(False, "rows and/or columns too big");
-        /* *4 for multibyte characters, +1 for the newline */
-        bufsize = (lbiff_data.columns * 4 + 1) * lbiff_data.rows;
-
-        buf = (char *)malloc(bufsize + sizeof(scan_fail_msg) + 1);
-        if (buf == NULL)
-            ErrExit(True, "text buffer malloc()");
-
-        debug(2, "scan buffer size: %dx%d", lbiff_data.rows, lbiff_data.columns);
-
-        asprintf_or_die("command buffer", &cmd_buf, lbiff_data.cmd,
-                        lbiff_data.file, lbiff_data.columns, lbiff_data.rows);
-        debug(2, "scanCommand: %s", cmd_buf);
-    }
-
-    /*
     ** Execute the command, read the results, then set the contents of window.
     */
-    status = popen_nmh(cmd_buf, bufsize, &buf, &size);
+    status = popen_nmh(cmd_buf, scan_bufsize, &scan_buf, &size);
     if (waitCode(status) != 0) {
-        strcpy(buf + size, scan_fail_msg);
+        strcpy(scan_buf + size, scan_fail_msg);
         size += strlen(scan_fail_msg);
     }
 
-    buf[size] = '\0';				/* null-terminate it! */
+    scan_buf[size] = '\0';			/* null-terminate it! */
 
-    debug(3, "scanned: %s", buf);
-    return buf;
+    debug(3, "scanned: %s", scan_buf);
+    return scan_buf;
 }
 
 
