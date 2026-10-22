@@ -1,3 +1,12 @@
+xlbiff (4.7.1-1) unstable; urgency=low
+
+  * Document the -sound option in the manual page.
+  * Manual page mentions the welcome message.
+  * Geometry in XLbiff.ad matches default in xlbiff.c fallback resources.
+  * Testing: log timing of long-running tests.
+
+ -- Stephen Gildea <stepheng+debian@gildea.com>  Wed, 21 Oct 2026 17:19:26 -0700
+
 xlbiff (4.7-1) unstable; urgency=low
 
   * Display a welcome message on startup, if there is no mail to display.

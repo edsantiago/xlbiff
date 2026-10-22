@@ -1,4 +1,4 @@
-.TH XLBIFF 1 2026-05-08 MANUAL_VERSION
+.TH XLBIFF 1 2026-09-22 MANUAL_VERSION
 .SH NAME
 xlbiff \- mail notification pop-up with configurable message scans
 .SH SYNOPSIS
@@ -86,10 +86,9 @@ xlbiff imap.example.com
 .PP
 Whichever way you start xlbiff, if you have new mail, it should pop up a
 window displaying summary lines for the new messages.
-(If you don't have new mail, you won't see any window, which is how
-.B xlbiff
-tries to stay out of your way.)
-The window will stay visible until you click it away or read the new mail.
+(If you don't have new mail, a welcome message will pop up briefly.)
+The window will stay visible until you click it away or read the new
+mail (or the fade time you have configured has passed).
 .PP
 You may need an entry in
 .I ~/.netrc
@@ -315,6 +314,23 @@ See the EXAMPLES section, below, for different ways to use checkCommand.
 .TP 8
 \fB\-volume\fP \fIpercentage\fP
 This option specifies how loud the bell should be beeped when new mail comes in.
+.TP 8
+\fB\-sound\fP \fIcommand\fP
+Specify a command to be run in place of a bell when new mail arrives.
+For example, you might use:
+.IP
+.RS 12
+.EX
+/usr/bin/ffplay \-autoexit \-nodisp \-loglevel quiet \\
+ \-volume %d /usr/share/sounds/doorbell.ogg >/dev/null &
+.EE
+.RE
+.IP
+The command is generated internally with
+.BR sprintf (3),
+so the characters \*(lq%d\*(rq will be replaced with the numeric value of the
+.B volume
+resource.
 .PP
 The following standard X Toolkit command line arguments are commonly used with
 .BR xlbiff :
@@ -401,18 +417,8 @@ is the same as the \fB+welcomeMessage\fP option.
 Same as the \fB\-refresh\fP option.
 .TP 8
 \fBsound\fP (class \fBSound\fP)
-Specify a command to be run in place of a bell when new mail arrives.
-For example, on a Sun Sparc you might use:
-.IP
-.nf
-*sound: /usr/demo/SOUND/play \-v %d /usr/demo/SOUND/sounds/doorbell.au
-.fi
-.IP
-The command is generated internally with
-.BR sprintf (3),
-so the characters \*(lq%d\*(rq will be replaced with the numeric value of the
-.B volume
-resource.
+Specify a command to run in place of the X bell when new mail arrives.
+Same as the \fB\-sound\fP option.
 .TP 8
 \fBvolume\fP (class \fBVolume\fP)
 Same as the \fB\-volume\fP option.

@@ -50,7 +50,7 @@ Installing
   header files for the following libraries: Xaw, Xt, Xrandr, X11.
 
   To run xlbiff in its default configuration, you will need nmh
-  ("new MH") and Python 3 installed.
+  ("new MH") and Python 3.
 
   When you have these dependencies installed, build xlbiff:
 

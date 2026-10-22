@@ -5,6 +5,12 @@ History
   Where applicable, changes are attributed to the people who submitted
   the ideas and, in many cases, patches and source code.
 
+ * Version 4.7.1 (21 Oct 2026)
+   + Document the -sound option in the manual page.
+   + Manual page mentions the welcome message.
+   + Geometry in XLbiff.ad matches default in xlbiff.c fallback resources.
+   + Testing: log timing of long-running tests.
+
  * Version 4.7 (17 Sep 2026)
    + Display a welcome message on startup, if there is no mail to display.
    + Document the existing -debug command line option in the manual.

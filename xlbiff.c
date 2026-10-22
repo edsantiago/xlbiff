@@ -631,7 +631,8 @@ void MailerAction(Widget w, XEvent *event, String *params,
         if (system_return == 0) {
             debug(3, "mailerCommand completed successfully");
         } else {
-            fprintf(stderr, "mailer command \"%s\" returned %d (%#x)\n",
+            fprintf(stderr, "%s: mailer command \"%s\" returned %d (%#x)\n",
+                    progname,
                     lbiff_data.mailerCmd, system_return, system_return);
         }
     }
@@ -900,8 +901,8 @@ void lbiffRealize(char *s) {
         }
         system_return = system(sound_buf);
         if (system_return != 0) {
-            fprintf(stderr, "sound command \"%s\" returned %d (%#x)\n",
-                    sound_buf, system_return, system_return);
+            fprintf(stderr, "%s: sound command \"%s\" returned %d (%#x)\n",
+                    progname, sound_buf, system_return, system_return);
         }
     }
 
@@ -1226,9 +1227,10 @@ int asprintf_or_die(const char *caller, char **bufferp, const char *format, ...)
     va_end(argp);
     *bufferp = realloc(*bufferp, buffer_size_needed + 1);
     if (*bufferp == NULL) {
-        fprintf(stderr, "cannot realloc to %d bytes for snprintf, caller: %s\n",
-                buffer_size_needed + 1, caller);
-        fprintf(stderr, "failing snprintf format: %s\n", format);
+        fprintf(stderr,
+                "%s: cannot realloc to %d bytes for snprintf, caller: %s\n",
+                progname, buffer_size_needed + 1, caller);
+        fprintf(stderr, "%s: failing snprintf format: %s\n", progname, format);
         ErrExit(True, "asprintf_or_die");
     }
     va_start(argp, format);

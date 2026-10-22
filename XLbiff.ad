@@ -35,7 +35,7 @@
 !
 ! miscellaneous
 !
-*geometry:		-0+0
+*geometry:		+0-0
 *bottom:		False
 *led:			0
 *ledPopdown:		False

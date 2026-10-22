@@ -315,7 +315,12 @@ loop_for() {
             child_alive=0
         fi
         if $success_function; then
-            util_logv "try $loops_done/$loop_count: $success_function true"
+            if ((loop_count > 100)) || ((100 * loops_done / loop_count > 20))
+            then
+                util_log "try $loops_done/$loop_count: $success_function true"
+            else
+                util_logv "try $loops_done/$loop_count: $success_function true"
+            fi
             break
         fi
         if [[ "$child_alive" = 0 ]]; then
