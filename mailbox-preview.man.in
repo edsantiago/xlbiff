@@ -110,7 +110,8 @@ If set explicitly to an empty string, the messages will be
 output raw (which is probably useful only for debugging).
 .TP 8
 .B \-\-quiet
-Do not output the messages.  This option is probably useful only for debugging.
+Do not output the messages.
+This option is probably useful only for debugging.
 .TP 8
 .B \-\-client\-preview
 Do not request a short message preview from the IMAP server and

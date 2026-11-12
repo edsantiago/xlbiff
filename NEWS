@@ -5,6 +5,10 @@ History
   Where applicable, changes are attributed to the people who submitted
   the ideas and, in many cases, patches and source code.
 
+ * Version 4.7.2 (12 Nov 2026)
+   + Suppress groff 1.25 new style warning.
+   + Reorder the presentation of options in manual page.
+
  * Version 4.7.1 (21 Oct 2026)
    + Document the -sound option in the manual page.
    + Manual page mentions the welcome message.

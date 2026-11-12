@@ -24,10 +24,10 @@
     message content.  Xlbiff can also beep or play a custom sound.
     </p>
     <p>
-    Clicking the left mouse button anywhere in the window causes it to
-    vanish.  It will also vanish if the mailbox becomes empty.  Xlbiff
-    stays out of your way when there is no new mail and pops up only
-    when something requests your attention.
+    Clicking the left mouse button anywhere in the window causes it
+    to vanish.  It will also vanish if the mailbox becomes empty.
+    Xlbiff stays out of your way when there is no new mail and pops
+    up only when something requests your attention.
     </p>
   </description>
   <categories>

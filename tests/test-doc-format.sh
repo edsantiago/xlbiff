@@ -89,7 +89,15 @@ run_man_test_1() {
         #   We understand that "paragraph distance" is not translated
         #   into HTML, but it improves the PDF appearance of lists so
         #   much that we contintue to use it.
-        sed -i '/style: use of deprecated macro: .PD/d' "$outbase.stderr"
+        # groff 1.25 adds a new "style" warning category to -ww,
+        #   and that generates "end of sentence detected
+        #   before end of text line" warnings that we choose not to fix.
+        #   We could add "-W style", but that doesn't work before
+        #   groff 1.25, so we delete those lines here.
+        sed -i \
+            -e '/style: use of deprecated macro: .PD/d' \
+            -e '/warning: end of sentence detected before end of text line/d' \
+            "$outbase.stderr"
     fi
     if [[ -s "$outbase.stderr" ]]; then
         printf '%q: unexpected error output running %s %s\n' \

@@ -1,3 +1,10 @@
+xlbiff (4.7.2-1) unstable; urgency=low
+
+  * Suppress groff 1.25 new style warning.
+  * Reorder the presentation of options in manual page.
+
+ -- Stephen Gildea <stepheng+debian@gildea.com>  Thu, 12 Nov 2026 08:42:27 -0800
+
 xlbiff (4.7.1-1) unstable; urgency=low
 
   * Document the -sound option in the manual page.

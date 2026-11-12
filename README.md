@@ -18,10 +18,10 @@ What is xlbiff
   default xlbiff displays the From, Subject and beginning of the
   message content.  Xlbiff can also beep or play a custom sound.
 
-  Clicking the left mouse button anywhere in the window causes it to
-  vanish.  It will also vanish if the mailbox becomes empty.  Xlbiff
-  stays out of your way when there is no new mail and pops up only
-  when something requests your attention.
+  Clicking the left mouse button anywhere in the window causes it 
+  to vanish.  It will also vanish if the mailbox becomes empty.
+  Xlbiff stays out of your way when there is no new mail and pops 
+  up only when something requests your attention.
 
   Included with xlbiff is mailbox-preview, a command-line program
   that peeks at an IMAP mailbox and uses scan to display a summary,
